@@ -9,6 +9,18 @@ It manages:
   - DNS records for [GitHub Pages]
   - DNS records for [dokku]
 
+## Makefile
+Available `make` commands:
+
+```console
+$ make help  
+plan                                      Generate a (speculative) Terraform plan
+apply                                     Generate, confirm and apply a Terraform plan
+destroy                                   Destroy infrastructure managed by Terraform
+format                                    Format Terraform files
+help                                      Show help message
+```
+
 ## Authors
 Developed and maintained by [Paweł Adamczak][pawelad].
 
