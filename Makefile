@@ -4,20 +4,20 @@ MAKEFLAGS += --warn-undefined-variables
 
 .PHONY: plan
 plan: ## Generate a (speculative) Terraform plan
-	terraform -chdir=tf plan
+	terraform -chdir=src plan
 
 .PHONY: apply
 apply: ## Generate, confirm and apply a Terraform plan
-	terraform -chdir=tf apply
+	terraform -chdir=src apply
 
 .PHONY: destroy
 destroy: ## Destroy infrastructure managed by Terraform
-	terraform -chdir=tf destroy
+	terraform -chdir=src destroy
 
 .PHONY: format
 format: ## Format Terraform files
-	terraform -chdir=tf fmt
-	terraform -chdir=tf validate
+	terraform -chdir=src fmt
+	terraform -chdir=src validate
 
 # Source: https://www.client9.com/self-documenting-makefiles/
 .PHONY: help
