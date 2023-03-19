@@ -1,3 +1,4 @@
+# pawelad.me
 resource "cloudflare_zone" "pawelad_me" {
   account_id = var.cloudflare_account_id
   zone       = "pawelad.me"
@@ -6,6 +7,23 @@ resource "cloudflare_zone" "pawelad_me" {
 
 resource "cloudflare_zone_settings_override" "pawelad_me" {
   zone_id = cloudflare_zone.pawelad_me.id
+
+  settings {
+    always_use_https         = "on"
+    automatic_https_rewrites = "on"
+    brotli                   = "on"
+  }
+}
+
+# pawelad.dev
+resource "cloudflare_zone" "pawelad_dev" {
+  account_id = var.cloudflare_account_id
+  zone       = "pawelad.dev"
+  plan       = "free"
+}
+
+resource "cloudflare_zone_settings_override" "pawelad_dev" {
+  zone_id = cloudflare_zone.pawelad_dev.id
 
   settings {
     always_use_https         = "on"
