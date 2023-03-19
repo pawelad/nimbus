@@ -1,14 +1,6 @@
 # nimbus
 My personal server [Terraform] stack, deployed with Terraform Cloud.
 
-It manages:
-- [DigitalOcean]
-  - `nimbus` droplet with [dokku] installed
-- [Cloudflare]
-  - `pawelad.me` zone
-  - DNS records for [GitHub Pages]
-  - DNS records for [dokku]
-
 ## Makefile
 Available `make` commands:
 
@@ -29,9 +21,6 @@ Source code is available at [GitHub][github nimbus].
 Released under [Mozilla Public License 2.0][license].
 
 
-[cloudflare]: https://www.cloudflare.com/
-[digitalocean]: https://www.digitalocean.com/
-[dokku]: https://dokku.com/
 [github nimbus]: https://github.com/pawelad/nimbus
 [github pages]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
 [license]: ./LICENSE
