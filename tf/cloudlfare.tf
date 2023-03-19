@@ -15,7 +15,7 @@ resource "cloudflare_zone_settings_override" "pawelad_me" {
 }
 
 # GitHub Pages
-resource "cloudflare_record" "www" {
+resource "cloudflare_record" "ghp_www" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "CNAME"
   name    = "www"
@@ -24,7 +24,7 @@ resource "cloudflare_record" "www" {
 }
 
 # https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
-resource "cloudflare_record" "apex" {
+resource "cloudflare_record" "ghp_apex" {
   for_each = toset(["185.199.108.153", "185.199.109.153", "185.199.110.153", "185.199.111.153"])
 
   zone_id = cloudflare_zone.pawelad_me.id
