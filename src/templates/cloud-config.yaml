@@ -6,7 +6,6 @@ users:
     lock_passwd: true
     ssh_authorized_keys:
       - ${user_ssh_public_key}
-      - ${dokku_ssh_public_key}
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
 
@@ -155,3 +154,6 @@ packages:
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
+
+runcmd:
+  - "echo '${dokku_ssh_public_key}' | dokku ssh-keys:add dokku"
