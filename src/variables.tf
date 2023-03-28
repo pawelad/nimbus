@@ -18,11 +18,6 @@ variable "digitalocean_api_token" {
   sensitive   = true
 }
 
-variable "digitalocean_ssh_key_name" {
-  type        = string
-  description = "DigitalOcean SSH key name."
-}
-
 variable "droplet_username" {
   type        = string
   description = "Local Droplet username."

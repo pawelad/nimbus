@@ -1,5 +1,9 @@
-data "digitalocean_ssh_key" "key" {
-  name = var.digitalocean_ssh_key_name
+data "digitalocean_ssh_key" "root" {
+  name = "pawelad@digitalocean"
+}
+
+data "digitalocean_ssh_key" "dokku" {
+  name = "dokku@digitalocean"
 }
 
 resource "digitalocean_droplet" "nimbus" {
@@ -9,12 +13,13 @@ resource "digitalocean_droplet" "nimbus" {
   size          = "s-1vcpu-2gb"
   monitoring    = true
   droplet_agent = true
-  ssh_keys      = [data.digitalocean_ssh_key.key.id]
+  ssh_keys      = [data.digitalocean_ssh_key.root.id]
   tags          = ["terraform"]
 
   user_data = templatefile("${path.module}/templates/cloud-config.yaml", {
-    username       = var.droplet_username
-    dokku_domain   = var.dokku_domain
-    ssh_public_key = data.digitalocean_ssh_key.key.public_key
+    username             = var.droplet_username
+    dokku_domain         = var.dokku_domain
+    user_ssh_public_key  = data.digitalocean_ssh_key.root.public_key
+    dokku_ssh_public_key = data.digitalocean_ssh_key.dokku.public_key
   })
 }
