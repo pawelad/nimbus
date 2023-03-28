@@ -2,17 +2,17 @@
 
 users:
   - default
-  - name: ${username}
+  - name: "${username}"
     lock_passwd: true
     ssh_authorized_keys:
-      - ${user_ssh_public_key}
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    shell: /bin/bash
+      - "${user_ssh_public_key}"
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+    shell: "/bin/bash"
 
 apt:
   sources:
     source_dokku:
-      source: 'deb https://packagecloud.io/dokku/dokku/ubuntu/ $RELEASE main'
+      source: "deb https://packagecloud.io/dokku/dokku/ubuntu/ $RELEASE main"
       key: |
         -----BEGIN PGP PUBLIC KEY BLOCK-----
         Version: GnuPG v1.4.11 (GNU/Linux)
@@ -79,7 +79,7 @@ apt:
         =laU4
         -----END PGP PUBLIC KEY BLOCK-----
     source_docker:
-      source: 'deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable'
+      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable"
       key: |
         -----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -145,12 +145,12 @@ apt:
         -----END PGP PUBLIC KEY BLOCK-----
 
   debconf_selections:
-    vhost:    dokku dokku/vhost_enable boolean true
-    hostname: dokku dokku/hostname string ${dokku_domain}
-    key_file: dokku dokku/key_file string /home/${username}/.ssh/authorized_keys
+    vhost:    "dokku dokku/vhost_enable boolean true"
+    hostname: "dokku dokku/hostname string ${dokku_domain}"
+    key_file: "dokku dokku/key_file string /home/${username}/.ssh/authorized_keys"
 
 packages:
-  - dokku
+  - "dokku"
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
