@@ -156,4 +156,4 @@ package_upgrade: true
 package_reboot_if_required: true
 
 runcmd:
-  - "echo '${dokku_ssh_public_key}' | dokku ssh-keys:add dokku"
+  - "echo '${dokku_ssh_public_key}' | sudo dokku ssh-keys:add dokku"
