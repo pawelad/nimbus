@@ -19,7 +19,7 @@ resource "digitalocean_droplet" "nimbus" {
   user_data = templatefile("${path.module}/templates/cloud-config.yaml", {
     username             = var.droplet_username
     dokku_domain         = var.dokku_domain
-    user_ssh_public_key  = data.digitalocean_ssh_key.root.public_key
-    dokku_ssh_public_key = data.digitalocean_ssh_key.dokku.public_key
+    user_ssh_public_key  = chomp(data.digitalocean_ssh_key.root.public_key)
+    dokku_ssh_public_key = chomp(data.digitalocean_ssh_key.dokku.public_key)
   })
 }
