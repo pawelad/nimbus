@@ -38,7 +38,7 @@ resource "cloudflare_record" "ghp_www" {
   type    = "CNAME"
   name    = "www"
   value   = "pawelad.github.io"
-  proxied = false
+  proxied = true
 }
 
 # https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
@@ -49,7 +49,7 @@ resource "cloudflare_record" "ghp_apex" {
   type    = "A"
   name    = "@"
   value   = each.key
-  proxied = false
+  proxied = true
 }
 
 # Nimbus
