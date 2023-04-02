@@ -32,6 +32,23 @@ resource "cloudflare_zone_settings_override" "pawelad_dev" {
   }
 }
 
+# GitHub domain verification
+resource "cloudflare_record" "pawelad_me_github_verification" {
+  zone_id = cloudflare_zone.pawelad_me.id
+  type    = "TXT"
+  name    = "_github-pages-challenge-pawelad"
+  value   = "9e3e75692c0313c903f1a30177555c"
+  proxied = false
+}
+
+resource "cloudflare_record" "pawelad_dev_github_verification" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+  type    = "TXT"
+  name    = "_github-pages-challenge-pawelad"
+  value   = "038a851ef9fc64d575187ca20e59d3"
+  proxied = false
+}
+
 # GitHub Pages
 resource "cloudflare_record" "ghp_www" {
   zone_id = cloudflare_zone.pawelad_me.id
