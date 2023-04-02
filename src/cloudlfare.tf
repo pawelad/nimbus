@@ -52,6 +52,14 @@ resource "cloudflare_record" "ghp_apex" {
   proxied = true
 }
 
+resource "cloudflare_record" "ghp_fakester" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+  type    = "CNAME"
+  name    = "fakester"
+  value   = "pawelad.github.io"
+  proxied = true
+}
+
 # Nimbus
 resource "cloudflare_record" "nimbus" {
   zone_id = cloudflare_zone.pawelad_me.id
