@@ -12,6 +12,7 @@ resource "cloudflare_zone_settings_override" "pawelad_me" {
     always_use_https         = "on"
     automatic_https_rewrites = "on"
     brotli                   = "on"
+    ssl                      = "full"
   }
 }
 
@@ -29,6 +30,7 @@ resource "cloudflare_zone_settings_override" "pawelad_dev" {
     always_use_https         = "on"
     automatic_https_rewrites = "on"
     brotli                   = "on"
+    ssl                      = "full"
   }
 }
 
