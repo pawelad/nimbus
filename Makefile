@@ -10,6 +10,10 @@ plan: ## Generate a (speculative) Terraform plan
 apply: ## Generate, confirm and apply a Terraform plan
 	terraform -chdir=src apply
 
+.PHONY: upgrade
+upgrade: ## Upgrade Terraform providers
+	terraform -chdir=src init -upgrade
+
 .PHONY: destroy
 destroy: ## Destroy infrastructure managed by Terraform
 	terraform -chdir=src destroy

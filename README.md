@@ -8,6 +8,7 @@ Available `make` commands:
 $ make help  
 plan                                      Generate a (speculative) Terraform plan
 apply                                     Generate, confirm and apply a Terraform plan
+upgrade                                   Upgrade Terraform providers
 destroy                                   Destroy infrastructure managed by Terraform
 format                                    Format Terraform files
 help                                      Show help message
