@@ -1,5 +1,5 @@
 # nimbus
-Simple [Terraform] stack that manages:
+Simple [Terraform] stack that consists of:
 - [DigitalOcean]
   - `nimbus` droplet with [dokku] installed
 - [Cloudflare]
