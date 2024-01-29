@@ -10,5 +10,9 @@ terraform {
       source  = "digitalocean/digitalocean"
       version = "~> 2.0"
     }
+    spacelift = {
+      source  = "spacelift-io/spacelift"
+      version = "~> 1.0"
+    }
   }
 }
