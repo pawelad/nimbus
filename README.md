@@ -1,5 +1,5 @@
 # nimbus
-My personal [Terraform] stack, deployed with Terraform Cloud.
+My personal [Terraform] stack, deployed with [Spacelift].
 
 It consists of:
 - [DigitalOcean]
@@ -38,4 +38,5 @@ Released under [Mozilla Public License 2.0][license].
 [github pages]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
 [license]: ./LICENSE
 [pawelad]: https://pawelad.me/
+[spacelift]: https://spacelift.io/
 [terraform]: https://www.terraform.io/
