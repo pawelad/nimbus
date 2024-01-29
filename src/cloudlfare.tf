@@ -89,7 +89,7 @@ resource "cloudflare_record" "nimbus" {
 }
 
 # Dokku
-resource "cloudflare_record" "dokku_wildcart" {
+resource "cloudflare_record" "dokku_wildcard" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "A"
   name    = "*"
