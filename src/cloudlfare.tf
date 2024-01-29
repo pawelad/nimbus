@@ -71,12 +71,22 @@ resource "cloudflare_record" "ghp_apex" {
   proxied = true
 }
 
+# Fakester
 resource "cloudflare_record" "ghp_fakester" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "CNAME"
   name    = "fakester"
   value   = "pawelad.github.io"
   proxied = true
+}
+
+# pymonzo
+resource "cloudflare_record" "rtd_pymonzo" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+  type    = "CNAME"
+  name    = "pymonzo"
+  value   = "readthedocs.io"
+  proxied = false
 }
 
 # Nimbus

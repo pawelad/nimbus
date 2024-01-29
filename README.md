@@ -8,6 +8,7 @@ It consists of:
   - `pawelad.me` zone
   - `pawelad.dev` zone
   - DNS records for [GitHub Pages]
+  - DNS records for [ReadTheDocs]
   - DNS records for [dokku]
 
 ## Makefile
@@ -38,5 +39,6 @@ Released under [Mozilla Public License 2.0][license].
 [github pages]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
 [license]: ./LICENSE
 [pawelad]: https://pawelad.me/
+[readthedocs]: https://readthedocs.com/
 [spacelift]: https://spacelift.io/
 [terraform]: https://www.terraform.io/
