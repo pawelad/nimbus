@@ -71,6 +71,24 @@ resource "cloudflare_record" "ghp_apex" {
   proxied = true
 }
 
+# Nimbus
+resource "cloudflare_record" "nimbus" {
+  zone_id = cloudflare_zone.pawelad_me.id
+  type    = "A"
+  name    = "nimbus"
+  value   = digitalocean_droplet.nimbus.ipv4_address
+  proxied = false
+}
+
+# dokku
+resource "cloudflare_record" "dokku_wildcard" {
+  zone_id = cloudflare_zone.pawelad_me.id
+  type    = "A"
+  name    = "*"
+  value   = digitalocean_droplet.nimbus.ipv4_address
+  proxied = false
+}
+
 # Fakester
 resource "cloudflare_record" "ghp_fakester" {
   zone_id = cloudflare_zone.pawelad_dev.id
@@ -86,23 +104,5 @@ resource "cloudflare_record" "rtd_pymonzo" {
   type    = "CNAME"
   name    = "pymonzo"
   value   = "readthedocs.io"
-  proxied = false
-}
-
-# Nimbus
-resource "cloudflare_record" "nimbus" {
-  zone_id = cloudflare_zone.pawelad_me.id
-  type    = "A"
-  name    = "nimbus"
-  value   = digitalocean_droplet.nimbus.ipv4_address
-  proxied = false
-}
-
-# Dokku
-resource "cloudflare_record" "dokku_wildcard" {
-  zone_id = cloudflare_zone.pawelad_me.id
-  type    = "A"
-  name    = "*"
-  value   = digitalocean_droplet.nimbus.ipv4_address
   proxied = false
 }
