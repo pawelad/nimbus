@@ -89,13 +89,22 @@ resource "cloudflare_record" "dokku_wildcard" {
   proxied = false
 }
 
-# Fakester
+# fakester
 resource "cloudflare_record" "ghp_fakester" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "CNAME"
   name    = "fakester"
   value   = "pawelad.github.io"
   proxied = true
+}
+
+# monz
+resource "cloudflare_record" "rtd_monz" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+  type    = "CNAME"
+  name    = "monz"
+  value   = "readthedocs.io"
+  proxied = false
 }
 
 # pymonzo
