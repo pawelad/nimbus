@@ -1,0 +1,13 @@
+{
+  "rules": {
+    "require-quotes-in-ports": [
+      2,
+      {
+        "quoteType": "double"
+      }
+    ]
+  },
+  "exclude": [
+    "src/ansible/collections/"
+  ]
+}

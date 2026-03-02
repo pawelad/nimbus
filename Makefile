@@ -2,26 +2,56 @@
 MAKEFLAGS += --warn-undefined-variables
 .DEFAULT_GOAL := help
 
-.PHONY: plan
-plan: ## Generate a (speculative) Terraform plan
-	terraform -chdir=src plan
+.PHONY: check
+check: ## Run code linters
+	cd src/ansible && ansible-playbook --syntax-check playbooks/*.yml
+	cd src/ansible && ansible-lint --yamllint-file=../../.yamllint  --exclude=collections/
+	yamllint .
+	npx dclint --fix -r src/stacks
 
-.PHONY: apply
-apply: ## Generate, confirm and apply a Terraform plan
-	terraform -chdir=src apply
+.PHONY: provision
+provision: ## Provision server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
+	cd src/ansible && ansible-playbook playbooks/server_setup.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
-.PHONY: upgrade
-upgrade: ## Upgrade Terraform providers
-	terraform -chdir=src init -upgrade
+.PHONY: deploy
+deploy: ## Deploy changes to production (use EXTRA_VARS for variables, TAGS for tags)
+	git push nimbus main
+	cd src/ansible && ansible-playbook playbooks/deploy_stacks.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
-.PHONY: destroy
-destroy: ## Destroy infrastructure managed by Terraform
-	terraform -chdir=src destroy
+.PHONY: encrypt-string
+encrypt-string: ## Encrypt a value with Ansible Vault
+	@read -p "Enter variable name: " name; \
+	echo "Enter secret value (press Ctrl+D to end):"; \
+	cd src/ansible && ansible-vault encrypt_string --name "$$name"
 
-.PHONY: format
-format: ## Format Terraform files
-	terraform -chdir=src fmt
-	terraform -chdir=src validate
+.PHONY: server-reboot
+server-reboot: ## Reboot the server
+	cd src/ansible && ansible all -m ansible.builtin.reboot --become
+
+.PHONY: server-shutdown
+server-shutdown: ## Shutdown the server
+	cd src/ansible && ansible all -a "/usr/bin/systemctl poweroff" --become
+
+.PHONY: tf-plan
+tf-plan: ## Generate a (speculative) Terraform plan
+	terraform -chdir=src/terraform plan
+
+.PHONY: tf-apply
+tf-apply: ## Generate, confirm and apply a Terraform plan
+	terraform -chdir=src/terraform apply
+
+.PHONY: tf-upgrade
+tf-upgrade: ## Upgrade Terraform providers
+	terraform -chdir=src/terraform init -upgrade
+
+.PHONY: tf-destroy
+tf-destroy: ## Destroy infrastructure managed by Terraform
+	terraform -chdir=src/terraform destroy
+
+.PHONY: tf-format
+tf-format: ## Format Terraform files
+	terraform -chdir=src/terraform fmt
+	terraform -chdir=src/terraform validate
 
 # Source: https://www.client9.com/self-documenting-makefiles/
 .PHONY: help

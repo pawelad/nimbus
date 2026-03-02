@@ -1,0 +1,32 @@
+---
+extends: default
+
+ignore: |
+  src/ansible/collections/*
+
+rules:
+  line-length:
+    max: 120
+
+  quoted-strings:
+    required: false
+    quote-type: double
+
+  truthy:
+    level: error
+
+  # Required for `ansible-lint` compatibility
+  braces:
+    max-spaces-inside: 1
+
+  brackets:
+    max-spaces-inside: 1
+
+  comments:
+    min-spaces-from-content: 1
+
+  comments-indentation: false
+
+  octal-values:
+    forbid-implicit-octal: true
+    forbid-explicit-octal: true

@@ -1,0 +1,7 @@
+---
+- name: Setup Nimbus Server
+  hosts: nimbus
+  become: true
+  tasks:
+    - name: "Run bootstrap tasks"
+      ansible.builtin.import_tasks: ../tasks/bootstrap.yml

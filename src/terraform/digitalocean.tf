@@ -22,4 +22,10 @@ resource "digitalocean_droplet" "nimbus" {
     user_ssh_public_key  = chomp(data.digitalocean_ssh_key.root.public_key)
     dokku_ssh_public_key = chomp(data.digitalocean_ssh_key.dokku.public_key)
   })
+
+  lifecycle {
+    ignore_changes = [
+      user_data,
+    ]
+  }
 }

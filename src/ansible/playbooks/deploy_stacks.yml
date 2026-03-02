@@ -1,0 +1,34 @@
+---
+- name: Deploy stacks to nimbus
+  hosts: nimbus
+  become: true
+  tasks:
+    - name: "Synchronize stacks directory"
+      ansible.posix.synchronize:
+        src: ../stacks/
+        dest: /data/nimbus/
+        delete: true
+        recursive: true
+        checksum: true
+      delegate_to: localhost
+
+    - name: "Find all stack compose files"
+      ansible.builtin.find:
+        paths: /data/nimbus
+        patterns: "compose.yaml"
+        recurse: true
+      register: compose_files
+
+    - name: "Create .env file for monitoring stack"
+      ansible.builtin.template:
+        src: "templates/monitoring.env.j2"
+        dest: "/data/nimbus/monitoring/.env"
+        mode: "0640"
+      when: compose_files.files | selectattr('path', 'search', 'monitoring/compose.yaml') | list | length > 0
+
+    - name: "Deploy stacks"
+      community.docker.docker_compose_v2:
+        project_src: "{{ item.path | dirname }}"
+        pull: always
+        remove_orphans: true
+      loop: "{{ compose_files.files }}"

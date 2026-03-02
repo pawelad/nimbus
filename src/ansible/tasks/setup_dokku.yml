@@ -1,0 +1,48 @@
+---
+- name: "Hold dokku package"
+  ansible.builtin.dpkg_selections:
+    name: dokku
+    selection: hold
+
+- name: "Add packagecloud repository key for dokku"
+  ansible.builtin.get_url:
+    url: https://packagecloud.io/dokku/dokku/gpgkey
+    dest: /usr/share/keyrings/dokku.asc
+    mode: "0644"
+
+- name: "Add dokku repository"
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/dokku.asc] https://packagecloud.io/dokku/dokku/ubuntu/ jammy main"
+    state: present
+    filename: dokku
+
+- name: "Set debconf selections for dokku"
+  ansible.builtin.debconf:
+    name: dokku
+    question: "dokku/{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  loop:
+    - { question: "vhost_enable", value: "true", vtype: "boolean" }
+    - { question: "hostname", value: "{{ dokku_domain }}", vtype: "string" }
+    - { question: "key_file", value: "/root/.ssh/authorized_keys", vtype: "string" }
+
+- name: "Install dokku"
+  ansible.builtin.apt:
+    name: dokku
+    state: present
+    update_cache: true
+
+- name: "Add dokku SSH key"
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && echo '{{ dokku_user_ssh_key }}' | sudo dokku ssh-keys:add dokku"
+    executable: /bin/bash
+  register: bootstrap_dokku_key_add
+  failed_when:
+    - bootstrap_dokku_key_add.rc != 0
+    - "'already exists' not in bootstrap_dokku_key_add.stderr"
+    - "'already exists' not in bootstrap_dokku_key_add.stdout"
+  changed_when:
+    - bootstrap_dokku_key_add.rc == 0
+    - "'already exists' not in bootstrap_dokku_key_add.stderr"
+    - "'already exists' not in bootstrap_dokku_key_add.stdout"
