@@ -3,43 +3,43 @@ name: headscale
 
 services:
   headplane:
-    image: ghcr.io/tale/headplane:0.3.3
+    image: ghcr.io/tale/headplane:0.6.2
     container_name: headplane
     volumes:
-      # Need access to the Headscale config and data
+      - /data/apps/headscale/headplane/config.yaml:/etc/headplane/config.yaml:ro
+      - /data/apps/headscale/headplane-data:/var/lib/headplane
       - /data/apps/headscale/config:/etc/headscale:ro
-      - /data/apps/headscale/data:/var/lib/headscale:ro
-      - /data/apps/headplane:/data
-    environment:
-      # These will be populated by an Ansible template
-      - COOKIE_SECRET=${HEADPLANE_COOKIE_SECRET}
-      - HEADSCALE_URL=http://headscale:8080
-      - HOST=0.0.0.0
-      - PORT=3000
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - dokploy-network
     restart: unless-stopped
 
   headscale:
-    image: headscale/headscale:0.23.0
+    image: ghcr.io/juanfont/headscale:0.28.0
     container_name: headscale
     volumes:
       - /data/apps/headscale/config:/etc/headscale
       - /data/apps/headscale/data:/var/lib/headscale
+    labels:
+      - "me.tale.headplane.target=headscale"
     networks:
       - dokploy-network
-    # Exposing the port so we can create a Dokploy Proxy App directly to it
-    # E.g., headscale.pawelad.me -> http://headscale:8080
     command: headscale serve
     restart: unless-stopped
 
   tailscale:
-    image: tailscale/tailscale:v1.80.3
+    image: ghcr.io/tailscale/tailscale:v1.94.2
     container_name: tailscale
+    hostname: zapp
     volumes:
-      - /var/lib:/var/lib
-      - /dev/net/tun:/dev/net/tun
       - /data/apps/tailscale:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+      - TS_HOSTNAME=zapp
+      - TS_EXTRA_ARGS=--login-server=https://headscale.pawelad.me
     network_mode: "host"
     restart: unless-stopped
     cap_add:

@@ -1,11 +1,23 @@
 ---
-- name: "Ensure Headscale data directory exists"
-  ansible.builtin.file:
-    path: "{{ apps_data_dir }}/headscale"
-    state: directory
+- name: "Ensure Headscale configuration"
+  ansible.builtin.import_tasks: ../../../tasks/ensure_config.yml
+  vars:
+    service_name: "headscale"
+    config_src: "headscale.config.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/headscale/config/config.yaml"
+    mode: "0640"
     owner: "{{ server_user }}"
     group: "{{ server_user }}"
-    mode: "0755"
+
+- name: "Ensure Headplane configuration"
+  ansible.builtin.import_tasks: ../../../tasks/ensure_config.yml
+  vars:
+    service_name: "headplane"
+    config_src: "headplane.config.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/headscale/headplane/config.yaml"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
 
 - name: "Ensure Headscale stack is up to date"
   ansible.builtin.import_tasks: ../../../tasks/ensure_stack.yml

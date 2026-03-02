@@ -10,3 +10,11 @@
 - name: "Include Headscale tasks"
   ansible.builtin.import_tasks: headscale.yml
   tags: [headscale]
+
+- name: "Include Beszel Agent tasks"
+  ansible.builtin.import_tasks: beszel_agent.yml
+  tags: [beszel-agent]
+
+- name: "Include Komodo Periphery tasks"
+  ansible.builtin.import_tasks: komodo_periphery.yml
+  tags: [komodo-periphery]

@@ -14,6 +14,14 @@
     config_owner: "{{ owner | default(server_user) }}"
     config_group: "{{ group | default(server_user) }}"
 
+- name: "Ensure config directory exists: {{ config_dest | dirname }}"
+  ansible.builtin.file:
+    path: "{{ config_dest | dirname }}"
+    state: directory
+    owner: "{{ config_owner }}"
+    group: "{{ config_group }}"
+    mode: "0755"
+
 # Check if config file exists
 - name: "Check if config file exists: {{ config_dest }}"
   ansible.builtin.stat:

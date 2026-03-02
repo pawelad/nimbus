@@ -1,11 +1,10 @@
 ---
-- name: "Ensure Rathole configuration directory exists"
-  ansible.builtin.file:
-    path: "{{ apps_data_dir }}/rathole"
-    state: directory
-    owner: "{{ server_user }}"
-    group: "{{ server_user }}"
-    mode: "0755"
+- name: "Allow Rathole port through UFW"
+  community.general.ufw:
+    rule: allow
+    port: "2333"
+    proto: tcp
+    comment: "Rathole"
 
 - name: "Ensure Rathole server configuration"
   ansible.builtin.import_tasks: ../../../tasks/ensure_config.yml
@@ -20,4 +19,4 @@
 - name: "Ensure Rathole stack is up to date"
   ansible.builtin.import_tasks: ../../../tasks/ensure_stack.yml
   vars:
-    stack_name: routing
+    stack_name: rathole

@@ -2,6 +2,9 @@
 MAKEFLAGS += --warn-undefined-variables
 .DEFAULT_GOAL := help
 
+EXTRA_VARS ?=
+TAGS ?=
+
 .PHONY: check
 check: ## Run code linters
 	cd src/ansible && ansible-playbook --syntax-check playbooks/*.yml
@@ -10,13 +13,13 @@ check: ## Run code linters
 	npx dclint --fix -r src/stacks
 
 .PHONY: provision-zapp
-provision-zapp: ## Provision Zapp server with Ansible (use TAGS for tags)
-	cd src/ansible && ansible-playbook playbooks/zapp_setup.yml $(if $(TAGS),--tags '$(TAGS)')
+provision-zapp: ## Provision Zapp server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
+	cd src/ansible && ansible-playbook playbooks/zapp_setup.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: deploy-zapp
-deploy-zapp: ## Deploy changes to Zapp (use TAGS for tags)
+deploy-zapp: ## Deploy changes to Zapp (use EXTRA_VARS for variables, TAGS for tags)
 	git push zapp main
-	cd src/ansible && ansible-playbook playbooks/zapp_deploy.yml $(if $(TAGS),--tags '$(TAGS)')
+	cd src/ansible && ansible-playbook playbooks/zapp_deploy.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: encrypt-string
 encrypt-string: ## Encrypt a value with Ansible Vault

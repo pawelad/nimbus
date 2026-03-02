@@ -1,0 +1,15 @@
+---
+- name: "Allow Komodo Periphery port through UFW (Tailscale only)"
+  community.general.ufw:
+    rule: allow
+    interface: tailscale0
+    direction: in
+    port: "8120"
+    proto: tcp
+    comment: "Komodo Periphery (Tailscale only)"
+
+- name: "Ensure Komodo Periphery stack is up to date"
+  ansible.builtin.import_tasks: ../../../tasks/ensure_stack.yml
+  vars:
+    stack_name: komodo-periphery
+    env_template: komodo-periphery.env.j2

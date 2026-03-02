@@ -27,5 +27,8 @@ rathole_server_token: ""
 # Beszel (Used everywhere)
 beszel_agent_key: ""
 
+# Komodo (Used everywhere)
+komodo_passkey: ""
+
 # Tailscale (Used everywhere)
 tailscale_authkey: ""

@@ -1,0 +1,17 @@
+---
+name: beszel-agent
+
+services:
+  beszel-agent:
+    image: henrygd/beszel-agent:0.18.3
+    container_name: beszel-agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /data/apps/beszel/agent:/var/lib/beszel-agent
+    environment:
+      PORT: 45876
+      KEY: ${BESZEL_AGENT_KEY}
+    network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/agent", "health"]
