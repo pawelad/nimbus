@@ -1,0 +1,8 @@
+---
+# - name: "Include Kif tasks"
+#   ansible.builtin.import_tasks: kif_stacks.yml
+#   when: inventory_hostname == 'kif'
+
+- name: "Include Zapp tasks"
+  ansible.builtin.import_tasks: zapp_stacks.yml
+  when: inventory_hostname == 'zapp'

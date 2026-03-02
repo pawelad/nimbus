@@ -23,6 +23,13 @@ variable "droplet_username" {
   description = "Local Droplet username."
 }
 
+# Hetzner
+variable "hcloud_token" {
+  type        = string
+  description = "Hetzner Cloud API token."
+  sensitive   = true
+}
+
 # Dokku
 variable "dokku_domain" {
   type        = string

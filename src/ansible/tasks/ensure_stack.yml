@@ -1,0 +1,64 @@
+---
+# Reusable task: Deploy a Docker Compose stack.
+# Docker natively detects config changes (including ${VAR}
+# interpolation from .env files) and only recreates
+# containers that actually differ.
+#
+# Parameters:
+#   stack_name: Name of the stack directory (e.g. "caddy")
+#
+# Optional:
+#   env_template: Ansible template for the .env file (e.g.
+#     "homepage.env.j2"). Written to {{ stacks_dir }}/{{ stack_name }}/.env
+#   force_stack_recreate: Set by ensure_config.yml when a config
+#     file was overwritten. Forces container recreation.
+#   force_deploy: Optional. Force recreate containers for specific stacks.
+#     Can be a string (stack name) or a list of stack names. 'all' forces all.
+#
+# Side Effects:
+#   stack_changed: Set to true if any containers were recreated
+#     or updated during the stack deployment. Used by dependent tasks
+#     to conditionally trigger post-deploy actions.
+
+- name: "Create .env file for stack {{ stack_name }}"
+  ansible.builtin.template:
+    src: "{{ env_template }}"
+    dest: "{{ stacks_dir }}/{{ stack_name }}/.env"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+  when: env_template is defined
+
+- name: "Check if stack recreate is requested: {{ stack_name }}"
+  ansible.builtin.set_fact:
+    force_recreate_requested: "{{
+      (force_stack_recreate | default(false)) or
+      (force_deploy | default('') == 'all') or
+      (force_deploy is defined and force_deploy | type_debug == 'list' and stack_name in force_deploy) or
+      (force_deploy is defined and force_deploy is string and force_deploy == stack_name)
+    }}"
+
+- name: "Deploy stack {{ stack_name }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ stacks_dir }}/{{ stack_name }}"
+    state: present
+    pull: "{{ pull_policy | default('policy') }}"
+    build: "{{ build_policy | default('never') }}"
+    remove_orphans: true
+    recreate: "{{ 'always' if force_recreate_requested else 'auto' }}"
+  register: _deploy_stack_result
+  retries: 3
+  delay: 10
+  until: _deploy_stack_result is not failed
+
+- name: "Update global stack changed flag"
+  # This flag is used by other tasks (e.g. Uptime Kuma sync)
+  # to conditionally run only if a stack was actually modified.
+  ansible.builtin.set_fact: # noqa: no-handler
+    stack_changed: true
+  when: _deploy_stack_result is changed
+
+- name: "Reset force recreate flag for stack {{ stack_name }}"
+  ansible.builtin.set_fact:
+    force_stack_recreate: false
+  when: force_stack_recreate | default(false)

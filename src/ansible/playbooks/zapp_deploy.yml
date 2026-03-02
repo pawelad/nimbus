@@ -1,0 +1,7 @@
+---
+- name: Deploy stacks to Zapp
+  hosts: zapp
+  become: true
+  roles:
+    - role: stacks
+      tags: stacks

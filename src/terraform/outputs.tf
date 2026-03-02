@@ -3,6 +3,11 @@ output "nimbus_ip_address" {
   description = "Nimbus Droplet public IP address."
 }
 
+output "zapp_ip_address" {
+  value       = hcloud_server.zapp.ipv4_address
+  description = "New Zapp server public IP address."
+}
+
 output "pawelad_me_zone_id" {
   value       = cloudflare_zone.pawelad_me.id
   description = "Cloudflare 'pawelad.me' zone ID."

@@ -1,7 +1,31 @@
 ---
+ansible_user: pawel
+server_user: pawel
 
-# Beszel
+# Base data directory
+data_dir: "/data"
+
+# Git deployment paths
+repo_dir: "{{ data_dir }}/{{ server_name }}"
+
+# We use the inventory hostname (kif or zapp) to organize stacks
+stacks_dir: "{{ repo_dir }}/src/stacks/{{ inventory_hostname }}"
+
+# Persistent app data (outside git)
+apps_data_dir: "{{ data_dir }}/apps"
+
+# Stacks symlink (points to the host-specific stacks folder)
+stacks_symlink: "{{ data_dir }}/stacks"
+
+# ==============================================================================
+# SHARED SECRETS (These apply across the entire Homelab)
+# ==============================================================================
+
+# Rathole (Used on Zapp and Kif)
+rathole_server_token: ""
+
+# Beszel (Used everywhere)
 beszel_agent_key: ""
 
-# Tailscale
+# Tailscale (Used everywhere)
 tailscale_authkey: ""

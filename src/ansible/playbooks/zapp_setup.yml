@@ -1,6 +1,6 @@
 ---
-- name: Setup Nimbus Server
-  hosts: nimbus
+- name: Setup Zapp Server
+  hosts: zapp
   become: true
   tasks:
     - name: "Run bootstrap tasks"

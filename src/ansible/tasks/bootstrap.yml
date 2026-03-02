@@ -1,15 +1,15 @@
 ---
-- name: "Ensure docker is running and enabled"
-  ansible.builtin.systemd:
+- name: "Include Common setup tasks"
+  ansible.builtin.import_role:
+    name: common
+  tags: [common]
+
+- name: "Include Docker setup tasks"
+  ansible.builtin.import_role:
     name: docker
-    state: started
-    enabled: true
+  tags: [docker]
 
-- name: "Include Dokku setup"
-  ansible.builtin.import_tasks: setup_dokku.yml
-  tags: [dokku]
-
-- name: "Install and upgrade all packages"
-  ansible.builtin.apt:
-    upgrade: dist
-    update_cache: true
+- name: "Include Git deploy setup tasks"
+  ansible.builtin.import_role:
+    name: git_deploy
+  tags: [git-deploy]

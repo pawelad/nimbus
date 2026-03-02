@@ -1,0 +1,39 @@
+---
+- name: "Ensure git is installed"
+  ansible.builtin.apt:
+    name: git
+    state: present
+
+- name: "Ensure base data directory exists"
+  ansible.builtin.file:
+    path: "{{ data_dir }}"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0755"
+
+- name: "Check if repo directory exists"
+  ansible.builtin.stat:
+    path: "{{ repo_dir }}/.git"
+  register: git_deploy_repo_stat
+
+- name: "Initialize git repository"
+  ansible.builtin.command: "git init {{ repo_dir }}"  # noqa: command-instead-of-module
+  args:
+    creates: "{{ repo_dir }}/.git"
+  become: true
+  become_user: "{{ server_user }}"
+  when: not git_deploy_repo_stat.stat.exists
+
+- name: "Configure receive.denyCurrentBranch"
+  # Allow direct pushes to the checked-out branch.
+  # Git will automatically update the working tree on push.
+  community.general.git_config:
+    repo: "{{ repo_dir }}"
+    scope: local
+    name: receive.denyCurrentBranch
+    value: updateInstead
+
+- name: "Display git remote instruction"
+  ansible.builtin.debug:
+    msg: "Git remote setup: git remote add {{ server_name }} {{ ansible_user }}@{{ ansible_host }}:{{ repo_dir }}"

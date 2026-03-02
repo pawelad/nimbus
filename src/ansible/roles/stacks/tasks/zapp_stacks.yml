@@ -1,0 +1,12 @@
+---
+- name: "Include Dokploy tasks"
+  ansible.builtin.import_tasks: dokploy.yml
+  tags: [dokploy]
+
+- name: "Include Rathole tasks"
+  ansible.builtin.import_tasks: rathole.yml
+  tags: [rathole]
+
+- name: "Include Headscale tasks"
+  ansible.builtin.import_tasks: headscale.yml
+  tags: [headscale]

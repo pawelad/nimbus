@@ -3,6 +3,7 @@ extends: default
 
 ignore: |
   src/ansible/collections/*
+  src/terraform/templates/*
 
 rules:
   line-length:

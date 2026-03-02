@@ -1,0 +1,15 @@
+---
+server_name: zapp
+packages:
+  - acl
+  - curl
+  - fzf
+  - git
+  - htop
+  - python3
+  - tree
+  - ufw
+  - vim
+
+# Headplane
+headplane_cookie_secret: ""

@@ -1,0 +1,19 @@
+---
+name: rathole
+
+services:
+  rathole:
+    image: rapiz1/rathole:v0.5.0
+    container_name: rathole
+    volumes:
+      - /data/apps/rathole/server.toml:/app/server.toml:ro
+    ports:
+      - "0.0.0.0:2333:2333" # Client connection port (binds to VPS public IP)
+    networks:
+      - dokploy-network
+    command: [ "--server", "/app/server.toml" ]
+    restart: unless-stopped
+
+networks:
+  dokploy-network:
+    external: true

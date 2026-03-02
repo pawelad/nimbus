@@ -9,28 +9,20 @@ check: ## Run code linters
 	yamllint .
 	npx dclint --fix -r src/stacks
 
-.PHONY: provision
-provision: ## Provision server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
-	cd src/ansible && ansible-playbook playbooks/server_setup.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+.PHONY: provision-zapp
+provision-zapp: ## Provision Zapp server with Ansible (use TAGS for tags)
+	cd src/ansible && ansible-playbook playbooks/zapp_setup.yml $(if $(TAGS),--tags '$(TAGS)')
 
-.PHONY: deploy
-deploy: ## Deploy changes to production (use EXTRA_VARS for variables, TAGS for tags)
-	git push nimbus main
-	cd src/ansible && ansible-playbook playbooks/deploy_stacks.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+.PHONY: deploy-zapp
+deploy-zapp: ## Deploy changes to Zapp (use TAGS for tags)
+	git push zapp main
+	cd src/ansible && ansible-playbook playbooks/zapp_deploy.yml $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: encrypt-string
 encrypt-string: ## Encrypt a value with Ansible Vault
 	@read -p "Enter variable name: " name; \
 	echo "Enter secret value (press Ctrl+D to end):"; \
 	cd src/ansible && ansible-vault encrypt_string --name "$$name"
-
-.PHONY: server-reboot
-server-reboot: ## Reboot the server
-	cd src/ansible && ansible all -m ansible.builtin.reboot --become
-
-.PHONY: server-shutdown
-server-shutdown: ## Shutdown the server
-	cd src/ansible && ansible all -a "/usr/bin/systemctl poweroff" --become
 
 .PHONY: tf-plan
 tf-plan: ## Generate a (speculative) Terraform plan

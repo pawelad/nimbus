@@ -1,0 +1,103 @@
+---
+# Check and enforce configuration files.
+#
+# Variables:
+#   overwrite_config: (Optional) Force overwrite of configuration files even if
+#     drift is detected. Can be a string (service name) or a list of service names.
+#     'all' overwrites all.
+#     Example: ansible-playbook ... -e "overwrite_config=caddy"
+#     Example: ansible-playbook ... -e "overwrite_config=['caddy', 'homepage']"
+
+- name: "Resolve configuration defaults"
+  ansible.builtin.set_fact:
+    config_mode: "{{ mode | default('0644') }}"
+    config_owner: "{{ owner | default(server_user) }}"
+    config_group: "{{ group | default(server_user) }}"
+
+# Check if config file exists
+- name: "Check if config file exists: {{ config_dest }}"
+  ansible.builtin.stat:
+    path: "{{ config_dest }}"
+  register: config_stat
+
+# Seed configuration (only if not present)
+- name: "Seed configuration: {{ service_name }}"
+  ansible.builtin.template:
+    src: "{{ config_src }}"
+    dest: "{{ config_dest }}"
+    mode: "{{ config_mode }}"
+    owner: "{{ config_owner }}"
+    group: "{{ config_group }}"
+    force: false
+  when: not config_stat.stat.exists
+
+# ============================================================================
+# Drift detection
+# ============================================================================
+- name: "Generate expected config for comparison: {{ service_name }}"
+  ansible.builtin.template:
+    src: "{{ config_src }}"
+    dest: "/tmp/{{ service_name }}_config.expected"
+    mode: "{{ config_mode }}"
+    owner: "{{ config_owner }}"
+    group: "{{ config_group }}"
+  changed_when: false
+
+- name: "Check for config drift: {{ service_name }}"
+  ansible.builtin.shell: |
+    diff -q {{ config_dest }} /tmp/{{ service_name }}_config.expected
+  register: config_diff
+  changed_when: false
+  failed_when: false
+
+- name: "Check if overwrite is requested: {{ service_name }}"
+  ansible.builtin.set_fact:
+    overwrite_requested: "{{
+      (overwrite_config | default('') == 'all') or
+      (overwrite_config is defined and overwrite_config | type_debug == 'list' and service_name in overwrite_config) or
+      (overwrite_config is defined and overwrite_config is string and overwrite_config == service_name)
+    }}"
+
+- name: "Warn if config has drifted: {{ service_name }}"
+  ansible.builtin.debug:
+    msg:
+      - "⚠️  WARNING: {{ service_name }} config on server differs from template!"
+      - ""
+      - "To review changes on the server, run:"
+      - "  ssh {{ inventory_hostname }} 'sudo diff {{ config_dest }} /tmp/{{ service_name }}_config.expected'"
+      - ""
+      - "To force replace the config (will stop/start service):"
+      - "  make deploy-{{ inventory_hostname }} EXTRA_VARS='overwrite_config={{ service_name }}' \\"
+      - "  TAGS={{ service_name }}"
+  when:
+    - config_diff.rc != 0
+    - not overwrite_requested
+
+# ============================================================================
+# Force config replacement
+# ============================================================================
+- name: "Force deploy configuration: {{ service_name }}"
+  when:
+    - (config_diff.rc != 0) and overwrite_requested
+  block:
+    - name: "Overwrite configuration: {{ service_name }}"
+      ansible.builtin.template:
+        src: "{{ config_src }}"
+        dest: "{{ config_dest }}"
+        mode: "{{ config_mode }}"
+        owner: "{{ config_owner }}"
+        group: "{{ config_group }}"
+        force: true
+        backup: true
+
+    - name: "Flag stack for forced recreate: {{ service_name }}"
+      ansible.builtin.set_fact:
+        force_stack_recreate: true
+
+# Clean up temporary config file
+- name: "Clean up temporary config file: {{ service_name }}"
+  ansible.builtin.file:
+    path: "/tmp/{{ service_name }}_config.expected"
+    state: absent
+  changed_when: false
+  when: (config_diff.rc == 0) or overwrite_requested

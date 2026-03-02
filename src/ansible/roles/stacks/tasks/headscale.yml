@@ -1,0 +1,14 @@
+---
+- name: "Ensure Headscale data directory exists"
+  ansible.builtin.file:
+    path: "{{ apps_data_dir }}/headscale"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0755"
+
+- name: "Ensure Headscale stack is up to date"
+  ansible.builtin.import_tasks: ../../../tasks/ensure_stack.yml
+  vars:
+    stack_name: headscale
+    env_template: headscale.env.j2

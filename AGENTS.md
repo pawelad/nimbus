@@ -4,6 +4,23 @@ This file documents the conventions and rules that must be followed when working
 
 ## Conventions
 
+### Data Directory
+- **Rule**: All persistent application data MUST be stored in `/data/app/<app-name>`.
+- **Reason**: To maintain a consistent backup and storage structure across the server.
+
+### Architecture & Deployment
+- **Concept**: "Git + Ansible Deploy"
+- **Mechanism**:
+    1. Developers run `make deploy` to push the `main` branch to the server and deploy stacks.
+    2. `git push` updates the working tree via `receive.denyCurrentBranch=updateInstead`.
+    3. `ansible-playbook deploy_stacks.yml` runs `docker compose up -d` for each stack.
+- **Rule**: Configuration (env vars, secrets) is managed by Ansible templates. Application definition (Docker Compose) is managed by Git in `src/stacks`.
+
+### Docker Compose
+- **Rule**: All Docker Compose files MUST be named `compose.yaml`.
+- **Reason**: Official Docker recommendation and matches current project consistency.
+- **Forbidden**: `docker-compose.yml`, `docker-compose.yaml`.
+
 ### Makefile Usage
 - **Rule**: Always look for a `Makefile` in the current directory or parent directories and use it whenever possible instead of running individual commands.
 - **Reason**: Ensures consistency and reduces errors by using predefined workflows.
