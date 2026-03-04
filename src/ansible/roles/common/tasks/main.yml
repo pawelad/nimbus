@@ -6,7 +6,7 @@
 
 - name: "Set hostname"
   ansible.builtin.hostname:
-    name: "{{ server_name }}"
+    name: "{{ inventory_hostname }}"
 
 - name: "Ensure server user exists"
   ansible.builtin.user:

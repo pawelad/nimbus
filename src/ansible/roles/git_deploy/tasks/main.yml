@@ -36,4 +36,4 @@
 
 - name: "Display git remote instruction"
   ansible.builtin.debug:
-    msg: "Git remote setup: git remote add {{ server_name }} {{ ansible_user }}@{{ ansible_host }}:{{ repo_dir }}"
+    msg: "Git remote setup: git remote add {{ inventory_hostname }} {{ ansible_user }}@{{ ansible_host }}:{{ repo_dir }}"

@@ -1,5 +1,4 @@
 ---
-server_name: zapp
 packages:
   - acl
   - curl

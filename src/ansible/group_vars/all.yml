@@ -6,7 +6,7 @@ server_user: pawel
 data_dir: "/data"
 
 # Git deployment paths
-repo_dir: "{{ data_dir }}/{{ server_name }}"
+repo_dir: "{{ data_dir }}/{{ inventory_hostname }}"
 
 # We use the inventory hostname (kif or zapp) to organize stacks
 stacks_dir: "{{ repo_dir }}/src/stacks/{{ inventory_hostname }}"
