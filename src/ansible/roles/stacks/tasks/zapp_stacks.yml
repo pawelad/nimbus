@@ -1,4 +1,5 @@
 ---
+# Core Infrastructure
 - name: "Include Dokploy tasks"
   ansible.builtin.import_tasks: dokploy.yml
   tags: [dokploy]
@@ -11,6 +12,7 @@
   ansible.builtin.import_tasks: headscale.yml
   tags: [headscale]
 
+# Stacks
 - name: "Include Beszel Agent tasks"
   ansible.builtin.import_tasks: beszel_agent.yml
   tags: [beszel-agent]
@@ -18,3 +20,7 @@
 - name: "Include Komodo Periphery tasks"
   ansible.builtin.import_tasks: komodo_periphery.yml
   tags: [komodo-periphery]
+
+- name: "Include Tailscale Agent tasks"
+  ansible.builtin.import_tasks: tailscale_agent.yml
+  tags: [tailscale-agent]

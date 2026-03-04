@@ -32,3 +32,4 @@ komodo_passkey: ""
 
 # Tailscale (Used everywhere)
 tailscale_authkey: ""
+headscale_url: "https://headscale.pawelad.me"

@@ -27,25 +27,6 @@ services:
     command: headscale serve
     restart: unless-stopped
 
-  tailscale:
-    image: ghcr.io/tailscale/tailscale:v1.94.2
-    container_name: tailscale
-    hostname: zapp
-    volumes:
-      - /data/apps/tailscale:/var/lib/tailscale
-      - /dev/net/tun:/dev/net/tun
-    environment:
-      - TS_AUTHKEY=${TS_AUTHKEY}
-      - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=false
-      - TS_HOSTNAME=zapp
-      - TS_EXTRA_ARGS=--login-server=https://headscale.pawelad.me
-    network_mode: "host"
-    restart: unless-stopped
-    cap_add:
-      - net_admin
-      - sys_module
-
 networks:
   dokploy-network:
     external: true

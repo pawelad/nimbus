@@ -1,0 +1,6 @@
+---
+- name: "Ensure Tailscale Agent stack is up to date"
+  ansible.builtin.import_tasks: ../../../tasks/ensure_stack.yml
+  vars:
+    stack_name: tailscale-agent
+    env_template: tailscale-agent.env.j2
