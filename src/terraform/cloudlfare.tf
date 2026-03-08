@@ -1,4 +1,4 @@
-# pawelad.me
+### pawelad.me ###
 resource "cloudflare_zone" "pawelad_me" {
   account_id = var.cloudflare_account_id
   zone       = "pawelad.me"
@@ -16,38 +16,12 @@ resource "cloudflare_zone_settings_override" "pawelad_me" {
   }
 }
 
-# pawelad.dev
-resource "cloudflare_zone" "pawelad_dev" {
-  account_id = var.cloudflare_account_id
-  zone       = "pawelad.dev"
-  plan       = "free"
-}
-
-resource "cloudflare_zone_settings_override" "pawelad_dev" {
-  zone_id = cloudflare_zone.pawelad_dev.id
-
-  settings {
-    always_use_https         = "on"
-    automatic_https_rewrites = "on"
-    brotli                   = "on"
-    ssl                      = "full"
-  }
-}
-
 # GitHub domain verification
 resource "cloudflare_record" "pawelad_me_github_verification" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "TXT"
   name    = "_github-pages-challenge-pawelad"
   value   = "9e3e75692c0313c903f1a30177555c"
-  proxied = false
-}
-
-resource "cloudflare_record" "pawelad_dev_github_verification" {
-  zone_id = cloudflare_zone.pawelad_dev.id
-  type    = "TXT"
-  name    = "_github-pages-challenge-pawelad"
-  value   = "038a851ef9fc64d575187ca20e59d3"
   proxied = false
 }
 
@@ -71,6 +45,15 @@ resource "cloudflare_record" "ghp_apex" {
   proxied = true
 }
 
+# Zapp
+resource "cloudflare_record" "zapp" {
+  zone_id = cloudflare_zone.pawelad_me.id
+  type    = "A"
+  name    = "zapp"
+  value   = hcloud_server.zapp.ipv4_address
+  proxied = false
+}
+
 # Nimbus
 resource "cloudflare_record" "nimbus" {
   zone_id = cloudflare_zone.pawelad_me.id
@@ -86,6 +69,33 @@ resource "cloudflare_record" "dokku_wildcard" {
   type    = "A"
   name    = "*"
   value   = digitalocean_droplet.nimbus.ipv4_address
+  proxied = false
+}
+
+### pawelad.dev ###
+resource "cloudflare_zone" "pawelad_dev" {
+  account_id = var.cloudflare_account_id
+  zone       = "pawelad.dev"
+  plan       = "free"
+}
+
+resource "cloudflare_zone_settings_override" "pawelad_dev" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+
+  settings {
+    always_use_https         = "on"
+    automatic_https_rewrites = "on"
+    brotli                   = "on"
+    ssl                      = "full"
+  }
+}
+
+# GitHub domain verification
+resource "cloudflare_record" "pawelad_dev_github_verification" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+  type    = "TXT"
+  name    = "_github-pages-challenge-pawelad"
+  value   = "038a851ef9fc64d575187ca20e59d3"
   proxied = false
 }
 
