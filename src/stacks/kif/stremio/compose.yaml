@@ -53,10 +53,13 @@ services:
       - /data/apps/stremio/comet:/data
     environment:
       TZ: Europe/Warsaw
+      DATABASE_TYPE: postgresql
       DATABASE_URL: "comet:${COMET_DB_PASSWORD}@comet-postgres:5432/comet"
-      SCRAPE_PROWLARR: "both" # TODO: Change to "live"?
+      SCRAPE_TORRENTIO: "both"
+      SCRAPE_PROWLARR: "both"
       PROWLARR_URL: http://prowlarr:9696
       PROWLARR_API_KEY: ${PROWLARR_API_KEY}
+      ANIME_MAPPING_ENABLED: "False"
     ports:
       - "0.0.0.0:8000:8000"
     networks:
