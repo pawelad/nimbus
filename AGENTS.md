@@ -9,10 +9,11 @@ This is a **homelab monorepo** managing multiple servers:
 
 | Server | Type                               | Provider | Role |
 |--------|------------------------------------|----------|------|
-| **Zapp** | VPS (cx22: 2 vCPU, 4GB RAM)        | Hetzner Cloud | Public-facing services (Dokploy, Headscale, Rathole server) |
+| **Zapp** | VPS (cx23: 2 vCPU, 4GB RAM)        | Hetzner Cloud | Public-facing services (Dokploy, Headscale, Rathole server) |
 | **Kif** | NUC home server (i5-7260U, 16GB RAM | Local | Home automation, media, internal services (35 stacks) |
 
-The relationship between them:
+The relationship and hosting strategy between them:
+- **Hosting Strategy**: Zapp acts as the public gateway and hosts lightweight web apps. Kif is the powerhouse; all heavy or internal self-hosted services (e.g. Mealie, Yamtrack, media) should be deployed to Kif's 16GB pool.
 - **Rathole** tunnels traffic from Zapp (public IP) → Kif (behind NAT) for exposing select home services
 - **Headscale/Tailscale** provides VPN mesh between servers
 - **Beszel + Komodo** monitor both servers

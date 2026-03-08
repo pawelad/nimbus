@@ -12,7 +12,7 @@ terraform {
     }
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = "~> 1.45"
+      version = "~> 1.60"
     }
     spacelift = {
       source  = "spacelift-io/spacelift"

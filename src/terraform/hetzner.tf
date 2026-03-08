@@ -6,8 +6,8 @@ resource "hcloud_ssh_key" "zapp" {
 resource "hcloud_server" "zapp" {
   name        = "zapp"
   image       = "ubuntu-24.04"
-  server_type = "cx22" # 2 vCPU, 4GB RAM (Intel x86)
-  location    = "fsn1" # Falkenstein
+  server_type = "cx23" # 2 vCPU, 4GB RAM (Intel x86)
+  location    = "nbg1" # Nuremberg
   ssh_keys    = [hcloud_ssh_key.zapp.id]
 
   labels = {
