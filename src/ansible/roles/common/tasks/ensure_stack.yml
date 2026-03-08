@@ -8,6 +8,7 @@
 #   stack_name: Name of the stack directory (e.g. "caddy")
 #
 # Optional:
+#   stack_state: State of the stack ('present' or 'absent'). Defaults to 'present'.
 #   env_template: Ansible template for the .env file (e.g.
 #     "homepage.env.j2"). Written to {{ stacks_dir }}/{{ stack_name }}/.env
 #   force_stack_recreate: Set by ensure_config.yml when a config
@@ -27,7 +28,9 @@
     mode: "0640"
     owner: "{{ server_user }}"
     group: "{{ server_user }}"
-  when: env_template is defined
+  when: >
+    env_template is defined and
+    (stack_state | default('present') == 'present')
 
 - name: "Check if stack recreate is requested: {{ stack_name }}"
   ansible.builtin.set_fact:
@@ -38,10 +41,10 @@
       (force_deploy is defined and force_deploy is string and force_deploy == stack_name)
     }}"
 
-- name: "Deploy stack {{ stack_name }}"
+- name: "Manage stack state for {{ stack_name }}"
   community.docker.docker_compose_v2:
     project_src: "{{ stacks_dir }}/{{ stack_name }}"
-    state: present
+    state: "{{ stack_state | default('present') }}"
     pull: "{{ pull_policy | default('policy') }}"
     build: "{{ build_policy | default('never') }}"
     remove_orphans: true
