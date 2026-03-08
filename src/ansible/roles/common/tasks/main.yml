@@ -90,6 +90,7 @@
     group: "{{ server_user }}"
     state: link
     force: true
+    follow: false
 
 # UFW
 - name: "Allow SSH"

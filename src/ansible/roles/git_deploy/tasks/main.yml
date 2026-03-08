@@ -33,6 +33,8 @@
     scope: local
     name: receive.denyCurrentBranch
     value: updateInstead
+  become: true
+  become_user: "{{ server_user }}"
 
 - name: "Display git remote instruction"
   ansible.builtin.debug:
