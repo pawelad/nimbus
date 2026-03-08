@@ -1,0 +1,32 @@
+---
+- name: "Ensure Headscale configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "headscale"
+    config_src: "{{ inventory_hostname }}/headscale.config.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/headscale/config/config.yaml"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure Headplane configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "headplane"
+    config_src: "{{ inventory_hostname }}/headplane.config.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/headscale/headplane/config.yaml"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure Headscale stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: headscale
+    env_template: "{{ inventory_hostname }}/headscale.env.j2"

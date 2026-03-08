@@ -1,0 +1,19 @@
+---
+- name: "Ensure Apprise configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "apprise"
+    config_src: "{{ inventory_hostname }}/apprise.apprise.yml.j2"
+    config_dest: "{{ apps_data_dir }}/apprise/config/apprise.yml"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure Apprise stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: apprise

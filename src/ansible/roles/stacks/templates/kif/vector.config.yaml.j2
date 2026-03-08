@@ -1,0 +1,305 @@
+# Vector configuration for Docker log monitoring
+# Collects logs from all containers, filters for ERROR/FATAL/CRITICAL levels,
+# and sends notifications to ntfy.
+---
+sources:
+  docker_logs:
+    type: docker_logs
+    docker_host: tcp://socket-proxy:2375
+
+transforms:
+  tag_format:
+    type: remap
+    inputs:
+      - docker_logs
+    source: |-
+      # ------------------------------------------------------------------------
+      # App Group Definitions (Regex matchers)
+      # ------------------------------------------------------------------------
+      # Apps that output strict structured JSON
+      apps_json = r'(?i).*(caddy|mongo).*'
+      # e.g., "2024-02-23 10:00:00 ERROR (MainThread)" (Common in Python apps)
+      apps_datetime = r'(?i).*(home.?assistant|metube|glances|music.?assistant|loggifly|beszel).*'
+      # e.g., "[error]", "[ERROR]", "[CRITICAL]"
+      apps_bracket = r'(?i).*(adguard|uptime.?kuma|dockge|dozzle|homepage|zigbee2mqtt|tor|prowlarr).*'
+      # e.g., "level=ERROR", "level=error"
+      apps_kv = r'(?i).*(ntfy|tretter.?getter|arcane).*'
+      # e.g., " ERROR component: msg" or " WARN component: msg" (Common in Rust tracing)
+      apps_padded = r'(?i).*(komodo|rathole).*'
+      # e.g., "TIMESTAMP  ERROR PID --- [thread] class : msg" (Common in Spring Boot / Java)
+      apps_spring = r'(?i).*(stirling.?pdf).*'
+      # PostgreSQL: "2024-02-23 10:00:00.123 UTC [1] ERROR: msg"
+      apps_pg = r'(?i).*(postgres|pg).*'
+      # MariaDB/MySQL: "2024-02-23 10:00:00 1 [ERROR] msg"
+      apps_maria = r'(?i).*(maria|mysql|dmm-db).*'
+      # e.g., "🔵 |  INFO   |" or "[20:21:14] | INFO |"
+      apps_pipe = r'(?i).*(aiostreams).*'
+      # Vector logs themselves
+      apps_vector = r'(?i).*vector.*'
+      # e.g., "ERROR:", "FATAL:" (Common Go log standard)
+      # apps_colon = r'(?i).*(mygoapp).*'
+
+      # ------------------------------------------------------------------------
+      # Log Format Classification
+      # ------------------------------------------------------------------------
+      name = string(.container_name) ?? ""
+      format = "unmatched"
+
+      if match(name, apps_json) { format = "json" }
+      else if match(name, apps_datetime) { format = "datetime_level" }
+      else if match(name, apps_bracket) { format = "bracket" }
+      else if match(name, apps_kv) { format = "kv" }
+      else if match(name, apps_padded) { format = "padded_level" }
+      else if match(name, apps_spring) { format = "spring" }
+      else if match(name, apps_pg) { format = "pg" }
+      else if match(name, apps_maria) { format = "maria" }
+      else if match(name, apps_pipe) { format = "pipe" }
+      else if match(name, apps_vector) { format = "vector" }
+      # else if match(name, apps_colon) { format = "colon_level" }
+
+      .log_format_tag = format
+
+  route_by_format:
+    type: route
+    inputs:
+      - tag_format
+    route:
+      json_apps: '.log_format_tag == "json"'
+      datetime_level_apps: '.log_format_tag == "datetime_level"'
+      bracket_apps: '.log_format_tag == "bracket"'
+      kv_apps: '.log_format_tag == "kv"'
+      padded_level_apps: '.log_format_tag == "padded_level"'
+      spring_apps: '.log_format_tag == "spring"'
+      pg_apps: '.log_format_tag == "pg"'
+      maria_apps: '.log_format_tag == "maria"'
+      pipe_apps: '.log_format_tag == "pipe"'
+      vector_apps: '.log_format_tag == "vector"'
+      colon_level_apps: '.log_format_tag == "colon_level"'
+      unmatched_apps: '.log_format_tag == "unmatched"'
+
+  # ------------------------------------------------------------------------
+  # Specific parsers for each app category
+  # ------------------------------------------------------------------------
+
+  parse_json:
+    type: remap
+    inputs:
+      - route_by_format.json_apps
+    source: |-
+      parsed = parse_json(.message) ?? {}
+
+      level = string(parsed.level) ?? string(parsed.s) ?? "UNKNOWN"
+      msg = string(parsed.msg) ?? string(parsed.message) ?? string(parsed.error) ?? string(.message)
+
+      if level == "E" { level = "ERROR" }
+      if level == "F" { level = "FATAL" }
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+      .message = msg
+
+  parse_datetime_level:
+    type: remap
+    inputs:
+      - route_by_format.datetime_level_apps
+    source: |-
+      match = parse_regex(.message, r'^[\d\-\s\:\.\,\/]+(ERROR|WARNING|CRITICAL|FATAL)\s') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_bracket:
+    type: remap
+    inputs:
+      - route_by_format.bracket_apps
+    source: |-
+      match = parse_regex(.message, r'\[(error|ERROR|warning|WARNING|warn|WARN|critical|CRITICAL|fatal|FATAL)\]') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_kv:
+    type: remap
+    inputs:
+      - route_by_format.kv_apps
+    source: |-
+      match = parse_regex(.message, r'level=(ERROR|error|WARN|warn|WARNING|warning|FATAL|fatal|CRITICAL|critical)\b') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_padded_level:
+    type: remap
+    inputs:
+      - route_by_format.padded_level_apps
+    source: |-
+      match = parse_regex(.message, r'\s+(ERROR|WARN|FATAL)\s+\w+') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_spring:
+    type: remap
+    inputs:
+      - route_by_format.spring_apps
+    source: |-
+      match = parse_regex(.message, r'\s+(ERROR|WARN|FATAL)\s+\d+\s+---') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_pg:
+    type: remap
+    inputs:
+      - route_by_format.pg_apps
+    source: |-
+      match = parse_regex(.message, r'\]\s+(ERROR|FATAL|PANIC|WARNING):\s') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      if level == "PANIC" { level = "FATAL" }
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_maria:
+    type: remap
+    inputs:
+      - route_by_format.maria_apps
+    source: |-
+      match = parse_regex(.message, r'\[(ERROR|Error|Warning|FATAL)\]') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_pipe:
+    type: remap
+    inputs:
+      - route_by_format.pipe_apps
+    source: |-
+      match = parse_regex(.message, r'\|\s*(ERROR|WARNING|CRITICAL|FATAL|WARN)\s*\|') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if level == "WARN" { level = "WARNING" }
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_vector:
+    type: remap
+    inputs:
+      - route_by_format.vector_apps
+    source: |-
+      msg = string(.message) ?? ""
+      if contains(msg, "Error in communication with Docker daemon") { abort }
+
+      match = parse_regex(msg, r'\s+(ERROR|WARN|FATAL)\s+\w+') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_colon_level:
+    type: remap
+    inputs:
+      - route_by_format.colon_level_apps
+    source: |-
+      match = parse_regex(.message, r'^(ERROR|FATAL|CRITICAL):?\s') ?? {}
+      level = string(match."1") ?? "UNKNOWN"
+
+      level = upcase!(level)
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  parse_unmatched:
+    type: remap
+    inputs:
+      - route_by_format.unmatched_apps
+    source: |-
+      msg = string(.message) ?? ""
+      level = null
+
+      if contains(msg, "ERROR") || contains(msg, "error") { level = "ERROR" }
+      else if contains(msg, "FATAL") || contains(msg, "fatal") { level = "FATAL" }
+      else if contains(msg, "CRITICAL") || contains(msg, "critical") { level = "CRITICAL" }
+
+      if level == null { abort }
+
+      level = upcase!(string!(level))
+      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
+
+      .level = level
+
+  # ------------------------------------------------------------------------
+  # Unify outputs and prepare ntfy payload
+  # ------------------------------------------------------------------------
+
+  prepare_ntfy:
+    type: remap
+    inputs:
+      - parse_json
+      - parse_datetime_level
+      - parse_bracket
+      - parse_kv
+      - parse_padded_level
+      - parse_spring
+      - parse_pg
+      - parse_maria
+      - parse_pipe
+      - parse_vector
+      - parse_colon_level
+      - parse_unmatched
+    source: |-
+      container = string(.container_name) ?? "unknown"
+      level = string(.level) ?? "UNKNOWN"
+      msg = string(.message) ?? ""
+
+      .ntfy_title = "🔴 " + container + " [" + level + "]"
+      .ntfy_message = msg
+      .container = container
+
+sinks:
+  ntfy:
+    type: http
+    inputs:
+      - prepare_ntfy
+    uri: http://ntfy:2586
+    method: post
+    encoding:
+      codec: text
+      only_fields:
+        - ntfy_message
+    headers:
+      Authorization: "Bearer {{ ntfy_token }}"
+      X-Topic: "vector"
+      X-Title: "{{ '{{' }} .ntfy_title {{ '}}' }}"
+      X-Tags: "rotating_light"
+      X-Priority: "4"
+    batch:
+      max_events: 1
+    healthcheck:
+      enabled: false

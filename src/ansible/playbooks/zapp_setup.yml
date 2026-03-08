@@ -1,7 +1,17 @@
 ---
-- name: Setup Zapp Server
+# Zapp Server Provisioning Playbook
+
+- name: "Setup Zapp Server"
   hosts: zapp
   become: true
-  tasks:
-    - name: "Run bootstrap tasks"
-      ansible.builtin.import_tasks: ../tasks/bootstrap.yml
+
+  roles:
+    # Configure server
+    - role: common
+      tags: common
+    # Install Docker
+    - role: docker
+      tags: docker
+    # Create the Git deployment hook for the repository
+    - role: git_deploy
+      tags: git_deploy

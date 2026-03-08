@@ -14,4 +14,4 @@ services:
     network_mode: host
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "/agent", "health"]
+      test: [ "CMD", "/agent", "health" ]

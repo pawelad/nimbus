@@ -1,0 +1,9 @@
+alerting:
+  ntfy:
+    url: "http://ntfy:2586"
+    topic: "gatus"
+    token: "{{ ntfy_token }}"
+    priority: 3
+    default-alert:
+      failure-threshold: 3
+      send-on-resolved: true

@@ -1,0 +1,39 @@
+---
+name: adguard
+
+services:
+  adguard:
+    image: adguard/adguardhome:v0.107.56
+    container_name: adguard
+    volumes:
+      - /data/apps/adguard/work:/opt/adguardhome/work
+      - /data/apps/adguard/conf:/opt/adguardhome/conf
+    ports:
+      - "0.0.0.0:53:53/tcp"
+      - "0.0.0.0:53:53/udp"
+      - "0.0.0.0:2000:2000/tcp"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: nslookup healthcheck.adguardhome.test 127.0.0.1 || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: adguard.home adguard.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 2000}}"
+      # Homepage service discovery
+      homepage.group: Networking
+      homepage.name: AdGuard Home
+      homepage.icon: adguard-home.png
+      homepage.href: https://adguard.home
+      homepage.description: DNS Blocker
+      homepage.weight: 10
+      homepage.widget.type: adguard
+      homepage.widget.url: http://adguard:2000
+      homepage.widget.username: "{{HOMEPAGE_VAR_ADGUARD_USERNAME}}"
+      homepage.widget.password: "{{HOMEPAGE_VAR_ADGUARD_PASSWORD}}"
+
+networks:
+  caddy:
+    external: true

@@ -1,0 +1,17 @@
+---
+# Kif Stack Deployment Playbook
+#
+# Deploys Docker Compose stacks, only restarting services
+# whose configuration has actually changed.
+#
+# Usage:
+#   Deploy all stacks:   make deploy-kif
+#   Deploy one stack:    make deploy-kif TAGS=homepage
+
+- name: "Deploy Stacks to Kif"
+  hosts: kif
+  become: true
+
+  roles:
+    - role: stacks
+      tags: stacks

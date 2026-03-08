@@ -1,0 +1,48 @@
+---
+name: loggifly
+
+services:
+  loggifly:
+    image: ghcr.io/clemcer/loggifly:v1.8.1
+    container_name: loggifly-app
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
+    volumes:
+      - /data/apps/loggifly/config:/config
+    environment:
+      TZ: Europe/Warsaw
+      DOCKER_HOST: tcp://socket-proxy:2375
+      ENABLE_HEALTHCHECK: "true"
+    networks:
+      - caddy
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "/app/healthcheck.py" ]
+      start_period: 15s
+    user: 1000:1000
+    read_only: true
+
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: loggifly-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      POST: 0
+      LOGS: 1
+      INFO: 1
+      EVENTS: 1
+      VERSION: 1
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:2375/version" ]
+
+networks:
+  caddy:
+    external: true
+  internal:

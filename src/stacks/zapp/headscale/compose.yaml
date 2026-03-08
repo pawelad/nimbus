@@ -20,12 +20,12 @@ services:
     volumes:
       - /data/apps/headscale/config:/etc/headscale
       - /data/apps/headscale/data:/var/lib/headscale
-    labels:
-      - "me.tale.headplane.target=headscale"
     networks:
       - dokploy-network
     command: headscale serve
     restart: unless-stopped
+    labels:
+      - "me.tale.headplane.target=headscale"
 
 networks:
   dokploy-network:

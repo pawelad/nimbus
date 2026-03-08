@@ -1,0 +1,13 @@
+---
+- name: "Create MeTube downloads symlink in Samba share"
+  ansible.builtin.file:
+    src: "/data/apps/metube/downloads"
+    dest: "{{ samba_public_share_path }}/metube"
+    state: link
+
+- name: "Ensure MeTube stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: metube

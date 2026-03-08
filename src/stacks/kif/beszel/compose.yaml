@@ -1,0 +1,52 @@
+---
+name: beszel
+
+services:
+  beszel:
+    image: henrygd/beszel:0.18.3
+    container_name: beszel
+    volumes:
+      - /data/apps/beszel/server:/beszel_data
+      - /data/apps/beszel/socket:/beszel_socket
+    ports:
+      - "0.0.0.0:8090:8090"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "/beszel", "health", "--url", "http://localhost:8090/api/health" ]
+
+    labels:
+      # Caddy reverse proxy
+      caddy: beszel.home beszel.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 8090}}"
+      caddy.reverse_proxy.flush_interval: -1
+      # Homepage service discovery
+      homepage.group: Monitoring
+      homepage.name: Beszel
+      homepage.icon: beszel.png
+      homepage.href: https://beszel.home
+      homepage.description: System Monitor
+      homepage.weight: 60
+
+  beszel-agent:
+    image: henrygd/beszel-agent:0.18.3
+    container_name: beszel-agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /data/apps/beszel/agent:/var/lib/beszel-agent
+      - /data/apps/beszel/socket:/beszel_socket
+      - /data/.beszel:/extra-filesystems/sdb1__Media:ro
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      KEY: ${BESZEL_KEY}
+      TOKEN: ${BESZEL_TOKEN}
+    network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "/agent", "health" ]
+
+networks:
+  caddy:
+    external: true

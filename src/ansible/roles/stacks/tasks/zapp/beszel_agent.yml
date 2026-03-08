@@ -1,0 +1,17 @@
+---
+- name: "Allow Beszel Agent port through UFW (Tailscale only)"
+  community.general.ufw:
+    rule: allow
+    interface: tailscale0
+    direction: in
+    port: "45876"
+    proto: tcp
+    comment: "Beszel Agent (Tailscale only)"
+
+- name: "Ensure Beszel Agent stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: beszel-agent
+    env_template: "{{ inventory_hostname }}/beszel-agent.env.j2"

@@ -1,0 +1,36 @@
+# Base
+base-url: "https://ntfy.home"
+listen-http: ":2586"
+behind-proxy: true
+
+# Attachments
+attachment-cache-dir: "/var/cache/ntfy/attachments"
+attachment-expiry-duration: "3h"
+attachment-total-size-limit: "60G"
+attachment-file-size-limit: "2M"
+
+# Auth
+auth-file: "/etc/ntfy/user.db"
+auth-default-access: "read-only"
+auth-users:
+  - "{{ server_user }}:{{ ntfy_user_password_hash }}:admin"
+auth-tokens:
+  - "{{ server_user }}:{{ ntfy_token }}:Ansible Provisioned"
+auth-startup-queries: |
+  pragma journal_mode = WAL;
+  pragma synchronous = normal;
+  pragma temp_store = memory;
+  pragma busy_timeout = 15000;
+  vacuum;
+
+# Cache
+cache-file: "/var/cache/ntfy/cache.db"
+cache-duration: "12h"
+cache-batch-size: 100
+cache-batch-timeout: "1500ms"
+cache-startup-queries: |
+  pragma journal_mode = WAL;
+  pragma synchronous = normal;
+  pragma temp_store = memory;
+  pragma busy_timeout = 15000;
+  vacuum;

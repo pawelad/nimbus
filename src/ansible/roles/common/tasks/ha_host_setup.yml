@@ -1,0 +1,13 @@
+---
+- name: "Remove ModemManager"
+  ansible.builtin.apt:
+    name: modemmanager
+    state: absent
+    purge: true
+
+- name: "Enable BlueZ experimental mode"
+  ansible.builtin.replace:
+    path: /lib/systemd/system/bluetooth.service
+    regexp: "^ExecStart=/usr/libexec/bluetooth/bluetoothd(\\s*)$"
+    replace: "ExecStart=/usr/libexec/bluetooth/bluetoothd -E"
+  notify: "Restart Bluetooth"

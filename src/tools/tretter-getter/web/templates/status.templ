@@ -1,0 +1,31 @@
+package templates
+
+import "fmt"
+
+templ Status(isOnline bool, version string, recordedCount int64) {
+	<div id="status-section" class="padding" hx-get="/api/status" hx-trigger="every 60s" hx-swap="outerHTML">
+		<div class="row">
+			<div class="col s12 m4 l3">
+				<article class="no-padding">
+					<img src="https://s.tvp.pl/images/b/3/e/uid_b3eaf7f6b39b4c59975f1106e22acc38_width_1920_play_0_pos_0_gs_0_height_1080.jpg" class="responsive top-round"/>
+					<div class="padding">
+						<h5>System Status</h5>
+						<p>Daemon running. Version { version }</p>
+						<p>{ fmt.Sprintf("%d", recordedCount) } episodes in library.</p>
+						<div class="row">
+							if isOnline {
+								<span class="chip green white-text">
+									<i>check</i> Online
+								</span>
+							} else {
+								<span class="chip red white-text">
+									<i>error</i> Offline
+								</span>
+							}
+						</div>
+					</div>
+				</article>
+			</div>
+		</div>
+	</div>
+}

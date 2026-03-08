@@ -1,0 +1,7 @@
+---
+- name: "Ensure Dozzle stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: dozzle

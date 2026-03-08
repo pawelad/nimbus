@@ -1,0 +1,12 @@
+---
+- name: "Create Caddy network"
+  community.docker.docker_network:
+    name: caddy
+  tags: [docker, caddy]
+
+- name: "Ensure Caddy stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: caddy

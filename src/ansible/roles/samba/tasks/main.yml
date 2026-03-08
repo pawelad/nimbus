@@ -1,0 +1,33 @@
+---
+- name: "Install Samba"
+  ansible.builtin.apt:
+    name: samba
+    state: present
+
+- name: "Create shared directory"
+  ansible.builtin.file:
+    path: "{{ samba_public_share_path }}"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0775"
+    recurse: true
+
+# TODO: Add proper auth
+- name: "Configure Samba"
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    mode: "0644"
+  notify: "Restart Samba"
+
+- name: "Ensure Samba is started and enabled"
+  ansible.builtin.service:
+    name: smbd
+    state: started
+    enabled: true
+
+- name: "Allow Samba through UFW"
+  community.general.ufw:
+    rule: allow
+    name: Samba

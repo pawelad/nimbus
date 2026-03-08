@@ -51,11 +51,15 @@
     append: true
 
 - name: "Create Docker daemon.json"
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: "daemon.json.j2"
     dest: "/etc/docker/daemon.json"
-    content: |
-      {
-        "data-root": "/data/docker"
-      }
     mode: "0644"
   notify: "Restart Docker"
+
+- name: "Configure containerd"
+  ansible.builtin.template:
+    src: "containerd-config.toml.j2"
+    dest: "/etc/containerd/config.toml"
+    mode: "0644"
+  notify: "Restart containerd"

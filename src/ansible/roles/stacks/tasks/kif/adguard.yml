@@ -1,0 +1,25 @@
+---
+- name: "Ensure AdGuard Home data directory for config exists"
+  ansible.builtin.file:
+    path: "{{ apps_data_dir }}/adguard/conf"
+    state: directory
+    mode: "0755"
+
+- name: "Ensure AdGuard Home configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "adguard"
+    config_src: "{{ inventory_hostname }}/AdGuardHome.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/adguard/conf/AdGuardHome.yaml"
+    mode: "0644"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure AdGuard Home stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: adguard

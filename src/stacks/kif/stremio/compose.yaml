@@ -1,0 +1,202 @@
+---
+name: stremio
+
+services:
+  aiostreams:
+    image: ghcr.io/viren070/aiostreams:v2.23.3
+    container_name: aiostreams
+    depends_on:
+      comet:
+        condition: service_healthy
+    volumes:
+      - /data/apps/stremio/aiostreams:/app/data
+    environment:
+      TZ: Europe/Warsaw
+      SECRET_KEY: ${SECRET_KEY}
+      ADDON_PASSWORD: ${ADDON_PASSWORD}
+      BASE_URL: ${BASE_URL}
+      AIOSTREAMS_AUTH: ${AIOSTREAMS_AUTH}
+      AIOSTREAMS_AUTH_ADMINS: ${AIOSTREAMS_AUTH_ADMINS}
+    ports:
+      - "0.0.0.0:3030:3000"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      # Local
+      caddy_0: "aiostreams.home aiostreams.pipusznicy"
+      caddy_0.tls: "internal"
+      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+      # Remote Rathole tunnel
+      caddy_1: ":8001"
+      caddy_1.reverse_proxy: "{{upstreams 3000}}"
+      # Homepage service discovery
+      homepage.group: Media
+      homepage.name: AIOStreams
+      homepage.icon: stremio.png
+      homepage.href: https://aiostreams.home
+      homepage.description: Stremio Super Addon
+      homepage.weight: 20
+
+  comet:
+    image: g0ldyy/comet:latest # dclint disable-line
+    container_name: comet-app
+    depends_on:
+      comet-postgres:
+        condition: service_healthy
+      prowlarr:
+        condition: service_healthy
+    volumes:
+      - /data/apps/stremio/comet:/data
+    environment:
+      TZ: Europe/Warsaw
+      DATABASE_URL: "comet:${COMET_DB_PASSWORD}@comet-postgres:5432/comet"
+      SCRAPE_PROWLARR: "both" # TODO: Change to "live"?
+      PROWLARR_URL: http://prowlarr:9696
+      PROWLARR_API_KEY: ${PROWLARR_API_KEY}
+    ports:
+      - "0.0.0.0:8000:8000"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8000/health || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: "comet.home comet.pipusznicy"
+      caddy.tls: "internal"
+      caddy.reverse_proxy: "{{upstreams 8000}}"
+      # Homepage service discovery
+      homepage.group: Media
+      homepage.name: Comet
+      homepage.icon: stremio.png
+      homepage.href: https://comet.home
+      homepage.description: Stremio Addon
+      homepage.weight: 20
+
+  comet-postgres:
+    image: postgres:16.6-alpine
+    container_name: comet-postgres
+    volumes:
+      - /data/apps/stremio/comet-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: comet
+      POSTGRES_PASSWORD: ${COMET_DB_PASSWORD}
+      POSTGRES_DB: comet
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U comet" ]
+      start_period: 15s
+
+  dmm:
+    image: debridmediamanager/debrid-media-manager:4.0.0
+    container_name: dmm-app
+    depends_on:
+      dmm-db:
+        condition: service_healthy
+      dmm-tor:
+        condition: service_started
+    environment:
+      DATABASE_URL: "mysql://dmm:${DMM_DB_PASSWORD}@dmm-db:3306/dmm"
+      TMDB_KEY: ${TMDB_KEY}
+      MDBLIST_KEY: ${MDBLIST_KEY}
+    ports:
+      - "0.0.0.0:3003:3000"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: "dmm.home dmm.pipusznicy"
+      caddy.tls: "internal"
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      # Homepage service discovery
+      homepage.group: Media
+      homepage.name: DMM
+      homepage.icon: dmm.png
+      homepage.href: https://dmm.home
+      homepage.description: Debrid Media Manager
+      homepage.weight: 30
+
+  dmm-db:
+    image: mariadb:11.8.6
+    container_name: dmm-db
+    volumes:
+      - /data/apps/stremio/dmm-db:/var/lib/mysql
+    environment:
+      MARIADB_USER: dmm
+      MARIADB_PASSWORD: ${DMM_DB_PASSWORD}
+      MARIADB_DATABASE: dmm
+      MARIADB_AUTO_UPGRADE: 1
+      MARIADB_RANDOM_ROOT_PASSWORD: "1"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 15s
+
+  dmm-tor:
+    image: debridmediamanager/tor:4.0.1
+    container_name: dmm-tor
+    networks:
+      caddy:
+        aliases:
+          - tor
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+    ports:
+      - "0.0.0.0:8191:8191"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl -sS -f http://localhost:8191/ || exit 1
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:2.3.0
+    container_name: prowlarr
+    volumes:
+      - /data/apps/stremio/prowlarr:/config
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Warsaw
+    ports:
+      - "0.0.0.0:9696:9696"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 15 --silent --show-error --fail http://localhost:9696/ping
+    labels:
+      # Caddy reverse proxy
+      caddy: prowlarr.home prowlarr.pipusznicy
+      caddy.reverse_proxy: "{{upstreams 9696}}"
+      caddy.tls: internal
+      # Homepage service discovery
+      homepage.group: Media
+      homepage.name: Prowlarr
+      homepage.icon: prowlarr.png
+      homepage.href: https://prowlarr.home
+      homepage.description: Indexer Manager
+      homepage.weight: 10
+      homepage.widget.type: prowlarr
+      homepage.widget.url: http://prowlarr:9696
+      homepage.widget.key: "{{HOMEPAGE_VAR_PROWLARR_APIKEY}}"
+
+networks:
+  caddy:
+    external: true

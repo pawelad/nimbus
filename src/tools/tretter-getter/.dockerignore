@@ -1,0 +1,18 @@
+# Version control
+.git
+.gitignore
+
+# Build artifacts and binaries
+bin/
+*.out
+*.test
+*.exe
+
+# Local data and configuration
+data/
+.env
+
+# Documentation and tooling
+Makefile
+README.md
+coverage.out

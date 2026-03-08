@@ -1,0 +1,42 @@
+---
+name: vector
+
+services:
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: vector-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      POST: 0
+      LOGS: 1
+      INFO: 1
+      EVENTS: 1
+      VERSION: 1
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:2375/version" ]
+
+  vector:
+    image: timberio/vector:0.53.0-alpine
+    container_name: vector-app
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
+    volumes:
+      - /data/apps/vector/config/vector.yaml:/etc/vector/vector.yaml:ro
+    environment:
+      TZ: Europe/Warsaw
+      DOCKER_HOST: tcp://socket-proxy:2375
+    networks:
+      - caddy
+      - internal
+    restart: unless-stopped
+
+networks:
+  caddy:
+    external: true
+  internal:

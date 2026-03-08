@@ -1,0 +1,49 @@
+---
+name: tretter-getter
+
+services:
+  tretter-getter:
+    image: tretter-getter:latest # dclint disable-line
+    build: ../../tools/tretter-getter
+    container_name: tretter-getter-app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/shared/public/na-dobre-i-na-zle:/app/downloads
+      - /data/apps/tretter-getter:/app/data
+      - /dev/dri:/dev/dri
+    environment:
+      TZ: Europe/Warsaw
+      HOST_DOWNLOADS_DIR: /data/shared/public/na-dobre-i-na-zle
+      EPISODE_FILTER: 1-500
+      NTFY_URL: http://ntfy:2586
+      NTFY_TOPIC: tretter-getter
+      NTFY_TOKEN: ${NTFY_TOKEN}
+      EXTERNAL_URL: https://tretter.getter
+      DOCKER_IMAGE: tretter-worker:latest
+      PUID: ${PUID}
+      PGID: ${PGID}
+    ports:
+      - "0.0.0.0:1945:1945"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: wget -q --spider http://localhost:1945/api/status || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: tretter.home tretter.pipusznicy tretter.getter
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 1945}}"
+      # Homepage service discovery
+      homepage.group: Apps
+      homepage.name: Tretter Getter
+      # TODO: Homepage icon
+      # homepage.icon: sh-na-dobre-i-na-zle.png
+      homepage.href: https://tretter.getter
+      homepage.description: TVP VOD Recorder
+      homepage.weight: 50
+    pull_policy: build
+
+networks:
+  caddy:
+    external: true

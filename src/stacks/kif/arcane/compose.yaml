@@ -1,0 +1,47 @@
+---
+name: arcane
+
+services:
+  arcane:
+    image: ghcr.io/getarcaneapp/arcane:v1.15.3
+    container_name: arcane
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/apps/arcane:/app/data
+      - /data/stacks:/opt/stacks
+    environment:
+      TZ: Europe/Warsaw
+      PUID: 1000
+      PGID: 1000
+      APP_URL: arcane.home
+      PORT: 3000
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      PROJECTS_DIRECTORY: /opt/stacks
+      DISK_USAGE_PATH: /data
+    ports:
+      - "0.0.0.0:8085:3000"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:3000/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: arcane.home arcane.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+      # LoggiFly
+      loggifly.monitor: "true"
+      loggifly.excluded_keywords: "errors=\\d+"
+      # Homepage service discovery
+      homepage.group: Infrastructure
+      homepage.name: Arcane
+      homepage.icon: arcane.png
+      homepage.href: https://arcane.home
+      homepage.description: Docker Manager
+      homepage.weight: 20
+
+networks:
+  caddy:
+    external: true

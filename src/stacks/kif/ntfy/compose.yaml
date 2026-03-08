@@ -1,0 +1,40 @@
+---
+name: ntfy
+
+services:
+  ntfy:
+    image: binwiederhier/ntfy:v2.16.0
+    container_name: ntfy
+    volumes:
+      - /data/apps/ntfy/cache:/var/cache/ntfy
+      - /data/apps/ntfy/config:/etc/ntfy
+    environment:
+      NTFY_BASE_URL: https://ntfy.home
+    ports:
+      - "0.0.0.0:2586:2586"
+    networks:
+      - caddy
+    command: serve
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --tries=1 http://localhost:2586/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1" ] # yamllint disable-line
+      start_period: 15s
+    labels:
+      # Caddy reverse proxy
+      caddy: ntfy.home ntfy.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 2586}}"
+      caddy.reverse_proxy.flush_interval: "-1"
+      # LoggiFly
+      loggifly.monitor: "true"
+      loggifly.excluded_keywords: "hijacked connection" # https://github.com/golang/go/issues/32350
+      # Homepage service discovery
+      homepage.group: Infrastructure
+      homepage.name: ntfy
+      homepage.icon: ntfy.png
+      homepage.href: https://ntfy.home
+      homepage.description: Notification Service
+
+networks:
+  caddy:
+    external: true

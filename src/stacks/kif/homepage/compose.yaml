@@ -1,0 +1,60 @@
+---
+name: homepage
+
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:v1.9.0
+    container_name: homepage
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
+    volumes:
+      - /data/apps/homepage/config:/app/config
+      - ./images:/app/public/images:ro
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: home.pipusznicy,home.home,d.upa
+      HOMEPAGE_VAR_KOMODO_APIKEY: ${HOMEPAGE_VAR_KOMODO_APIKEY}
+      HOMEPAGE_VAR_KOMODO_SECRET: ${HOMEPAGE_VAR_KOMODO_SECRET}
+      HOMEPAGE_VAR_ADGUARD_USERNAME: ${HOMEPAGE_VAR_ADGUARD_USERNAME}
+      HOMEPAGE_VAR_ADGUARD_PASSWORD: ${HOMEPAGE_VAR_ADGUARD_PASSWORD}
+      HOMEPAGE_VAR_PROWLARR_APIKEY: ${HOMEPAGE_VAR_PROWLARR_APIKEY}
+      HOMEPAGE_VAR_HA_TOKEN: ${HOMEPAGE_VAR_HA_TOKEN}
+    ports:
+      - "0.0.0.0:3333:3000"
+    networks:
+      - caddy
+      - socket_proxy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
+    labels:
+      caddy: home.home home.pipusznicy d.upa
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+    init: true
+
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: homepage-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      VERSION: 1
+    networks:
+      - socket_proxy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:2375/version" ]
+    read_only: true
+    tmpfs:
+      - /run
+      - /tmp
+
+networks:
+  caddy:
+    external: true
+  socket_proxy:
+    internal: true

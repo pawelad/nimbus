@@ -1,0 +1,74 @@
+---
+# Uptime Kuma Sync Automation
+#
+# Variables:
+#   uptime_kuma_force_update: (Optional) Set to true to force the sync script to
+#     run and update all monitors, even if no stack changes were detected during
+#     the run.
+#     Example: ansible-playbook ... -e "uptime_kuma_force_update=true"
+#
+#   stack_changed: (Internal/Global) Automatically set true by the "deploy stack"
+#     task in ensure_stack.yml if any stack deployment resulted in actual changes.
+#     Used to conditionally trigger the sync.
+
+- name: "Ensure Uptime Kuma stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: uptime-kuma
+    env_template: "{{ inventory_hostname }}/uptime_kuma.env.j2"
+
+- name: "Wait for Uptime Kuma container to be healthy"
+  community.docker.docker_container_info:
+    name: uptime-kuma-app
+  register: stacks_uptime_kuma_check
+  ignore_errors: true
+  retries: 10
+  delay: 5
+  until: >-
+    stacks_uptime_kuma_check.container is defined
+    and stacks_uptime_kuma_check.container.State.Health.Status is defined
+    and stacks_uptime_kuma_check.container.State.Health.Status == 'healthy'
+
+- name: "Wait for Uptime Kuma Socket.io API to be ready"
+  ansible.builtin.uri:
+    url: "http://localhost:3001/socket.io/?EIO=4&transport=polling"
+    method: GET
+    return_content: true
+  register: stacks_uptime_kuma_api_wait
+  until: stacks_uptime_kuma_api_wait.status == 200 and 'sid' in stacks_uptime_kuma_api_wait.content
+  retries: 30
+  delay: 2
+  when:
+    - not stacks_uptime_kuma_check.failed | default(false)
+
+- name: "Check if Uptime Kuma Sync script exists"
+  ansible.builtin.stat:
+    path: "{{ repo_dir }}/src/tools/uptime_kuma_sync/uptime_kuma_sync.py"
+  register: stacks_uptime_kuma_script_path
+
+- name: "Sync Uptime Kuma Monitors"
+  ansible.builtin.command:
+    cmd: >-
+      uv run {{ stacks_uptime_kuma_script_path.stat.path }}
+      {% if uptime_kuma_force_update | default(false) %}--force{% endif %}
+  environment:
+    UPTIME_KUMA_USER: "{{ uptime_kuma_user }}"
+    UPTIME_KUMA_PASSWORD: "{{ uptime_kuma_password }}"
+    NTFY_URL: "http://localhost:2586"
+    NTFY_TOPIC: "uptime-kuma"
+    NTFY_TOKEN: "{{ ntfy_token }}"
+  register: stacks_uptime_kuma_sync
+  ignore_errors: true
+  retries: 3
+  delay: 10
+  until: stacks_uptime_kuma_sync.rc == 0
+  changed_when:
+    - "'[UPDATE]' in stacks_uptime_kuma_sync.stderr
+      or '[CREATE]' in stacks_uptime_kuma_sync.stderr
+      or '[FORCE]' in stacks_uptime_kuma_sync.stderr"
+  when:
+    - stacks_uptime_kuma_script_path.stat.exists
+    - not stacks_uptime_kuma_check.failed
+    - stack_changed | default(false) | bool or uptime_kuma_force_update | default(false) | bool

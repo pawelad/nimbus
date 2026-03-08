@@ -1,0 +1,8 @@
+---
+- name: "Ensure Stremio stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: stremio
+    env_template: "{{ inventory_hostname }}/stremio.env.j2"

@@ -1,0 +1,96 @@
+---
+- name: "Include AdGuard Home tasks"
+  ansible.builtin.import_tasks: kif/adguard.yml
+  tags: [adguard]
+
+- name: "Include Apprise tasks"
+  ansible.builtin.import_tasks: kif/apprise.yml
+  tags: [apprise]
+
+- name: "Include Arcane tasks"
+  ansible.builtin.import_tasks: kif/arcane.yml
+  tags: [arcane]
+
+- name: "Include Beszel tasks"
+  ansible.builtin.import_tasks: kif/beszel.yml
+  tags: [beszel]
+
+- name: "Include Caddy tasks"
+  ansible.builtin.import_tasks: kif/caddy.yml
+  tags: [caddy]
+
+- name: "Include Cert Helper tasks"
+  ansible.builtin.import_tasks: kif/cert_helper.yml
+  tags: [cert-helper]
+
+- name: "Include Stremio tasks"
+  ansible.builtin.import_tasks: kif/stremio.yml
+  tags: [stremio]
+
+- name: "Include Dockge tasks"
+  ansible.builtin.import_tasks: kif/dockge.yml
+  tags: [dockge]
+
+- name: "Include Dozzle tasks"
+  ansible.builtin.import_tasks: kif/dozzle.yml
+  tags: [dozzle]
+
+- name: "Include Gatus tasks"
+  ansible.builtin.import_tasks: kif/gatus.yml
+  tags: [gatus]
+
+- name: "Include Glances tasks"
+  ansible.builtin.import_tasks: kif/glances.yml
+  tags: [glances]
+
+- name: "Include Home Assistant tasks"
+  ansible.builtin.import_tasks: kif/home_assistant.yml
+  tags: [home-assistant]
+
+- name: "Include Homepage tasks"
+  ansible.builtin.import_tasks: kif/homepage.yml
+  tags: [homepage]
+
+- name: "Include Komodo tasks"
+  ansible.builtin.import_tasks: kif/komodo.yml
+  tags: [komodo]
+
+- name: "Include LoggiFly tasks"
+  ansible.builtin.import_tasks: kif/loggifly.yml
+  tags: [loggifly]
+
+- name: "Include MeTube tasks"
+  ansible.builtin.import_tasks: kif/metube.yml
+  tags: [metube]
+
+- name: "Include ntfy tasks"
+  ansible.builtin.import_tasks: kif/ntfy.yml
+  tags: [ntfy]
+
+- name: "Include Ollama tasks"
+  ansible.builtin.import_tasks: kif/ollama.yml
+  tags: [ollama]
+
+- name: "Include Rathole tasks"
+  ansible.builtin.import_tasks: kif/rathole.yml
+  tags: [rathole]
+
+- name: "Include Stirling PDF tasks"
+  ansible.builtin.import_tasks: kif/stirling_pdf.yml
+  tags: [stirling-pdf]
+
+- name: "Include Speedtest tasks"
+  ansible.builtin.import_tasks: kif/speedtest.yml
+  tags: [speedtest]
+
+- name: "Include tretter-getter tasks"
+  ansible.builtin.import_tasks: kif/tretter_getter.yml
+  tags: [tretter-getter]
+
+- name: "Include Uptime Kuma tasks"
+  ansible.builtin.import_tasks: kif/uptime_kuma.yml
+  tags: [uptime-kuma]
+
+- name: "Include Vector tasks"
+  ansible.builtin.import_tasks: kif/vector.yml
+  tags: [vector]

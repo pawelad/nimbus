@@ -1,0 +1,13 @@
+---
+version: "2"
+sql:
+  - engine: "sqlite"
+    queries: "store/query.sql"
+    schema: "store/schema.sql"
+    gen:
+      go:
+        package: "store"
+        out: "store"
+        sql_package: "database/sql"
+        emit_json_tags: true
+        emit_interface: true

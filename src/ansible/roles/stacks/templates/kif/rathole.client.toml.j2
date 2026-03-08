@@ -1,0 +1,6 @@
+[client]
+remote_addr = "{{ rathole_server_addr }}"
+default_token = "{{ rathole_server_token }}"
+
+[client.services.aiostreams]
+local_addr = "caddy:8001" # Go through Caddy

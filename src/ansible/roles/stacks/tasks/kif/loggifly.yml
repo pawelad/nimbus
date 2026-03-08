@@ -1,0 +1,19 @@
+---
+- name: "Ensure LoggiFly configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "loggifly"
+    config_src: "{{ inventory_hostname }}/loggifly.config.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/loggifly/config/config.yaml"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure LoggiFly stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: loggifly

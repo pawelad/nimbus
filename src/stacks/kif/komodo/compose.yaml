@@ -1,0 +1,90 @@
+---
+name: komodo
+
+services:
+  core:
+    image: ghcr.io/moghtech/komodo-core:1.19.5
+    container_name: komodo-core
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - /data/apps/komodo/backups:/backups
+      - /data/nimbus:/data/nimbus:ro
+    environment:
+      TZ: Europe/Warsaw
+      KOMODO_HOST: https://komodo.home
+      KOMODO_FIRST_SERVER: https://periphery:8120
+      KOMODO_DATABASE_ADDRESS: mongo:27017
+      KOMODO_DATABASE_USERNAME: admin
+      KOMODO_DATABASE_PASSWORD: ${KOMODO_DATABASE_PASSWORD}
+      KOMODO_PASSKEY: ${KOMODO_PASSKEY}
+      KOMODO_LOCAL_AUTH: "true"
+    ports:
+      - "0.0.0.0:9120:9120"
+    networks:
+      - caddy
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:9120/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: komodo.home komodo.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 9120}}"
+      komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
+      # Homepage service discovery
+      homepage.group: Infrastructure
+      homepage.name: Komodo
+      homepage.icon: komodo.png
+      homepage.href: https://komodo.home
+      homepage.description: Container Manager
+      homepage.weight: 10
+      homepage.widget.type: komodo
+      homepage.widget.url: http://komodo-core:9120
+      homepage.widget.key: "{{HOMEPAGE_VAR_KOMODO_APIKEY}}"
+      homepage.widget.secret: "{{HOMEPAGE_VAR_KOMODO_SECRET}}"
+
+  mongo:
+    image: mongo:8.2.5
+    container_name: komodo-mongo
+    volumes:
+      - /data/apps/komodo/mongo:/data/db
+      - /data/apps/komodo/mongo-config:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${KOMODO_DATABASE_PASSWORD}
+    networks:
+      - internal
+    command: --quiet --wiredTigerCacheSizeGB 0.25
+    restart: unless-stopped
+    healthcheck:
+      test: mongosh --eval "db.adminCommand('ping').ok"
+      start_period: 15s
+    labels:
+      komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
+
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:1.19.5
+    container_name: komodo-periphery
+    volumes:
+      - /data/nimbus:/data/nimbus:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - /etc/komodo:/etc/komodo
+    environment:
+      TZ: Europe/Warsaw
+      PERIPHERY_PASSKEYS: ${KOMODO_PASSKEY}
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8120/ || exit 1
+    labels:
+      komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
+
+networks:
+  caddy:
+    external: true
+  internal:

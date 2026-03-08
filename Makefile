@@ -12,9 +12,18 @@ check: ## Run code linters
 	yamllint .
 	npx dclint --fix -r src/stacks
 
+.PHONY: provision-kif
+provision-kif: ## Provision Kif server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
+	cd src/ansible && ansible-playbook playbooks/kif_setup.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+
 .PHONY: provision-zapp
 provision-zapp: ## Provision Zapp server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
 	cd src/ansible && ansible-playbook playbooks/zapp_setup.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+
+.PHONY: deploy-kif
+deploy-kif: ## Deploy changes to Kif (use EXTRA_VARS for variables, TAGS for tags)
+	git push kif main
+	cd src/ansible && ansible-playbook playbooks/kif_deploy.yml $(if $(EXTRA_VARS),-e '$(EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: deploy-zapp
 deploy-zapp: ## Deploy changes to Zapp (use EXTRA_VARS for variables, TAGS for tags)

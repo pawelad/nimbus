@@ -1,0 +1,8 @@
+---
+- name: "Ensure Arcane stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: arcane
+    env_template: "{{ inventory_hostname }}/arcane.env.j2"

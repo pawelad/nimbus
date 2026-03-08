@@ -1,7 +1,17 @@
 ---
-- name: Deploy stacks to Zapp
+# Zapp Stack Deployment Playbook
+#
+# Deploys Docker Compose stacks, only restarting services
+# whose configuration has actually changed.
+#
+# Usage:
+#   Deploy all stacks:   make deploy-zapp
+#   Deploy one stack:    make deploy-zapp TAGS=homepage
+
+- name: "Deploy Stacks to Zapp"
   hosts: zapp
   become: true
+
   roles:
     - role: stacks
       tags: stacks

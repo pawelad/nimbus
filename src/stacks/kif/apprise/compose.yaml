@@ -1,0 +1,38 @@
+---
+name: apprise
+
+services:
+  apprise:
+    image: caronc/apprise:v1.3.1
+    container_name: apprise
+    volumes:
+      - /data/apps/apprise/config:/config
+    environment:
+      APPRISE_STATEFUL_MODE: simple
+      APPRISE_WORKER_COUNT: 1
+      APPRISE_ADMIN: "y"
+    ports:
+      - "0.0.0.0:8008:8000"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-fsS", "http://localhost:8000/status" ]
+      start_period: 15s
+    labels:
+      # Caddy reverse proxy
+      caddy: apprise.home apprise.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 8000}}"
+      # LoggiFly
+      loggifly.monitor: "true"
+      # Homepage service discovery
+      homepage.group: Infrastructure
+      homepage.name: Apprise
+      homepage.icon: apprise.png
+      homepage.href: https://apprise.home
+      homepage.description: Notification Gateway
+
+networks:
+  caddy:
+    external: true

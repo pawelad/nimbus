@@ -1,0 +1,9 @@
+package templates
+
+import "tretter-getter/store"
+
+templ EpisodeGrid(episodes []store.Episode) {
+	for _, ep := range episodes {
+		@EpisodeCard(ep)
+	}
+}

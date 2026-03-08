@@ -1,26 +1,26 @@
 ---
 # Core Infrastructure
 - name: "Include Dokploy tasks"
-  ansible.builtin.import_tasks: dokploy.yml
+  ansible.builtin.import_tasks: zapp/dokploy.yml
   tags: [dokploy]
 
 - name: "Include Rathole tasks"
-  ansible.builtin.import_tasks: rathole.yml
+  ansible.builtin.import_tasks: zapp/rathole.yml
   tags: [rathole]
 
 - name: "Include Headscale tasks"
-  ansible.builtin.import_tasks: headscale.yml
+  ansible.builtin.import_tasks: zapp/headscale.yml
   tags: [headscale]
 
 # Stacks
 - name: "Include Beszel Agent tasks"
-  ansible.builtin.import_tasks: beszel_agent.yml
+  ansible.builtin.import_tasks: zapp/beszel_agent.yml
   tags: [beszel-agent]
 
 - name: "Include Komodo Periphery tasks"
-  ansible.builtin.import_tasks: komodo_periphery.yml
+  ansible.builtin.import_tasks: zapp/komodo_periphery.yml
   tags: [komodo-periphery]
 
 - name: "Include Tailscale Agent tasks"
-  ansible.builtin.import_tasks: tailscale_agent.yml
+  ansible.builtin.import_tasks: zapp/tailscale_agent.yml
   tags: [tailscale-agent]

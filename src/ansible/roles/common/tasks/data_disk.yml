@@ -1,0 +1,7 @@
+---
+- name: "Mount data disk"
+  ansible.posix.mount:
+    path: "{{ data_dir }}"
+    src: "UUID={{ data_disk_uuid }}"
+    fstype: ext4
+    state: mounted

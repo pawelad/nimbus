@@ -1,0 +1,36 @@
+---
+name: glances
+
+services:
+  glances:
+    image: nicolargo/glances:4.5.0.5
+    container_name: glances
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data:/data:ro
+    environment:
+      GLANCES_OPT: "-w"
+    ports:
+      - "0.0.0.0:61208:61208"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:61208/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: glances.home glances.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 61208}}"
+      # Homepage service discovery
+      homepage.group: Infrastructure
+      homepage.name: Glances
+      homepage.icon: glances.png
+      homepage.href: https://glances.home
+      homepage.description: System Monitor
+      homepage.weight: 50
+    pid: host
+
+networks:
+  caddy:
+    external: true

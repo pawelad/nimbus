@@ -1,0 +1,12 @@
+---
+- glances:
+    version: 4
+    url: http://glances:61208
+    cpu: true
+    mem: true
+    cputemp: true
+    uptime: true
+    disk:
+      - /
+      - /data
+    expanded: false

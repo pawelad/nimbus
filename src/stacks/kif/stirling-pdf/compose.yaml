@@ -1,0 +1,42 @@
+---
+name: stirling-pdf
+
+services:
+  stirling-pdf:
+    image: stirlingtools/stirling-pdf:2.4.6
+    container_name: stirling-pdf
+    volumes:
+      - /data/apps/stirling-pdf/configs:/configs
+      - /data/apps/stirling-pdf/logs:/logs
+      - /data/apps/stirling-pdf/pipeline:/pipeline
+      - /data/apps/stirling-pdf/tessdata:/usr/share/tessdata
+    environment:
+      MODE: "BOTH"
+      SECURITY_ENABLELOGIN: "false"
+      LANGS: "en_GB"
+    ports:
+      - "0.0.0.0:8088:8080"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f http://localhost:8080/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: pdf.home pdf.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      # LoggiFly
+      loggifly.monitor: "true"
+      loggifly.excluded_keywords: "System resource status changed"
+      # Homepage service discovery
+      homepage.group: Apps
+      homepage.name: Stirling PDF
+      homepage.icon: stirling-pdf.png
+      homepage.href: https://pdf.home
+      homepage.description: PDF Manipulation Tools
+      homepage.weight: 50
+
+networks:
+  caddy:
+    external: true

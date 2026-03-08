@@ -1,0 +1,26 @@
+---
+- name: "Allow Rathole port through UFW"
+  community.general.ufw:
+    rule: allow
+    port: "2333"
+    proto: tcp
+    comment: "Rathole"
+
+- name: "Ensure Rathole server configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "rathole"
+    config_src: "{{ inventory_hostname }}/server.toml.j2"
+    config_dest: "{{ apps_data_dir }}/rathole/server.toml"
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure Rathole stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: rathole

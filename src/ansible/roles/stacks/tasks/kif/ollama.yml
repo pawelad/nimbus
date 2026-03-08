@@ -1,0 +1,36 @@
+---
+- name: "Ensure Ollama stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: ollama
+    env_template: "{{ inventory_hostname }}/ollama.env.j2"
+
+- name: "Wait for Ollama container to be healthy"
+  community.docker.docker_container_info:
+    name: ollama
+  register: stacks_ollama_check
+  ignore_errors: true
+  retries: 10
+  delay: 5
+  until: >-
+    stacks_ollama_check.container is defined
+    and stacks_ollama_check.container.State.Health.Status is defined
+    and stacks_ollama_check.container.State.Health.Status == 'healthy'
+
+- name: "Pull SmolLM2 model"
+  community.docker.docker_container_exec:
+    container: ollama
+    command: ollama pull smollm2
+  register: stacks_ollama_pull
+  changed_when: "'already up to date' not in stacks_ollama_pull.stdout"
+  when: not stacks_ollama_check.failed | default(false)
+
+- name: "Pull SmolLM3 model"
+  community.docker.docker_container_exec:
+    container: ollama
+    command: ollama pull alibayram/smollm3
+  register: stacks_ollama_pull
+  changed_when: "'already up to date' not in stacks_ollama_pull.stdout"
+  when: not stacks_ollama_check.failed | default(false)

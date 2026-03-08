@@ -1,0 +1,29 @@
+---
+name: cert-helper
+
+services:
+  cert-helper:
+    image: nginx:1.29.5-alpine
+    container_name: cert-helper
+    volumes:
+      - ./www:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./copy-cert.sh:/docker-entrypoint.d/99-copy-cert.sh:ro
+      - caddy_data:/caddy-data:ro
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1
+    labels:
+      caddy: cert.home cert.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 80}}"
+
+networks:
+  caddy:
+    external: true
+
+volumes:
+  caddy_data:
+    external: true

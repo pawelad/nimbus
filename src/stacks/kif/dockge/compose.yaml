@@ -1,0 +1,39 @@
+---
+name: dockge
+
+services:
+  dockge:
+    image: louislam/dockge:1.5.0
+    container_name: dockge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/apps/dockge:/app/data
+      - /data/stacks:/opt/stacks
+    environment:
+      DOCKGE_STACKS_DIR: /opt/stacks
+    ports:
+      - "0.0.0.0:5001:5001"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:5001/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: dockge.home dockge.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 5001}}"
+      caddy.reverse_proxy.transport: http
+      caddy.reverse_proxy.transport.keepalive: 2s
+      caddy.reverse_proxy.flush_interval: -1
+      # Homepage service discovery
+      homepage.group: Infrastructure
+      homepage.name: Dockge
+      homepage.icon: dockge.png
+      homepage.href: https://dockge.home
+      homepage.description: Stack Manager
+      homepage.weight: 30
+
+networks:
+  caddy:
+    external: true

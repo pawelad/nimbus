@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipusznicy Certificate</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/beercss@3.6.8/dist/cdn/beer.min.css" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.6.8/dist/cdn/beer.min.js"></script>
+    <script type="module"
+        src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.2/dist/cdn/material-dynamic-colors.min.js"></script>
+
+    <style>
+        /* 1. Layout Fixes */
+        body {
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            /* Center horizontally */
+            align-items: flex-start;
+            /* Align to top (better for scrolling) */
+            min-height: 100vh;
+            padding-top: 40px;
+        }
+
+        main.responsive {
+            max-width: 650px;
+            /* Constrain width for a cleaner look */
+            width: 100%;
+        }
+
+        /* 2. Unified Card Styling */
+        .install-card {
+            overflow: hidden;
+            /* Ensures tabs don't spill out */
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 32px 20px 10px 20px;
+        }
+
+        .cert-badge {
+            color: var(--primary);
+            background: var(--surface-variant);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            /* margin-bottom: 16px; removed for side-by-side layout */
+        }
+
+        .cert-badge i {
+            /* Beer CSS uses ---size to set font-size, width, and height simultaneously */
+            ---size: 48px;
+        }
+
+        .header-wrapper {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            /* Ensure text aligns if it wraps */
+            text-align: center;
+        }
+
+        .header-wrapper .cert-badge {
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 24px;
+        }
+
+        /* 3. Tab Bar Styling - KEY FIX */
+        nav.tab {
+            background-color: var(--surface-container);
+            /* Slight contrast for tab bar */
+            display: flex;
+            width: 100%;
+            border-bottom: 1px solid var(--outline-variant);
+        }
+
+        nav.tab a {
+            flex: 1;
+            /* Forces tabs to take equal width */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 0;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        /* Active State Styling */
+        nav.tab a.active {
+            color: var(--primary);
+            background-color: var(--surface);
+            /* Merges with content below */
+            border-bottom: 3px solid var(--primary);
+            font-weight: bold;
+        }
+
+        /* 4. Content Visibility Logic */
+        .tab-content {
+            display: none;
+            /* Hide all by default */
+            padding: 24px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+            /* Only show active */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 5. Instruction Step Styling */
+        .step {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            /* Increased spacing between steps */
+            align-items: center;
+            /* Better align number with text */
+        }
+
+        .step-num {
+            background: var(--primary-container);
+            color: var(--on-primary-container);
+            min-width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            /* margin-top: 2px removed to align better with text */
+        }
+
+        .step-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        code {
+            background: var(--surface-variant);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="responsive">
+
+        <article class="install-card round">
+
+            <div class="hero-section">
+                <div class="header-wrapper">
+                    <div class="cert-badge">
+                        <i>verified_user</i>
+                    </div>
+                    <h4 style="margin: 0;">Pipusznicy Certificate</h4>
+                    <p style="margin: 0;">Do the thing.</p>
+                </div>
+
+                <div class="space"></div>
+
+                <a href="root.crt" download class="button fill large round">
+                    <i>download</i>
+                    <span>Download Certificate</span>
+                </a>
+            </div>
+
+            <div class="space large"></div>
+
+            <nav class="tab no-space">
+                <a id="nav-android" onclick="switchTab('android')">
+                    <i>android</i>
+                    <span>Android</span>
+                </a>
+                <a id="nav-ios" onclick="switchTab('ios')">
+                    <i>phone_iphone</i>
+                    <span>iOS</span>
+                </a>
+                <a id="nav-macos" onclick="switchTab('macos')">
+                    <i>laptop_mac</i>
+                    <span>macOS</span>
+                </a>
+                <a id="nav-windows" onclick="switchTab('windows')" class="active">
+                    <i>window</i>
+                    <span>Windows</span>
+                </a>
+                <a id="nav-linux" onclick="switchTab('linux')">
+                    <i>terminal</i>
+                    <span>Linux</span>
+                </a>
+            </nav>
+
+            <div class="surface bottom-round">
+
+                <div id="content-android" class="tab-content">
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <div class="step-text">Download the certificate file.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <div class="step-text">Open <b>Settings</b> > <b>Security</b> (or <b>Security & privacy</b>) >
+                            <b>Encryption & credentials</b>.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">3</span>
+                        <div class="step-text">Tap <b>Install a certificate</b> > <b>CA certificate</b>.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">4</span>
+                        <div class="step-text">Select <b>Install anyway</b>, choose the downloaded file and confirm.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-ios" class="tab-content">
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <div class="step-text">Download the certificate. Tap <b>Allow</b> if asked about the
+                            configuration profile, then open <b>Settings</b>.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <div class="step-text">Tap <b>Profile Downloaded</b>. Tap <b>Install</b>, enter passcode, and
+                            tap <b>Install</b> again.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">3</span>
+                        <div class="step-text">Go to <b>Settings</b> > <b>General</b> > <b>About</b> > <b>Certificate
+                                Trust Settings</b>.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">4</span>
+                        <div class="step-text">Enable trust for "Caddy Local Authority".</div>
+                    </div>
+                </div>
+
+                <div id="content-macos" class="tab-content">
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <div class="step-text">Download and double-click the certificate file.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <div class="step-text">Add it to the <b>System</b> keychain.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">3</span>
+                        <div class="step-text">Find the certificate, double-click it. Expand <b>Trust</b>, and set to
+                            <b>Always Trust</b>.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">4</span>
+                        <div class="step-text">Close the window and enter your password.</div>
+                    </div>
+                </div>
+
+                <div id="content-windows" class="tab-content active">
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <div class="step-text">Download and double-click the certificate file.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <div class="step-text">Click <b>Install Certificate</b>, select <b>Local Machine</b>.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">3</span>
+                        <div class="step-text">Choose <b>Place all certificates in the following store</b>. Browse and
+                            select <b>Trusted Root Certification Authorities</b>.</div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">4</span>
+                        <div class="step-text">Click <b>Next</b> and <b>Finish</b>.</div>
+                    </div>
+                </div>
+
+                <div id="content-linux" class="tab-content">
+                    <h6 style="margin-bottom: 1rem;">Debian / Ubuntu</h6>
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <div class="step-text">Copy file to store:
+                            <br><code>sudo cp root.crt /usr/local/share/ca-certificates/root.crt</code>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <div class="step-text">Update store: <br><code>sudo update-ca-certificates</code></div>
+                    </div>
+
+                    <div class="space"></div>
+                    <h6 style="margin-bottom: 1rem;">Fedora / RHEL</h6>
+                    <div class="step">
+                        <span class="step-num">1</span>
+                        <div class="step-text">Copy file to store:
+                            <br><code>sudo cp root.crt /etc/pki/ca-trust/source/anchors/</code>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">2</span>
+                        <div class="step-text">Update store: <br><code>sudo update-ca-trust</code></div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <script type="module">
+        // Expose switchTab to window so onclick handlers work
+        window.switchTab = function (osName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('nav.tab a').forEach(el => el.classList.remove('active'));
+            // Remove active class from all content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+
+            // Add active class to selected
+            const navItem = document.getElementById('nav-' + osName);
+            const contentItem = document.getElementById('content-' + osName);
+
+            if (navItem) navItem.classList.add('active');
+            if (contentItem) contentItem.classList.add('active');
+        }
+
+        // Auto-Detect OS on Load
+        function detectAndSelect() {
+            // Enable Auto Dark/Light Mode
+            // Safe to call directly now because type="module" respects execution order
+            ui("mode", "system");
+
+            let os = 'windows'; // Default fallback
+
+            // Modern Client Hints (Chrome/Edge/Opera)
+            if (navigator.userAgentData && navigator.userAgentData.platform) {
+                const platform = navigator.userAgentData.platform.toLowerCase();
+                if (platform.includes('android')) os = 'android';
+                else if (platform.includes('ios') || platform.includes('iphone') || platform.includes('ipad')) os = 'ios';
+                else if (platform.includes('mac')) os = 'macos';
+                else if (platform.includes('linux')) os = 'linux';
+                else if (platform.includes('win')) os = 'windows';
+            }
+            // Fallback: User Agent Parsing (Firefox/Safari)
+            else {
+                const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                // iPadOS often reports as Mac, check for touch points
+                const isIPad = /iPad/.test(userAgent) || (/Mac/.test(userAgent) && navigator.maxTouchPoints > 0);
+
+                if (/android/i.test(userAgent)) {
+                    os = 'android';
+                } else if (isIPad || /iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                    os = 'ios';
+                } else if (/Mac/.test(userAgent)) {
+                    os = 'macos';
+                } else if (/Linux/.test(userAgent)) {
+                    os = 'linux';
+                } else if (/Win/.test(userAgent)) {
+                    os = 'windows';
+                }
+            }
+
+            console.log("Detected OS:", os);
+            switchTab(os);
+        }
+
+        // Run detection immediately
+        // Note: modules are defer by default, so they run after parsing.
+        detectAndSelect();
+    </script>
+</body>
+
+</html>

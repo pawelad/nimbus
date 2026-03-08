@@ -1,0 +1,11 @@
+---
+- name: "Create dokploy network"
+  community.docker.docker_network:
+    name: dokploy-network
+
+- name: "Ensure Dokploy stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: dokploy

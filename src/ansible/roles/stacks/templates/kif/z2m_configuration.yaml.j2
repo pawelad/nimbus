@@ -1,0 +1,24 @@
+homeassistant:
+  enabled: true
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://mosquitto:1883
+  user: {{ mqtt_username }}
+  password: {{ mqtt_password }}
+serial:
+  port: /dev/ttyUSB0
+frontend:
+  enabled: true
+  port: 8080
+version: 4
+devices:
+  '0xd4fe28fffee072ef':
+    friendly_name: Vind Styrka
+  '0x08fd52fffe01c877':
+    friendly_name: Washing Machine | Leak Sensor
+  '0x08fd52fffe01dccf':
+    friendly_name: Water Filter | Leak Sensor
+  '0xe456acfffe5c7438':
+    friendly_name: The Button
+availability:
+  enabled: true

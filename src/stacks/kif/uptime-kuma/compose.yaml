@@ -1,0 +1,71 @@
+---
+name: uptime-kuma
+
+services:
+  mariadb:
+    image: mariadb:11.8.6
+    container_name: uptime-kuma-mariadb
+    volumes:
+      - /data/apps/uptime-kuma/db:/var/lib/mysql
+    environment:
+      MARIADB_DATABASE: kuma
+      MARIADB_USER: kuma
+      MARIADB_PASSWORD: ${UPTIME_KUMA_DB_PASSWORD}
+      MARIADB_AUTO_UPGRADE: 1
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    networks:
+      - internal
+    # Try to mitigate io_uring warning
+    command: --innodb-use-native-aio=0
+    restart: unless-stopped
+    healthcheck:
+      test: healthcheck.sh --connect --innodb_initialized
+      start_period: 15s
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:2.0.2
+    container_name: uptime-kuma-app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    volumes:
+      - /data/apps/uptime-kuma/app:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      UPTIME_KUMA_DB_TYPE: mariadb
+      UPTIME_KUMA_DB_HOSTNAME: mariadb
+      UPTIME_KUMA_DB_PORT: 3306
+      UPTIME_KUMA_DB_NAME: kuma
+      UPTIME_KUMA_DB_USERNAME: kuma
+      UPTIME_KUMA_DB_PASSWORD: ${UPTIME_KUMA_DB_PASSWORD}
+    ports:
+      - "0.0.0.0:3001:3001"
+    networks:
+      - caddy
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f http://localhost:3001
+    labels:
+      # Caddy reverse proxy
+      caddy: uptime.home uptime.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 3001}}"
+      # LoggiFly
+      loggifly.monitor: "true"
+      loggifly.excluded_keywords: "Connection lost" # During restart
+      # Homepage service discovery
+      homepage.group: Monitoring
+      homepage.name: Uptime Kuma
+      homepage.icon: uptime-kuma.png
+      homepage.href: https://uptime.home
+      homepage.description: Monitoring Tool
+      homepage.weight: 70
+      homepage.widget.type: uptimekuma
+      homepage.widget.url: http://uptime-kuma:3001
+      homepage.widget.slug: kif
+
+networks:
+  caddy:
+    external: true
+  internal:

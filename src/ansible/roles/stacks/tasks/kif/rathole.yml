@@ -1,0 +1,27 @@
+---
+- name: "Ensure Rathole client configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ apps_data_dir }}/rathole"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0755"
+
+- name: "Ensure Rathole client configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "rathole"
+    config_src: "{{ inventory_hostname }}/rathole.client.toml.j2"
+    config_dest: "{{ apps_data_dir }}/rathole/client.toml"
+    mode: "0644"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure Rathole stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: rathole

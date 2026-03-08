@@ -1,0 +1,20 @@
+---
+- Apps:
+    - Mealie:
+        icon: mealie.png
+        href: https://mealie.home
+        description: Recipe Manager
+        widget:
+          type: mealie
+          url: "{{HOMEPAGE_VAR_MEALIE_URL}}"
+          key: "{{HOMEPAGE_VAR_MEALIE_API_KEY}}"
+          version: 2
+
+- Infrastructure:
+    - Caddy:
+        icon: caddy.png
+        href: https://caddy.home
+        description: Reverse Proxy
+        widget:
+          type: caddy
+          url: http://caddy:2019

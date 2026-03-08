@@ -1,0 +1,32 @@
+---
+name: gatus
+
+services:
+  gatus:
+    image: ghcr.io/twin/gatus:v5.35.0
+    container_name: gatus
+    volumes:
+      - /data/apps/gatus:/config
+    ports:
+      - "0.0.0.0:8060:8080"
+    networks:
+      - caddy
+    restart: unless-stopped
+    labels:
+      # Caddy reverse proxy
+      caddy: "gatus.home gatus.pipusznicy"
+      caddy.tls: "internal"
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      # Homepage service discovery
+      homepage.group: Monitoring
+      homepage.name: Gatus
+      homepage.icon: gatus.png
+      homepage.href: https://gatus.home
+      homepage.description: Automated Service Health Dashboard
+      homepage.weight: 30
+      homepage.widget.type: gatus
+      homepage.widget.url: http://gatus:8080
+
+networks:
+  caddy:
+    external: true

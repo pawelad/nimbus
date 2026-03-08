@@ -1,0 +1,53 @@
+---
+name: ollama
+
+services:
+  ollama:
+    image: ollama/ollama:0.17.4
+    container_name: ollama
+    volumes:
+      - /data/apps/ollama/ollama:/root/.ollama
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: ollama --version && ollama ps || exit 1
+      start_period: 15s
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.8.4
+    container_name: open-webui
+    depends_on:
+      ollama:
+        condition: service_healthy
+    volumes:
+      - /data/apps/ollama/open-webui:/app/backend/data
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+    ports:
+      - "0.0.0.0:3838:8080"
+    networks:
+      - caddy
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      start_period: 30s
+    labels:
+      # Caddy reverse proxy
+      caddy: ollama.home ollama.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      # Homepage service discovery
+      homepage.group: AI
+      homepage.name: Open WebUI
+      homepage.icon: open-webui.png
+      homepage.href: https://ollama.home
+      homepage.description: Ollama Frontend
+      homepage.weight: 10
+
+networks:
+  caddy:
+    external: true
+  internal:

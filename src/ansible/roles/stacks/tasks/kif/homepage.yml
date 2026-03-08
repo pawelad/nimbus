@@ -1,0 +1,24 @@
+---
+- name: "Ensure Homepage data directory exists"
+  ansible.builtin.file:
+    path: "{{ apps_data_dir }}/homepage"
+    state: directory
+    mode: "0755"
+
+- name: "Sync Homepage configuration"
+  ansible.builtin.copy:
+    src: "{{ stacks_dir }}/homepage/config/"
+    dest: "{{ apps_data_dir }}/homepage/config/"
+    mode: "0644"
+    directory_mode: "0755"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    remote_src: true
+
+- name: "Ensure Homepage stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: homepage
+    env_template: "{{ inventory_hostname }}/homepage.env.j2"

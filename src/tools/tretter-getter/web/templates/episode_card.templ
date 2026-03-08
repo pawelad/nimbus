@@ -1,0 +1,47 @@
+package templates
+
+import (
+	"fmt"
+	"tretter-getter/store"
+)
+
+templ EpisodeCard(ep store.Episode) {
+	<div class="col s12 m6 l4">
+		<article class="episode-card no-padding">
+			if ep.ImageUrl != "" {
+				<img src={ ep.ImageUrl } class="responsive top-round"/>
+			} else {
+				<img src="https://via.placeholder.com/315x177" class="responsive top-round"/>
+			}
+			<div class="padding">
+				<h5>{ fmt.Sprintf("%d", ep.EpisodeNumber) }: { ep.Title }</h5>
+				<p class="small-text">
+					{ ep.Since.Format("2006-01-02 15:04") } • { fmt.Sprintf("%d", ep.DurationSeconds / 60) } min
+				</p>
+				<div class="row no-space">
+					if ep.Status == "recording" {
+						<span class="chip primary white-text recording-badge">
+							<i>radio_button_checked</i> Recording
+						</span>
+					} else if ep.Status == "recorded" {
+						<span class="chip green white-text">
+							<i>check_circle</i> Recorded
+						</span>
+					} else if ep.Status == "failed" {
+						<span class="chip red white-text">
+							<i>error</i> Failed
+						</span>
+					}
+				</div>
+				<nav class="no-space">
+					<button class="transparent circle">
+						<i>play_arrow</i>
+					</button>
+					<a href={ templ.SafeURL(ep.WebUrl) } target="_blank" class="button transparent circle">
+						<i>open_in_new</i>
+					</a>
+				</nav>
+			</div>
+		</article>
+	</div>
+}

@@ -1,0 +1,144 @@
+---
+- name: "Ensure Home Assistant data directories for config exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ apps_data_dir }}/home-assistant/data"
+    - "{{ apps_data_dir }}/home-assistant/mosquitto/config"
+    - "{{ apps_data_dir }}/home-assistant/zigbee2mqtt"
+  tags: [mosquitto, zigbee2mqtt]
+
+- name: "Find Sonoff Zigbee Dongle"
+  ansible.builtin.shell: "find /dev/serial/by-id/ -name '*Sonoff*' 2>/dev/null | head -n 1"
+  register: stacks_home_assistant_sonoff_dongle_path
+  changed_when: false
+  ignore_errors: true
+
+- name: "Set Zigbee device path fact"
+  ansible.builtin.set_fact:
+    stacks_home_assistant_zigbee_device: >-
+      {{ stacks_home_assistant_sonoff_dongle_path.stdout | default('/dev/ttyUSB0', true) }}
+
+- name: "Generate Mosquitto password hash"
+  ansible.builtin.command:
+    cmd: >-
+      docker run --rm --entrypoint sh eclipse-mosquitto:2.0 -c
+      "mosquitto_passwd -c -b /tmp/pass {{ mqtt_username | quote }} {{ mqtt_password | quote }} && cat /tmp/pass"
+  register: stacks_mosquitto_password_hash
+  changed_when: false
+  tags: [mosquitto]
+
+- name: "Get Mosquitto User ID"
+  ansible.builtin.command:
+    cmd: "docker run --rm --entrypoint /bin/sh eclipse-mosquitto:2.0 -c 'id -u mosquitto'"
+  register: stacks_mosquitto_uid
+  changed_when: false
+  tags: [mosquitto]
+
+- name: "Get Mosquitto Group ID"
+  ansible.builtin.command:
+    cmd: "docker run --rm --entrypoint /bin/sh eclipse-mosquitto:2.0 -c 'id -g mosquitto'"
+  register: stacks_mosquitto_gid
+  changed_when: false
+  tags: [mosquitto]
+
+- name: "Create Mosquitto password file"
+  ansible.builtin.copy:
+    dest: "{{ apps_data_dir }}/home-assistant/mosquitto/config/mosquitto.passwd"
+    content: "{{ stacks_mosquitto_password_hash.stdout }}\n"
+    mode: "0600"
+    owner: "{{ stacks_mosquitto_uid.stdout }}"
+    group: "{{ stacks_mosquitto_gid.stdout }}"
+    force: false
+  tags: [mosquitto]
+
+- name: "Ensure Mosquitto configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "mosquitto"
+    config_src: "{{ inventory_hostname }}/mosquitto.conf.j2"
+    config_dest: "{{ apps_data_dir }}/home-assistant/mosquitto/config/mosquitto.conf"
+    mode: "0644"
+    owner: "{{ stacks_mosquitto_uid.stdout }}"
+    group: "{{ stacks_mosquitto_gid.stdout }}"
+  tags: [mosquitto]
+
+- name: "Ensure Zigbee2MQTT configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "zigbee2mqtt"
+    config_src: "{{ inventory_hostname }}/z2m_configuration.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/home-assistant/zigbee2mqtt/configuration.yaml"
+    mode: "0644"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+  tags: [zigbee2mqtt]
+
+- name: "Ensure Home Assistant configuration"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_config
+  vars:
+    service_name: "home-assistant"
+    config_src: "{{ inventory_hostname }}/home_assistant_configuration.yaml.j2"
+    config_dest: "{{ apps_data_dir }}/home-assistant/data/configuration.yaml"
+    mode: "0644"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Check if HACS is installed"
+  ansible.builtin.stat:
+    path: "{{ apps_data_dir }}/home-assistant/data/custom_components/hacs/manifest.json"
+  register: stacks_hacs_manifest
+  tags: [home-assistant]
+
+- name: "Get Home Assistant container info"
+  community.docker.docker_container_info:
+    name: home-assistant
+  register: stacks_ha_container_info
+  tags: [home-assistant]
+
+- name: "Install HACS via container"
+  ansible.builtin.command:
+    cmd: docker exec home-assistant bash -c "wget -O - https://get.hacs.xyz | bash -"
+  when:
+    - not stacks_hacs_manifest.stat.exists
+    - stacks_ha_container_info.exists
+    - stacks_ha_container_info.container.State.Running
+  register: stacks_hacs_install_result
+  changed_when: true
+  tags: [home-assistant]
+
+- name: "Force Home Assistant recreate for HACS"
+  ansible.builtin.set_fact:
+    force_stack_recreate: true # noqa var-naming[no-role-prefix]
+  when: stacks_hacs_install_result.changed
+  tags: [home-assistant]
+
+- name: "Allow Home Assistant UI"
+  community.general.ufw:
+    rule: allow
+    port: "8123"
+    proto: tcp
+  tags: [home-assistant]
+
+- name: "Allow Music Assistant UI"
+  community.general.ufw:
+    rule: allow
+    port: "8095"
+    proto: tcp
+  tags: [home-assistant]
+
+- name: "Ensure Home Assistant stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: home-assistant
+    env_template: "{{ inventory_hostname }}/home_assistant.env.j2"

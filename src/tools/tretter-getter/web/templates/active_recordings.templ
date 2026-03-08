@@ -1,0 +1,31 @@
+package templates
+
+import (
+	"fmt"
+	"tretter-getter/store"
+)
+
+templ ActiveRecordings(episodes []store.Episode) {
+	<div id="active-recordings" class="col s12 m8 l9" hx-get="/api/active-recordings" hx-trigger="every 30s" hx-swap="outerHTML">
+		<article class="border primary-border">
+			<div class="row align-middle">
+				<i class="large primary-text">radio_button_checked</i>
+				<div class="max">
+					<h5>On Air</h5>
+					if len(episodes) == 0 {
+						<p>No active recordings at the moment.</p>
+					} else {
+						<p>{ fmt.Sprintf("%d", len(episodes)) } recording(s) in progress.</p>
+					}
+				</div>
+			</div>
+			if len(episodes) > 0 {
+				<div class="grid">
+					for _, ep := range episodes {
+						@EpisodeCard(ep)
+					}
+				</div>
+			}
+		</article>
+	</div>
+}

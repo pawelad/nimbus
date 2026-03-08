@@ -1,0 +1,23 @@
+---
+- name: "Configure systemd-journald max retention size"
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: "^#?SystemMaxUse="
+    line: "SystemMaxUse=1G"
+    state: present
+  notify: "Restart systemd-journald"
+
+- name: "Configure systemd-journald max retention time"
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: "^#?MaxRetentionSec="
+    line: "MaxRetentionSec=1month"
+    state: present
+  notify: "Restart systemd-journald"
+
+- name: "Configure logrotate compress"
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.conf
+    regexp: "^#?compress$"
+    line: "compress"
+    state: present

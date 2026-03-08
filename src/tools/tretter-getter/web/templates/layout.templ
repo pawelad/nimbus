@@ -1,0 +1,36 @@
+package templates
+
+templ Layout(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ title }</title>
+			<link href="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.css" rel="stylesheet"/>
+			<script type="module" src="https://cdn.jsdelivr.net/npm/beercss@3.5.1/dist/cdn/beer.min.js"></script>
+			<script type="module" src="https://cdn.jsdelivr.net/npm/material-dynamic-colors@1.1.0/dist/cdn/material-dynamic-colors.min.js"></script>
+			<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+			<style>
+				:root { --primary: #00668b; --on-primary: #ffffff; --secondary: #4d616c; }
+				body.dark { --primary: #7dd0ff; --on-primary: #00344a; --secondary: #b4cad6; }
+				.episode-card { transition: transform 0.2s; }
+				.episode-card:hover { transform: translateY(-2px); }
+				.recording-badge { animation: pulse 2s infinite; }
+				@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+			</style>
+		</head>
+		<body class="light">
+			<nav class="top app-bar">
+				<img src="https://s.tvp.pl/images/7/a/5/uid_7a512ea296a844d0bf6407205dc463bf_width_315_play_0_pos_0_gs_0_height_177.png" class="circle"/>
+				<h5 class="max">{ title }</h5>
+				<button class="circle transparent" onclick="ui('mode', ui('mode') === 'dark' ? 'light' : 'dark')">
+					<i>dark_mode</i>
+				</button>
+			</nav>
+			<main class="responsive">
+				{ children... }
+			</main>
+		</body>
+	</html>
+}

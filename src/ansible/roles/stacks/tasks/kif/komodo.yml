@@ -1,0 +1,75 @@
+---
+# Komodo Sync Automation
+#
+# Variables:
+#   komodo_force_update: (Optional) Set to true to force the sync script to
+#     run and update all stacks, even if no stack changes were detected during
+#     the run.
+#     Example: ansible-playbook ... -e "komodo_force_update=true"
+#
+#   stack_changed: (Internal/Global) Automatically set true by the "deploy stack"
+#     task in ensure_stack.yml if any stack deployment resulted in actual changes.
+#     Used to conditionally trigger the sync.
+
+- name: "Ensure Komodo stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: komodo
+    env_template: "{{ inventory_hostname }}/komodo.env.j2"
+
+- name: "Wait for Komodo container to be healthy"
+  community.docker.docker_container_info:
+    name: komodo-core
+  register: stacks_komodo_check
+  ignore_errors: true
+  retries: 10
+  delay: 5
+  until: >-
+    stacks_komodo_check.container is defined
+    and stacks_komodo_check.container.State.Health.Status is defined
+    and stacks_komodo_check.container.State.Health.Status == 'healthy'
+
+- name: "Get server user information"
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ server_user }}"
+
+- name: "Get docker group information"
+  ansible.builtin.getent:
+    database: group
+    key: docker
+
+- name: "Sync stacks to Komodo via komodo-import"
+  community.docker.docker_container:
+    name: komodo-import
+    image: ghcr.io/foxxmd/komodo-import:0.2.4
+    state: started
+    recreate: true
+    auto_remove: false
+    cleanup: false
+    user: "{{ getent_passwd[server_user][1] }}:{{ getent_group['docker'][1] }}"
+    volumes:
+      - "{{ repo_dir }}:/filesOnServer:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    env:
+      HOST_DIR: "{{ repo_dir }}"
+      STACKS_FROM: "dir"
+      SERVER_NAME: "{{ inventory_hostname }}"
+      KOMODO_URL: "http://komodo-core:9120"
+      API_KEY: "{{ komodo_api_key }}"
+      API_SECRET: "{{ komodo_api_secret }}"
+      OUTPUT_API_SYNC: "true"
+      SYNC_NAME: "kif-stacks"
+      EXISTING_SYNC: "overwrite"
+      SCAN_DIR: "src/stacks/{{ inventory_hostname }}"
+      WRITE_ENV: "false"  # TODO: To reconsider in the future
+      LOG_TOML: "true"
+    networks:
+      - name: komodo_internal
+  when:
+    - not stacks_komodo_check.failed
+    - komodo_api_key | length > 0
+    - komodo_api_secret | length > 0
+    - stack_changed | default(false) | bool or komodo_force_update | default(false) | bool

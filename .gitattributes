@@ -1,0 +1,3 @@
+# Mark large data files as generated so GitHub collapses them in diffs
+# and excludes them from language statistics.
+src/tools/tretter-getter/data/** linguist-generated

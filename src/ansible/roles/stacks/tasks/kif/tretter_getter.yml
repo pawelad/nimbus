@@ -1,0 +1,29 @@
+---
+- name: Get server_user info
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ server_user }}"
+
+- name: Ensure tretter-getter data directories exist
+  ansible.builtin.file:
+    path: "{{ apps_data_dir }}/tretter-getter"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0755"
+
+- name: "Ensure tretter-worker image is built"
+  community.docker.docker_image_build:
+    name: tretter-worker
+    tag: latest
+    path: "{{ repo_dir }}/src/tools/tretter-worker"
+
+- name: "Ensure tretter-getter stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: tretter-getter
+    env_template: "{{ inventory_hostname }}/tretter_getter.env.j2"
+    pull_policy: never
+    build_policy: always

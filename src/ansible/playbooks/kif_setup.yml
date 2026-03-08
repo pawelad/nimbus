@@ -1,0 +1,20 @@
+---
+# Kif Server Provisioning Playbook
+
+- name: "Provision Kif Server"
+  hosts: kif
+  become: true
+
+  roles:
+    # Configure server and mount data disk
+    - role: common
+      tags: common
+    # Install Docker
+    - role: docker
+      tags: docker
+    # Create the Git deployment hook for the repository
+    - role: git_deploy
+      tags: git_deploy
+    # Configure Samba
+    - role: samba
+      tags: samba

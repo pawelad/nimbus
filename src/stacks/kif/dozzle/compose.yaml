@@ -1,0 +1,33 @@
+---
+name: dozzle
+
+services:
+  dozzle:
+    image: amir20/dozzle:v9.0.3
+    container_name: dozzle
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "0.0.0.0:8888:8080"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "/dozzle", "healthcheck" ]
+    labels:
+      # Caddy reverse proxy
+      caddy: dozzle.home dozzle.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy.reverse_proxy.flush_interval: "-1"
+      # Homepage service discovery
+      homepage.group: Monitoring
+      homepage.name: Dozzle
+      homepage.icon: dozzle.png
+      homepage.href: https://dozzle.home
+      homepage.description: Log Viewer
+      homepage.weight: 40
+
+networks:
+  caddy:
+    external: true

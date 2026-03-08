@@ -1,0 +1,44 @@
+---
+name: speedtest-tracker
+
+services:
+  speedtest-tracker:
+    image: lscr.io/linuxserver/speedtest-tracker:1.13.10
+    container_name: speedtest-tracker
+    volumes:
+      - /data/apps/speedtest-tracker:/config
+    environment:
+      TZ: Europe/Warsaw
+      PUID: 1000
+      PGID: 1000
+      APP_URL: https://speedtest.home
+      APP_KEY: ${APP_KEY}
+      DB_CONNECTION: sqlite
+      SPEEDTEST_SCHEDULE: "0 * * * *" # Run at minute 0 past every hour
+    ports:
+      - "0.0.0.0:8070:80"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 15 --silent --show-error --fail http://localhost:80/api/healthcheck || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: "speedtest.home speedtest.pipusznicy speed.test s.t"
+      caddy.tls: "internal"
+      caddy.reverse_proxy: "{{upstreams 80}}"
+      # Monitoring
+      monitor.url: "https://speedtest.home/api/healthcheck"
+      # Homepage service discovery
+      homepage.group: Monitoring
+      homepage.name: Speedtest Tracker
+      homepage.icon: speedtest-tracker.png
+      homepage.href: https://speedtest.home
+      homepage.description: Internet Speed Tracking
+      homepage.weight: 40
+      homepage.widget.type: speedtest
+      homepage.widget.url: http://speedtest-tracker:80
+
+networks:
+  caddy:
+    external: true

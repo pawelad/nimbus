@@ -1,0 +1,32 @@
+---
+title: Kif
+useEqualHeights: true
+background:
+  image: /images/yash-rai-JXK8dh3DKBg-unsplash.jpg
+  brightness: 50
+  blur: xs
+
+layout:
+  # Home Tab
+  Automation:
+    tab: Home
+    style: row
+    columns: 2
+  Apps:
+    tab: Home
+    style: row
+    columns: 4
+
+  # Server Tab
+  Media:
+    tab: Server
+    style: row
+    columns: 2
+  Infrastructure:
+    tab: Server
+    style: row
+    columns: 4
+  Monitoring:
+    tab: Server
+    style: row
+    columns: 4

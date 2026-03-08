@@ -1,0 +1,32 @@
+---
+name: metube
+
+services:
+  metube:
+    image: ghcr.io/alexta69/metube:2026.01.11
+    container_name: metube
+    volumes:
+      - /data/apps/metube/downloads:/downloads
+    ports:
+      - "0.0.0.0:8081:8081"
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8081/ || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy: metube.home metube.pipusznicy
+      caddy.tls: internal
+      caddy.reverse_proxy: "{{upstreams 8081}}"
+      # Homepage service discovery
+      homepage.group: Apps
+      homepage.name: MeTube
+      homepage.icon: metube.png
+      homepage.href: https://metube.home
+      homepage.description: YouTube Downloader
+      homepage.weight: 30
+
+networks:
+  caddy:
+    external: true

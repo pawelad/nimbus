@@ -1,0 +1,17 @@
+---
+name: rathole
+
+services:
+  rathole:
+    image: rapiz1/rathole:v0.5.0
+    container_name: rathole
+    volumes:
+      - /data/apps/rathole/client.toml:/app/client.toml:ro
+    networks:
+      - caddy
+    command: [ "--client", "/app/client.toml" ]
+    restart: unless-stopped
+
+networks:
+  caddy:
+    external: true

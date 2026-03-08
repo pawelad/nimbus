@@ -1,0 +1,89 @@
+---
+# Gatus Sync Automation
+#
+# Variables:
+#   gatus_force_update: (Optional) Set to true to force the sync script to
+#     run and generate the Gatus config, even if no stack changes were detected
+#     during the run.
+#     Example: ansible-playbook ... -e "gatus_force_update=true"
+#
+#   stack_changed: (Internal/Global) Automatically set true by the "deploy stack"
+#     task in ensure_stack.yml if any stack deployment resulted in actual changes.
+#     Used to conditionally trigger the sync and restart the Gatus container.
+- name: "Ensure Gatus config directory exists"
+  ansible.builtin.file:
+    path: /data/apps/gatus
+    state: directory
+    mode: "0755"
+
+- name: "Ensure alerting configuration exists"
+  ansible.builtin.template:
+    src: "{{ inventory_hostname }}/gatus.alerting.yaml.j2"
+    dest: /data/apps/gatus/alerting.yaml
+    mode: "0640"
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+
+- name: "Ensure basic Gatus config exists"
+  ansible.builtin.copy:
+    content: |
+      metrics: true
+      endpoints:
+        - name: "Health"
+          group: "Internal"
+          url: "http://localhost:8080/health"
+          interval: "60s"
+          conditions:
+            - "[STATUS] == 200"
+    dest: /data/apps/gatus/config.yaml
+    force: false
+    mode: "0644"
+
+- name: "Ensure Gatus stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: gatus
+
+- name: "Wait for Gatus container to be running"
+  community.docker.docker_container_info:
+    name: gatus
+  register: stacks_gatus_check
+  ignore_errors: true
+  retries: 10
+  delay: 5
+  until: >-
+    stacks_gatus_check.container is defined
+    and stacks_gatus_check.container.State.Status == 'running'
+
+- name: "Check if Gatus Sync script exists"
+  ansible.builtin.stat:
+    path: "{{ repo_dir }}/src/tools/gatus_sync/gatus_sync.py"
+  register: stacks_gatus_script_path
+
+- name: "Sync Gatus Config"
+  ansible.builtin.command:
+    cmd: >-
+      uv run {{ stacks_gatus_script_path.stat.path }}
+      --stacks-dir {{ repo_dir }}/src/stacks/{{ inventory_hostname }}
+      --output /data/apps/gatus/config.yaml
+  register: stacks_gatus_sync
+  ignore_errors: true
+  retries: 3
+  delay: 10
+  until: stacks_gatus_sync.rc == 0
+  changed_when:
+    - "'[UPDATE]' in stacks_gatus_sync.stderr
+      or '[CREATE]' in stacks_gatus_sync.stderr"
+  when:
+    - stacks_gatus_script_path.stat.exists
+    - not stacks_gatus_check.failed
+    - stack_changed | default(false) | bool or gatus_force_update | default(false) | bool
+
+- name: "Restart Gatus container if config changed"
+  community.docker.docker_container:
+    name: gatus
+    state: started
+    restart: true
+  when: stacks_gatus_sync is changed

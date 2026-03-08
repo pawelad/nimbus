@@ -1,0 +1,15 @@
+settings:
+  monitor_all_containers: true
+  disable_monitor_event_message: true
+
+global_keywords:
+  keywords:
+    - error
+    - failed
+    - critical
+
+notifications:
+  ntfy:
+    url: http://ntfy:2586
+    topic: loggifly
+    token: {{ ntfy_token }}

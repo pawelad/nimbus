@@ -1,0 +1,30 @@
+package templates
+
+import "tretter-getter/store"
+
+templ Dashboard(isOnline bool, version string, recordedCount int64, activeEpisodes []store.Episode, libraryEpisodes []store.Episode) {
+	@Layout("Tretter Getter") {
+		<div id="dashboard">
+			@Status(isOnline, version, recordedCount)
+
+			<div class="divider"></div>
+
+			<div class="padding">
+				<div class="row">
+					@ActiveRecordings(activeEpisodes)
+				</div>
+			</div>
+
+			<div class="divider"></div>
+
+			<div class="padding" id="library-section">
+				<h4>Library</h4>
+				<div id="episodes-grid" class="grid" hx-get="/api/library" hx-trigger="every 60s" hx-swap="innerHTML">
+					for _, ep := range libraryEpisodes {
+						@EpisodeCard(ep)
+					}
+				</div>
+			</div>
+		</div>
+	}
+}
