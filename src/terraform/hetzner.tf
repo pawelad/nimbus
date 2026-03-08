@@ -1,6 +1,6 @@
 resource "hcloud_ssh_key" "zapp" {
   name       = "pawelad@zapp"
-  public_key = file("~/.ssh/hetzner_ed25519.pub")
+  public_key = var.hcloud_ssh_public_key
 }
 
 resource "hcloud_server" "zapp" {
