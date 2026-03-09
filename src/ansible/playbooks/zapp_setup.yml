@@ -12,6 +12,9 @@
     # Install Docker
     - role: docker
       tags: docker
+    # Setup Dokploy PaaS
+    - role: dokploy
+      tags: dokploy
     # Create the Git deployment hook for the repository
     - role: git_deploy
       tags: git_deploy

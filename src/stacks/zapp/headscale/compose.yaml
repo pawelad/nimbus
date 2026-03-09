@@ -12,13 +12,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - dokploy-network
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.headplane.rule=Host(`${HEADPLANE_HOSTNAME}`)"
       - "traefik.http.routers.headplane.entrypoints=websecure"
       - "traefik.http.routers.headplane.tls.certresolver=dokploy"
       - "traefik.http.services.headplane.loadbalancer.server.port=3000"
-    restart: unless-stopped
 
   headscale:
     image: ghcr.io/juanfont/headscale:0.28.0
@@ -29,6 +29,7 @@ services:
     networks:
       - dokploy-network
     command: serve
+    restart: unless-stopped
     labels:
       - "me.tale.headplane.target=headscale"
       - "traefik.enable=true"
@@ -36,7 +37,6 @@ services:
       - "traefik.http.routers.headscale.entrypoints=websecure"
       - "traefik.http.routers.headscale.tls.certresolver=dokploy"
       - "traefik.http.services.headscale.loadbalancer.server.port=8080"
-    restart: unless-stopped
 
 networks:
   dokploy-network:

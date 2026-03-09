@@ -1,10 +1,4 @@
 ---
-# Dokploy is the PaaS foundation, installed via official script
-- name: "Include Dokploy tasks"
-  ansible.builtin.import_tasks: zapp/dokploy.yml
-  tags: [dokploy]
-
-# Stacks
 - name: "Include Beszel Agent tasks"
   ansible.builtin.import_tasks: zapp/beszel_agent.yml
   tags: [beszel-agent]
