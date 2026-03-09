@@ -40,4 +40,4 @@
   ansible.builtin.debug:
     msg: >-
       Git remote setup: git remote add {{ inventory_hostname }}
-      {{ ansible_user }}@{{ ansible_host }}:{{ repo_dir }}
+      {{ server_user }}@{{ ansible_host }}:{{ repo_dir }}

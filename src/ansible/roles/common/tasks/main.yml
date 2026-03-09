@@ -19,6 +19,23 @@
     mode: "0440"
     validate: "visudo -cf %s"
 
+- name: "Ensure server user .ssh directory exists"
+  ansible.builtin.file:
+    path: "/home/{{ server_user }}/.ssh"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0700"
+
+- name: "Copy authorized_keys from root to server user"
+  ansible.builtin.copy:
+    src: /root/.ssh/authorized_keys
+    dest: "/home/{{ server_user }}/.ssh/authorized_keys"
+    remote_src: true
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0600"
+
 # Packages
 - name: "Update apt cache"
   ansible.builtin.apt:
