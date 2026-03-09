@@ -22,7 +22,7 @@ services:
       - /data/apps/headscale/data:/var/lib/headscale
     networks:
       - dokploy-network
-    command: headscale serve
+    command: serve
     restart: unless-stopped
     labels:
       - "me.tale.headplane.target=headscale"
