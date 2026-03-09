@@ -3,7 +3,6 @@ extends: default
 
 ignore: |
   src/ansible/collections/*
-  src/terraform/templates/*
 
 rules:
   line-length:
@@ -25,6 +24,8 @@ rules:
 
   comments:
     min-spaces-from-content: 1
+    ignore: |
+      src/terraform/templates/*
 
   comments-indentation: false
 

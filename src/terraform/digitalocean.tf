@@ -16,13 +16,6 @@ resource "digitalocean_droplet" "nimbus" {
   ssh_keys      = [data.digitalocean_ssh_key.root.id]
   tags          = ["terraform"]
 
-  user_data = templatefile("${path.module}/templates/cloud-config.yaml", {
-    username             = var.droplet_username
-    dokku_domain         = var.dokku_domain
-    user_ssh_public_key  = chomp(data.digitalocean_ssh_key.root.public_key)
-    dokku_ssh_public_key = chomp(data.digitalocean_ssh_key.dokku.public_key)
-  })
-
   lifecycle {
     ignore_changes = [
       user_data,

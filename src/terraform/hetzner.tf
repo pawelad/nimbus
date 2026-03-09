@@ -14,6 +14,11 @@ resource "hcloud_server" "zapp" {
     provisioner = "terraform"
   }
 
+  user_data = templatefile("${path.module}/templates/cloud-config.yaml", {
+    username            = "pawel"
+    user_ssh_public_key = chomp(var.hcloud_ssh_public_key)
+  })
+
   lifecycle {
     ignore_changes = [
       ssh_keys,  # Ignore if we manually add/remove keys later
