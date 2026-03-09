@@ -18,7 +18,7 @@
   register: git_deploy_repo_stat
 
 - name: "Initialize git repository"
-  ansible.builtin.command: "git init {{ repo_dir }}"  # noqa: command-instead-of-module
+  ansible.builtin.command: "git init --initial-branch=main {{ repo_dir }}"  # noqa: command-instead-of-module
   args:
     creates: "{{ repo_dir }}/.git"
   become: true
