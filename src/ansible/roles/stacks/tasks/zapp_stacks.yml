@@ -11,7 +11,7 @@
 
 - name: "Include Headscale tasks"
   ansible.builtin.import_tasks: zapp/headscale.yml
-  tags: [headscale]
+  tags: [headscale, headplane]
 
 - name: "Include Komodo Periphery tasks"
   ansible.builtin.import_tasks: zapp/komodo_periphery.yml

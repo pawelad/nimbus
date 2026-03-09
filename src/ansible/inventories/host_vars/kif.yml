@@ -123,7 +123,7 @@ komodo_api_secret: !vault |
   3062633539396330656334613637333866333364363032623663
 
 # Mealie
-mealie_url: "https://mealie.pawelad.me"
+mealie_url: "https://mealie.{{ root_domain }}"
 mealie_api_key: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   38373063373461326235336432653531333763663230303430343639653837623962373632653863
@@ -195,10 +195,10 @@ speedtest_tracker_app_key: !vault |
   613665356235623932393265323235636130
 
 # Rathole
-rathole_server_addr: "rathole.pawelad.me:2333"
+rathole_server_addr: "rathole.{{ root_domain }}:2333"
 
 # Stremio
-stremio_aiostreams_base_url: "https://stremio.pawelad.me"
+stremio_aiostreams_base_url: "https://stremio.{{ root_domain }}"
 stremio_aiostreams_secret_key: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   30333436663536353831303538656139646665313732363466323565643864383030346339373639

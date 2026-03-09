@@ -30,6 +30,7 @@ apps_data_dir: "{{ data_dir }}/apps"
 stacks_symlink: "{{ data_dir }}/stacks"
 
 ### Shared Secrets ###
+root_domain: "pawelad.me"
 
 # Beszel
 beszel_agent_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOoo1Hl+7IEto4EkDkMtXSKFXoXiIFSlTgoDZqmux3D"
@@ -58,4 +59,6 @@ rathole_server_token: !vault |
 
 # Tailscale
 tailscale_authkey: ""
-headscale_url: "https://headscale.pawelad.me"
+headscale_server_url: "https://vpn.{{ root_domain }}"
+headscale_base_domain: "net.{{ root_domain }}"
+headplane_base_url: "https://headplane.{{ root_domain }}"

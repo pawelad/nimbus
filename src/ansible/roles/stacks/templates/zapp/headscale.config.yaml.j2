@@ -2,7 +2,7 @@
 # See: https://headscale.net/stable/setup/install/container/#configure-and-run-headscale
 # Ref: https://raw.githubusercontent.com/juanfont/headscale/refs/heads/main/config-example.yaml
 
-server_url: https://headscale.pawelad.me
+server_url: {{ headscale_server_url }}
 listen_addr: 0.0.0.0:8080
 metrics_listen_addr: 0.0.0.0:9090
 grpc_listen_addr: 0.0.0.0:50443
@@ -40,7 +40,7 @@ policy:
 
 dns:
   magic_dns: true
-  base_domain: headscale.pawelad.me
+  base_domain: {{ headscale_base_domain }}
   override_local_dns: false
   nameservers:
     global:
