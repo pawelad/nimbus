@@ -54,6 +54,20 @@ resource "cloudflare_record" "zapp" {
   proxied = false
 }
 
+# Wildcard — routes all subdomains to Dokploy / Traefik
+resource "cloudflare_record" "zapp_wildcard" {
+  zone_id = cloudflare_zone.pawelad_me.id
+  type    = "A"
+  name    = "*"
+  value   = hcloud_server.zapp.ipv4_address
+  proxied = false
+}
+
+moved {
+  from = cloudflare_record.dokku_wildcard
+  to   = cloudflare_record.zapp_wildcard
+}
+
 # Nimbus
 resource "cloudflare_record" "nimbus" {
   zone_id = cloudflare_zone.pawelad_me.id
@@ -63,11 +77,11 @@ resource "cloudflare_record" "nimbus" {
   proxied = false
 }
 
-# dokku
-resource "cloudflare_record" "dokku_wildcard" {
-  zone_id = cloudflare_zone.pawelad_me.id
-  type    = "A"
-  name    = "*"
+# fakester (pre migration)
+resource "cloudflare_record" "ghp_fakester" {
+  zone_id = cloudflare_zone.pawelad_dev.id
+  type    = "CNAME"
+  name    = "fakester"
   value   = digitalocean_droplet.nimbus.ipv4_address
   proxied = false
 }
