@@ -79,8 +79,8 @@ resource "cloudflare_record" "nimbus" {
 
 # fakester (pre migration)
 resource "cloudflare_record" "fakester" {
-  zone_id = cloudflare_zone.pawelad_dev.id
-  type    = "CNAME"
+  zone_id = cloudflare_zone.pawelad_me.id
+  type    = "A"
   name    = "fakester"
   value   = digitalocean_droplet.nimbus.ipv4_address
   proxied = false
