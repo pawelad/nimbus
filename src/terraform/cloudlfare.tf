@@ -78,7 +78,7 @@ resource "cloudflare_record" "nimbus" {
 }
 
 # fakester (pre migration)
-resource "cloudflare_record" "ghp_fakester" {
+resource "cloudflare_record" "fakester" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "CNAME"
   name    = "fakester"
