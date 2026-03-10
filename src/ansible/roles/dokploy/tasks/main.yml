@@ -25,7 +25,23 @@
   register: dokploy_install
   changed_when: true
 
-- name: "Ensure Dokploy service is running"
-  community.docker.docker_swarm_service: # noqa args[module]
-    name: dokploy
-    replicas: 1
+- name: "Get Dokploy services info"
+  community.docker.docker_swarm_service_info:
+    name: "{{ item }}"
+  loop:
+    - dokploy-postgres
+    - dokploy-redis
+    - dokploy
+  register: dokploy_services
+
+- name: "Ensure Dokploy services are running"
+  ansible.builtin.command:
+    cmd: "docker service update --replicas 1 --detach=false {{ item.item }}"
+  loop: "{{ dokploy_services.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: >
+    item.exists and
+    (item.service.Spec.Mode.Replicated.Replicas | default(0) | int) < 1
+  register: dokploy_start
+  changed_when: dokploy_start.rc == 0
