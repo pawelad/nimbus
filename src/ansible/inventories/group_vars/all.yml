@@ -32,6 +32,13 @@ stacks_symlink: "{{ data_dir }}/stacks"
 ### Shared Secrets ###
 root_domain: "pawelad.me"
 
+# Shared public DNS servers (Quad9 without malware blocking)
+public_dns_servers:
+  - 9.9.9.10
+  - 149.112.112.10
+  - 2620:fe::10
+  - 2620:fe::fe:10
+
 # Beszel
 beszel_agent_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOoo1Hl+7IEto4EkDkMtXSKFXoXiIFSlTgoDZqmux3D"
 
@@ -60,6 +67,7 @@ rathole_server_token: !vault |
 # Tailscale
 headscale_server_url: "https://vpn.{{ root_domain }}"
 headscale_base_domain: "net.{{ root_domain }}"
+headscale_dns_node: "kif"
 
 headplane_base_url: "https://headplane.{{ root_domain }}"
 

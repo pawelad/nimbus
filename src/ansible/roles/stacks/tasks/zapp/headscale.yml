@@ -1,4 +1,31 @@
 ---
+- name: "Allow Headscale STUN port through UFW"
+  community.general.ufw:
+    rule: allow
+    port: "3478"
+    proto: udp
+    comment: "Headscale DERP/STUN"
+
+- name: "Fetch Headscale nodes to find DNS node Tailscale IP"
+  ansible.builtin.command: docker exec headscale headscale nodes list -o json
+  register: headscale_nodes_output
+  changed_when: false
+  ignore_errors: true
+
+- name: "Parse DNS node Tailscale IP"
+  ansible.builtin.set_fact:
+    dns_node_tailscale_ip: >-
+      {{
+        (
+          headscale_nodes_output.stdout | default('[]', true) | from_json
+          | community.general.json_query("[?given_name==`" ~ headscale_dns_node ~ "`].ip_addresses[0]")
+        ) | first | default('')
+      }}
+
+- name: "Show DNS node Tailscale IP"
+  ansible.builtin.debug:
+    var: dns_node_tailscale_ip
+
 - name: "Ensure Headscale configuration"
   ansible.builtin.import_role:
     name: common
