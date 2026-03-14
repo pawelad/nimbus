@@ -20,16 +20,16 @@ data_dir: "/data"
 # Git deployment paths
 repo_dir: "{{ data_dir }}/nimbus"
 
-# We use the inventory hostname (kif or zapp) to organize stacks
-stacks_dir: "{{ repo_dir }}/src/stacks/{{ inventory_hostname }}"
+# The actual repo path for stacks (per server)
+repo_stacks_dir: "{{ repo_dir }}/src/stacks/{{ inventory_hostname }}"
+
+# The active directory for stacks (a symlink to the repo path)
+stacks_dir: "{{ data_dir }}/stacks"
 
 # Persistent app data (outside git)
 apps_data_dir: "{{ data_dir }}/apps"
 
-# Stacks symlink (points to the host-specific stacks folder)
-stacks_symlink: "{{ data_dir }}/stacks"
-
-### Shared Secrets ###
+# Root domain
 root_domain: "pawelad.me"
 
 # Shared public DNS servers (Quad9 without malware blocking)
@@ -39,6 +39,7 @@ public_dns_servers:
   - 2620:fe::10
   - 2620:fe::fe:10
 
+### Shared Config ###
 # Beszel
 beszel_agent_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOoo1Hl+7IEto4EkDkMtXSKFXoXiIFSlTgoDZqmux3D"
 

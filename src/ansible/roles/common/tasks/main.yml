@@ -105,8 +105,8 @@
 
 - name: "Symlink stacks directory"
   ansible.builtin.file:
-    src: "{{ stacks_dir }}"
-    dest: "{{ stacks_symlink }}"
+    src: "{{ repo_stacks_dir }}"
+    dest: "{{ stacks_dir }}"
     owner: "{{ server_user }}"
     group: "{{ server_user }}"
     state: link
