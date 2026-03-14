@@ -35,9 +35,11 @@ src/
 │   │   ├── git_deploy/         # Git push-to-deploy setup
 │   │   ├── samba/              # Samba file sharing (kif only)
 │   │   └── stacks/             # Stack deployment (per-host task files)
-│   │       └── templates/      # Per-server: templates/{zapp,kif}/*.j2
+│   │       ├── tasks/          # Server-specific and common/ tasks
+│   │       └── templates/      # Templates under {zapp,kif,common}/*.j2
 │   └── tasks/                  # Reusable task files (ensure_stack, ensure_config)
 ├── stacks/
+│   ├── common/                 # Unified stacks shared across servers (symlinked)
 │   ├── zapp/                   # Zapp's Docker Compose stacks
 │   │   ├── dokploy/
 │   │   ├── headscale/
@@ -65,6 +67,7 @@ src/
 
 ### Stack Organization
 - **Rule**: Stacks are organized under `src/stacks/<server-name>/<stack-name>/compose.yaml`.
+- **Rule (Unified)**: Stacks shared across multiple servers are placed in `src/stacks/common/<stack-name>/` and symlinked into each server's directory (e.g., `src/stacks/zapp/tailscale-agent` -> `../../common/tailscale-agent`).
 - **Path on server**: The repo is cloned to `/data/nimbus/` and `stacks_dir` resolves to `/data/nimbus/src/stacks/<server-name>/`.
 - **Symlink**: `/data/stacks` → `stacks_dir` for convenience.
 
@@ -117,8 +120,8 @@ src/
 - **Reason**: Prevents false unhealthy states due to missing commands.
 
 ### Template Organization
-- **Rule**: Ansible templates for stacks are organized per-server under `roles/stacks/templates/<server-name>/`.
-- **Reference**: Task files use `{{ inventory_hostname }}/template.j2` so the same task works for any server.
+- **Rule**: Ansible templates for stacks are organized under `roles/stacks/templates/<server-name>/`. Shared templates are in `roles/stacks/templates/common/`.
+- **Reference**: Task files use `{{ inventory_hostname }}/template.j2` for server-specific templates, or `common/template.j2` for shared ones.
 
 ### Tooling
 - **Rule**: Tools in `src/tools` SHOULD have a `Makefile` with standard targets.

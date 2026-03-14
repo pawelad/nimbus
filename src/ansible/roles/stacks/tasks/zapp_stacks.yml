@@ -16,5 +16,5 @@
   tags: [rathole]
 
 - name: "Include Tailscale Agent tasks"
-  ansible.builtin.import_tasks: zapp/tailscale_agent.yml
+  ansible.builtin.import_tasks: common/tailscale_agent.yml
   tags: [tailscale-agent]

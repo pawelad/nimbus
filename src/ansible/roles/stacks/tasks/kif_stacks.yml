@@ -94,3 +94,7 @@
 - name: "Include Vector tasks"
   ansible.builtin.import_tasks: kif/vector.yml
   tags: [vector]
+
+- name: "Include Tailscale Agent tasks"
+  ansible.builtin.import_tasks: common/tailscale_agent.yml
+  tags: [tailscale-agent]
