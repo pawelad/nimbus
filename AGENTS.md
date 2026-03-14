@@ -71,11 +71,11 @@ src/
 ### Architecture & Deployment
 - **Concept**: "Git + Ansible Deploy"
 - **Mechanism**:
-    1. Developers run `make deploy-<server>` to push the `main` branch to the server and deploy stacks.
+    1. Developers run `make <server>-deploy` to push the `main` branch to the server and deploy stacks.
     2. `git push` updates the working tree via `receive.denyCurrentBranch=updateInstead`.
     3. `ansible-playbook {server}_deploy.yml` runs `docker compose up -d` for each stack.
 - **Rule**: Configuration (env vars, secrets) is managed by Ansible templates. Application definition (Docker Compose) is managed by Git in `src/stacks`.
-- **Rule**: NEVER use `scp` or direct file copying to push changes to a server. ALL changes to files managed in this repository MUST be deployed via `make deploy-<server>` (e.g., `make deploy-kif TAGS=adguard`) to ensure the server repository stays synchronized.
+- **Rule**: NEVER use `scp` or direct file copying to push changes to a server. ALL changes to files managed in this repository MUST be deployed via `make <server>-deploy` (e.g., `make kif-deploy TAGS=adguard`) to ensure the server repository stays synchronized.
 
 ### Docker Compose
 - **Rule**: All Docker Compose files MUST be named `compose.yaml`.
@@ -92,7 +92,7 @@ src/
 - **Reason**: Ensures consistency and reduces errors by using predefined workflows.
 - **Discovery**: Run `make help` (or just `make` if help is the default) to see a list of available targets and their descriptions.
 - **Common Examples**:
-    - Root `Makefile`: Used for project-wide tasks like `make check` (linting), `make provision-zapp`, `make deploy-zapp`, `make provision-kif`, `make deploy-kif`.
+    - Root `Makefile`: Used for project-wide tasks like `make check` (linting), `make zapp-provision`, `make zapp-deploy`, `make kif-provision`, `make kif-deploy`.
     - `src/tools/tretter-getter/Makefile`: Used for tool-specific tasks like `make build`, `make test`.
 
 ### Docker Compose Exposed Ports

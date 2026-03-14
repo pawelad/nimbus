@@ -5,8 +5,8 @@
 # whose configuration has actually changed.
 #
 # Usage:
-#   Deploy all stacks:   make deploy-kif
-#   Deploy one stack:    make deploy-kif TAGS=homepage
+#   Deploy all stacks:   make kif-deploy
+#   Deploy one stack:    make kif-deploy TAGS=homepage
 
 - name: "Deploy Stacks to Kif"
   hosts: kif

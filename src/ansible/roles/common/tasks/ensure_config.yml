@@ -5,8 +5,8 @@
 #   overwrite_config: (Optional) Force overwrite of configuration files even if
 #     drift is detected. Can be a string (service name) or a list of service names.
 #     'all' overwrites all.
-#     Example: make deploy-zapp TAGS=caddy FORCE=1
-#     Example: make deploy-zapp EXTRA_VARS='overwrite_config=["caddy","homepage"]'
+#     Example: make zapp-deploy TAGS=caddy FORCE=1
+#     Example: make zapp-deploy EXTRA_VARS='overwrite_config=["caddy","homepage"]'
 
 - name: "Resolve configuration defaults"
   ansible.builtin.set_fact:
@@ -75,7 +75,7 @@
       - "  ssh {{ inventory_hostname }} 'sudo diff {{ config_dest }} /tmp/{{ service_name }}_config.expected'"
       - ""
       - "To force replace the config (will stop/start service):"
-      - "  make deploy-{{ inventory_hostname }} TAGS={{ service_name }} FORCE=1"
+      - "  make {{ inventory_hostname }}-deploy TAGS={{ service_name }} FORCE=1"
   when:
     - config_diff.rc != 0
     - not overwrite_requested

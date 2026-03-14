@@ -5,8 +5,8 @@
 # whose configuration has actually changed.
 #
 # Usage:
-#   Deploy all stacks:   make deploy-zapp
-#   Deploy one stack:    make deploy-zapp TAGS=homepage
+#   Deploy all stacks:   make zapp-deploy
+#   Deploy one stack:    make zapp-deploy TAGS=homepage
 
 - name: "Deploy Stacks to Zapp"
   hosts: zapp
