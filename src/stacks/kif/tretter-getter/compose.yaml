@@ -4,7 +4,7 @@ name: tretter-getter
 services:
   tretter-getter:
     image: tretter-getter:latest # dclint disable-line
-    build: ../../../tools/tretter-getter
+    build: ${REPO_DIR:-../../..}/src/tools/tretter-getter
     container_name: tretter-getter-app
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
