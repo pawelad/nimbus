@@ -68,14 +68,14 @@
 
 - name: "Warn if config has drifted: {{ service_name }}"
   ansible.builtin.debug:
-    msg:
-      - "⚠️  WARNING: {{ service_name }} config on server differs from template!"
-      - ""
-      - "To review changes on the server, run:"
-      - "  ssh {{ inventory_hostname }} 'sudo diff {{ config_dest }} /tmp/{{ service_name }}_config.expected'"
-      - ""
-      - "To force replace the config (will stop/start service):"
-      - "  make {{ inventory_hostname }}-deploy TAGS={{ service_name }} FORCE=1"
+    msg: |
+      ⚠️  WARNING: {{ service_name }} config on server differs from template!
+
+      To review changes on the server, run:
+        ssh {{ inventory_hostname }} 'sudo diff {{ config_dest }} /tmp/{{ service_name }}_config.expected'
+
+      To force replace the config (will stop/start service):
+        make {{ inventory_hostname }}-deploy TAGS={{ service_name }} FORCE=1
   when:
     - config_diff.rc != 0
     - not overwrite_requested
