@@ -52,14 +52,16 @@ dns:
   override_local_dns: false
   nameservers:
     global:
-{%- for dns in public_dns_servers -%}
+{% for dns in public_dns_servers %}
       - {{ dns }}
-{%- endfor -%}
+{% endfor %}
+{% if dns_node_tailscale_ip %}
     split:
-{%- if dns_node_tailscale_ip -%}
       home:
         - {{ dns_node_tailscale_ip }}
-{%- endif -%}
+{% else %}
+    split: {}
+{% endif %}
   search_domains:
     - home
   extra_records: []
