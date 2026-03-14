@@ -14,11 +14,12 @@ services:
       - dokploy-network
     restart: unless-stopped
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.headplane.rule=Host(`${HEADPLANE_HOSTNAME}`)"
-      - "traefik.http.routers.headplane.entrypoints=websecure"
-      - "traefik.http.routers.headplane.tls.certresolver=letsencrypt"
-      - "traefik.http.services.headplane.loadbalancer.server.port=3000"
+      # traefik
+      traefik.enable: true
+      traefik.http.routers.headplane.rule: Host(`${HEADPLANE_HOSTNAME}`) && PathPrefix(`/admin`)
+      traefik.http.routers.headplane.entrypoints: websecure
+      traefik.http.routers.headplane.tls.certresolver: letsencrypt
+      traefik.http.services.headplane.loadbalancer.server.port: 3000
 
   headscale:
     image: ghcr.io/juanfont/headscale:0.28.0
@@ -33,12 +34,27 @@ services:
     command: serve
     restart: unless-stopped
     labels:
-      - "me.tale.headplane.target=headscale"
-      - "traefik.enable=true"
-      - "traefik.http.routers.headscale.rule=Host(`${HEADSCALE_HOSTNAME}`)"
-      - "traefik.http.routers.headscale.entrypoints=websecure"
-      - "traefik.http.routers.headscale.tls.certresolver=letsencrypt"
-      - "traefik.http.services.headscale.loadbalancer.server.port=8080"
+      me.tale.headplane.target: headscale
+      # traefik
+      traefik.enable: true
+      traefik.http.routers.headscale.rule: Host(`${HEADSCALE_HOSTNAME}`)
+      traefik.http.routers.headscale.entrypoints: websecure
+      traefik.http.routers.headscale.tls.certresolver: letsencrypt
+      traefik.http.services.headscale.loadbalancer.server.port: 8080
+
+      # CORS middleware for Headplane integration
+      traefik.http.routers.headscale.middlewares: headscale-cors
+      traefik.http.middlewares.headscale-cors.headers.accesscontrolallowheaders: "*"
+      traefik.http.middlewares.headscale-cors.headers.accesscontrolallowmethods: GET,POST,PUT
+      traefik.http.middlewares.headscale-cors.headers.accesscontrolalloworiginlist: https://${HEADSCALE_HOSTNAME}
+      traefik.http.middlewares.headscale-cors.headers.accesscontrolmaxage: 100
+      traefik.http.middlewares.headscale-cors.headers.addvaryheader: true
+
+      # Redirect / to /admin
+      traefik.http.routers.headscale-redirect.rule: Host(`${HEADSCALE_HOSTNAME}`) && Path(`/`)
+      traefik.http.routers.headscale-redirect.service: headscale
+      traefik.http.routers.headscale-redirect.middlewares: headscale-redirect
+      traefik.http.middlewares.headscale-redirect.addprefix.prefix: /admin
 
 networks:
   dokploy-network:

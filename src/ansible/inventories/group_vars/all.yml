@@ -69,7 +69,7 @@ headscale_server_url: "https://vpn.{{ root_domain }}"
 headscale_base_domain: "net.{{ root_domain }}"
 headscale_dns_node: "kif"
 
-headplane_base_url: "https://headplane.{{ root_domain }}"
+headplane_base_url: "https://vpn.{{ root_domain }}/admin"
 
 tailscale_authkey: !vault |
   $ANSIBLE_VAULT;1.1;AES256
