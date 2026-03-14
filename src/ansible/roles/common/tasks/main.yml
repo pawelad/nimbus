@@ -27,14 +27,18 @@
     group: "{{ server_user }}"
     mode: "0700"
 
-- name: "Copy authorized_keys from root to server user"
-  ansible.builtin.copy:
+- name: "Read authorized_keys from root"
+  ansible.builtin.slurp:
     src: /root/.ssh/authorized_keys
-    dest: "/home/{{ server_user }}/.ssh/authorized_keys"
-    remote_src: true
-    owner: "{{ server_user }}"
-    group: "{{ server_user }}"
-    mode: "0600"
+  register: common_root_keys
+  ignore_errors: true
+
+- name: "Merge root authorized_keys to server user"
+  ansible.posix.authorized_key:
+    user: "{{ server_user }}"
+    state: present
+    key: "{{ (common_root_keys.content | b64decode) }}"
+  when: common_root_keys is not failed and common_root_keys.content is defined
 
 # Packages
 - name: "Update apt cache"
