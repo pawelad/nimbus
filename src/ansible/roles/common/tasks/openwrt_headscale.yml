@@ -14,6 +14,26 @@
     - "Commit UCI tailscale"
     - "Restart gl_tailscale"
 
+- name: "Enable NAT and forwarding for Tailscale on router"
+  notify: "Restart firewall"
+  block:
+    - name: "Enable Masquerade on tailscale0 zone"
+      community.openwrt.uci:
+        command: "set"
+        config: firewall
+        section: "tailscale0"
+        option: "masq"
+        value: "1"
+
+    - name: "Allow forwarding from LAN to Tailscale"
+      community.openwrt.uci:
+        command: section
+        config: firewall
+        type: forwarding
+        value:
+          src: "lan"
+          dest: "tailscale0"
+
 - name: "Patch /usr/bin/gl_tailscale for Headscale persistence"
   ansible.builtin.blockinfile:
     path: "/usr/bin/gl_tailscale"

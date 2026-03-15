@@ -23,3 +23,7 @@
 - name: "Restart gl_tailscale"
   ansible.builtin.command: "/usr/bin/gl_tailscale restart"
   changed_when: true
+
+- name: "Restart firewall"
+  ansible.builtin.command: "/etc/init.d/firewall restart"
+  changed_when: true
