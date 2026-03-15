@@ -2,75 +2,54 @@
 MAKEFLAGS += --warn-undefined-variables
 .DEFAULT_GOAL := help
 
-EXTRA_VARS ?=
-TAGS ?=
-FORCE ?=
+export EXTRA_VARS
+export TAGS
+# FORCE=1 is a shorthand for Ansible playbooks that injects 'overwrite_config=$(TAGS)'
+# into EXTRA_VARS. Example: 'make zapp-deploy TAGS=headplane FORCE=1'
+export FORCE
 
-# FORCE=1 is a shorthand that injects overwrite_config=$(TAGS) into EXTRA_VARS, e.g.:
-#   make zapp-deploy TAGS=headplane FORCE=1
-# is equivalent to:
-#   make zapp-deploy EXTRA_VARS='overwrite_config=headplane' TAGS=headplane
-_EXTRA_VARS = $(strip $(EXTRA_VARS) $(if $(FORCE),overwrite_config=$(TAGS)))
+.PHONY: install
+install: ## Install necessary dependencies for all components
+	$(MAKE) -C src/ansible install
+	$(MAKE) -C src/terraform init
+	$(MAKE) -C src/tools/tretter-getter tidy
+
+.PHONY: check
+check: ## Run code linters
+	$(MAKE) -C src/ansible check
+	$(MAKE) -C src/terraform format
+	yamllint .
+	npx dclint --fix -r src/stacks
 
 .PHONY: kif-deploy
 kif-deploy: ## Deploy changes to Kif (use EXTRA_VARS for variables, TAGS for tags)
 	git push kif main
-	cd src/ansible && ansible-playbook playbooks/kif_deploy.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+	$(MAKE) -C src/ansible kif-deploy
 
 .PHONY: kif-provision
 kif-provision: ## Provision Kif server (use EXTRA_VARS for variables, TAGS for tags)
-	cd src/ansible && ansible-playbook playbooks/kif_setup.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+	$(MAKE) -C src/ansible kif-provision
 
 .PHONY: zapp-deploy
 zapp-deploy: ## Deploy changes to Zapp (use EXTRA_VARS for variables, TAGS for tags)
 	git push zapp main
-	cd src/ansible && ansible-playbook playbooks/zapp_deploy.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+	$(MAKE) -C src/ansible zapp-deploy
 
 .PHONY: zapp-provision
 zapp-provision: ## Provision Zapp server (use EXTRA_VARS for variables, TAGS for tags)
-	cd src/ansible && ansible-playbook playbooks/zapp_setup.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+	$(MAKE) -C src/ansible zapp-provision
 
 .PHONY: beryl-provision
 beryl-provision: ## Provision Beryl AX travel router
-	cd src/ansible && ansible-playbook playbooks/beryl_provision.yml
-
-.PHONY: check
-check: tf-format ## Run code linters
-	cd src/ansible && ansible-playbook --syntax-check playbooks/*.yml
-	cd src/ansible && ansible-lint --yamllint-file=../../.yamllint  --exclude=collections/
-	yamllint .
-	npx dclint --fix -r src/stacks
-
-.PHONY: ansible-install
-ansible-install: ## Install Ansible collections from requirements.yml
-	cd src/ansible && ansible-galaxy collection install -r requirements.yml -p ./collections
+	$(MAKE) -C src/ansible beryl-provision
 
 .PHONY: encrypt-string
 encrypt-string: ## Encrypt a value with Ansible Vault
-	@read -p "Enter variable name: " name; \
-	echo "Enter secret value (press Ctrl+D to end):"; \
-	cd src/ansible && ansible-vault encrypt_string --name "$$name"
+	$(MAKE) -C src/ansible encrypt-string
 
 .PHONY: tf-plan
 tf-plan: ## Generate a (speculative) Terraform plan
-	terraform -chdir=src/terraform plan
-
-.PHONY: tf-apply
-tf-apply: ## Generate, confirm and apply a Terraform plan
-	terraform -chdir=src/terraform apply
-
-.PHONY: tf-upgrade
-tf-upgrade: ## Upgrade Terraform providers
-	terraform -chdir=src/terraform init -upgrade
-
-.PHONY: tf-destroy
-tf-destroy: ## Destroy infrastructure managed by Terraform
-	terraform -chdir=src/terraform destroy
-
-.PHONY: tf-format
-tf-format: ## Format Terraform files
-	terraform -chdir=src/terraform fmt
-	terraform -chdir=src/terraform validate
+	$(MAKE) -C src/terraform plan
 
 # Source: https://www.client9.com/self-documenting-makefiles/
 .PHONY: help
