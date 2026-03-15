@@ -1,0 +1,7 @@
+---
+- name: "Configure Beryl Travel Router"
+  hosts: beryl
+  gather_facts: false
+  tasks:
+    - name: "Setup Headscale on OpenWRT"
+      ansible.builtin.include_tasks: "../roles/common/tasks/openwrt_headscale.yml"

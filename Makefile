@@ -18,7 +18,7 @@ kif-deploy: ## Deploy changes to Kif (use EXTRA_VARS for variables, TAGS for tag
 	cd src/ansible && ansible-playbook playbooks/kif_deploy.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: kif-provision
-kif-provision: ## Provision Kif server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
+kif-provision: ## Provision Kif server (use EXTRA_VARS for variables, TAGS for tags)
 	cd src/ansible && ansible-playbook playbooks/kif_setup.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: zapp-deploy
@@ -27,8 +27,12 @@ zapp-deploy: ## Deploy changes to Zapp (use EXTRA_VARS for variables, TAGS for t
 	cd src/ansible && ansible-playbook playbooks/zapp_deploy.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
 
 .PHONY: zapp-provision
-zapp-provision: ## Provision Zapp server with Ansible (use EXTRA_VARS for variables, TAGS for tags)
+zapp-provision: ## Provision Zapp server (use EXTRA_VARS for variables, TAGS for tags)
 	cd src/ansible && ansible-playbook playbooks/zapp_setup.yml $(if $(_EXTRA_VARS),-e '$(_EXTRA_VARS)') $(if $(TAGS),--tags '$(TAGS)')
+
+.PHONY: beryl-provision
+beryl-provision: ## Provision Beryl AX travel router
+	cd src/ansible && ansible-playbook playbooks/beryl_provision.yml
 
 .PHONY: check
 check: tf-format ## Run code linters
@@ -36,6 +40,10 @@ check: tf-format ## Run code linters
 	cd src/ansible && ansible-lint --yamllint-file=../../.yamllint  --exclude=collections/
 	yamllint .
 	npx dclint --fix -r src/stacks
+
+.PHONY: ansible-install
+ansible-install: ## Install Ansible collections from requirements.yml
+	cd src/ansible && ansible-galaxy collection install -r requirements.yml -p ./collections
 
 .PHONY: encrypt-string
 encrypt-string: ## Encrypt a value with Ansible Vault

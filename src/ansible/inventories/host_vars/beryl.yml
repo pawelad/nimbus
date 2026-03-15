@@ -1,0 +1,3 @@
+---
+# Beryl AX (GL-MT3000) specific variables
+ansible_user: root

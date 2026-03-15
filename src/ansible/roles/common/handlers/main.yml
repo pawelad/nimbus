@@ -14,3 +14,12 @@
   ansible.builtin.service:
     name: systemd-journald
     state: restarted
+
+- name: "Commit UCI tailscale"
+  community.openwrt.uci:
+    command: "commit"
+    config: "tailscale"
+
+- name: "Restart gl_tailscale"
+  ansible.builtin.command: "/usr/bin/gl_tailscale restart"
+  changed_when: true

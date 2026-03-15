@@ -1,0 +1,34 @@
+---
+- name: "Set Headscale UCI configuration"
+  community.openwrt.uci:
+    command: "set"
+    config: "tailscale"
+    section: "settings"
+    option: "{{ item.key }}"
+    value: "{{ item.value }}"
+  loop:
+    - { key: "login_server", value: "{{ headscale_server_url }}" }
+    - { key: "authkey", value: "{{ tailscale_authkey }}" }
+  no_log: true
+  notify:
+    - "Commit UCI tailscale"
+    - "Restart gl_tailscale"
+
+- name: "Patch /usr/bin/gl_tailscale for Headscale persistence"
+  ansible.builtin.blockinfile:
+    path: "/usr/bin/gl_tailscale"
+    insertbefore: "^\\s*timeout 10 /usr/sbin/tailscale up"
+    marker: "        # {mark} Headscale automation"
+    block: |
+              login_server=$(uci -q get tailscale.settings.login_server)
+              [ -n "$login_server" ] && param="$param --login-server=$login_server"
+              authkey=$(uci -q get tailscale.settings.authkey)
+              [ -n "$authkey" ] && param="$param --authkey=$authkey"
+  notify: "Restart gl_tailscale"
+
+- name: "Remove --reset from /usr/bin/gl_tailscale"
+  ansible.builtin.replace:
+    path: "/usr/bin/gl_tailscale"
+    regexp: "--reset "
+    replace: ""
+  notify: "Restart gl_tailscale"
