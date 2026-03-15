@@ -6,3 +6,9 @@
   vars:
     stack_name: tailscale-agent
     env_template: "common/tailscale-agent.env.j2"
+
+- name: "Allow all traffic from Tailscale network"
+  community.general.ufw:
+    rule: allow
+    src: "{{ tailscale_subnet }}"
+    comment: "Allow all Tailscale traffic"
