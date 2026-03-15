@@ -35,6 +35,8 @@ services:
       - caddy
       - internal
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8686/health || exit 1"]
 
 networks:
   caddy:
