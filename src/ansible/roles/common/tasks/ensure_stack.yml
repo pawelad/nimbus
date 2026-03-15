@@ -15,6 +15,8 @@
 #     file was overwritten. Forces container recreation.
 #   force_deploy: Optional. Force recreate containers for specific stacks.
 #     Can be a string (stack name) or a list of stack names. 'all' forces all.
+#   healthcheck_wait: Whether to wait for healthchecks. Defaults to true.
+#   healthcheck_wait_timeout: Timeout for waiting in seconds. Defaults to 60.
 #
 # Side Effects:
 #   stack_changed: Set to true if any containers were recreated
@@ -49,6 +51,8 @@
     build: "{{ build_policy | default('never') }}"
     remove_orphans: true
     recreate: "{{ 'always' if force_recreate_requested else 'auto' }}"
+    wait: "{{ healthcheck_wait | default(true) }}"
+    wait_timeout: "{{ healthcheck_wait_timeout | default(60) }}"
   register: _deploy_stack_result
   retries: 3
   delay: 10
