@@ -4,4 +4,6 @@
   gather_facts: false
   tasks:
     - name: "Setup Headscale on OpenWRT"
-      ansible.builtin.include_tasks: "../roles/common/tasks/openwrt_headscale.yml"
+      ansible.builtin.include_role:
+        name: common
+        tasks_from: openwrt_headscale

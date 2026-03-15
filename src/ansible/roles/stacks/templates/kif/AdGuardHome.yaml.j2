@@ -145,18 +145,14 @@ filtering:
   parental_block_host: family-block.dns.adguard.com
   safebrowsing_block_host: standard-block.dns.adguard.com
   rewrites:
-    - domain: '*.pipusznicy'
+{% for domain in ['*.pipusznicy', '*.home', 'd.upa', 'tretter.getter', 'speed.test', 's.t'] %}
+    - domain: {{ domain }}
       answer: {{ server_ip }}
+{% endfor %}
+{% if kif_tailscale_ip %}
     - domain: '*.home'
-      answer: {{ server_ip }}
-    - domain: d.upa
-      answer: {{ server_ip }}
-    - domain: tretter.getter
-      answer: {{ server_ip }}
-    - domain: speed.test
-      answer: {{ server_ip }}
-    - domain: s.t
-      answer: {{ server_ip }}
+      answer: {{ kif_tailscale_ip }}
+{% endif %}
   safe_fs_patterns:
     - /opt/adguardhome/work/userfilters/*
   safebrowsing_cache_size: 1048576

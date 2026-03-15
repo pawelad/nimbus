@@ -5,6 +5,22 @@
     state: directory
     mode: "0755"
 
+- name: "Fetch Kif Tailscale IP"
+  community.docker.docker_container_exec:
+    container: tailscale
+    command: tailscale ip -4
+  register: kif_tailscale_ip_output
+  changed_when: false
+  ignore_errors: true
+
+- name: "Set Kif Tailscale IP fact"
+  ansible.builtin.set_fact:
+    kif_tailscale_ip: "{{ kif_tailscale_ip_output.stdout | default('', true) | trim }}"
+
+- name: "Show Kif Tailscale IP"
+  ansible.builtin.debug:
+    var: kif_tailscale_ip
+
 - name: "Ensure AdGuard Home configuration"
   ansible.builtin.import_role:
     name: common

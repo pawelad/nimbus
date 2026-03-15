@@ -24,11 +24,15 @@
               [ -n "$login_server" ] && param="$param --login-server=$login_server"
               authkey=$(uci -q get tailscale.settings.authkey)
               [ -n "$authkey" ] && param="$param --authkey=$authkey"
+              param="$param --accept-dns=true"
   notify: "Restart gl_tailscale"
 
-- name: "Remove --reset from /usr/bin/gl_tailscale"
+- name: "Remove conflicting flags from /usr/bin/gl_tailscale"
   ansible.builtin.replace:
     path: "/usr/bin/gl_tailscale"
-    regexp: "--reset "
+    regexp: "{{ item }}"
     replace: ""
+  loop:
+    - "--reset "
+    - "--accept-dns=false"
   notify: "Restart gl_tailscale"
