@@ -2,6 +2,10 @@
 # Collects logs from all containers, filters for ERROR/FATAL/CRITICAL levels,
 # and sends notifications to ntfy.
 ---
+api:
+  enabled: true
+  address: 0.0.0.0:8686
+
 sources:
   docker_logs:
     type: docker_logs
@@ -45,17 +49,27 @@ transforms:
       name = string(.container_name) ?? ""
       format = "unmatched"
 
-      if match(name, apps_json) { format = "json" }
-      else if match(name, apps_datetime) { format = "datetime_level" }
-      else if match(name, apps_bracket) { format = "bracket" }
-      else if match(name, apps_kv) { format = "kv" }
-      else if match(name, apps_padded) { format = "padded_level" }
-      else if match(name, apps_spring) { format = "spring" }
-      else if match(name, apps_pg) { format = "pg" }
-      else if match(name, apps_maria) { format = "maria" }
-      else if match(name, apps_pipe) { format = "pipe" }
-      else if match(name, apps_vector) { format = "vector" }
-      # else if match(name, apps_colon) { format = "colon_level" }
+      if match(name, apps_json) {
+          format = "json"
+      } else if match(name, apps_datetime) {
+          format = "datetime_level"
+      } else if match(name, apps_bracket) {
+          format = "bracket"
+      } else if match(name, apps_kv) {
+          format = "kv"
+      } else if match(name, apps_padded) {
+          format = "padded_level"
+      } else if match(name, apps_spring) {
+          format = "spring"
+      } else if match(name, apps_pg) {
+          format = "pg"
+      } else if match(name, apps_maria) {
+          format = "maria"
+      } else if match(name, apps_pipe) {
+          format = "pipe"
+      } else if match(name, apps_vector) {
+          format = "vector"
+      }
 
       .log_format_tag = format
 
@@ -74,7 +88,6 @@ transforms:
       maria_apps: '.log_format_tag == "maria"'
       pipe_apps: '.log_format_tag == "pipe"'
       vector_apps: '.log_format_tag == "vector"'
-      colon_level_apps: '.log_format_tag == "colon_level"'
       unmatched_apps: '.log_format_tag == "unmatched"'
 
   # ------------------------------------------------------------------------
@@ -88,13 +101,26 @@ transforms:
     source: |-
       parsed = parse_json(.message) ?? {}
 
-      level = string(parsed.level) ?? string(parsed.s) ?? "UNKNOWN"
-      msg = string(parsed.msg) ?? string(parsed.message) ?? string(parsed.error) ?? string(.message)
+      level = "UNKNOWN"
+      if parsed.level != null {
+          level = to_string!(parsed.level)
+      } else if parsed.s != null {
+          level = to_string!(parsed.s)
+      }
+
+      msg = .message
+      if parsed.msg != null {
+          msg = to_string!(parsed.msg)
+      } else if parsed.message != null {
+          msg = to_string!(parsed.message)
+      } else if parsed.error != null {
+          msg = to_string!(parsed.error)
+      }
 
       if level == "E" { level = "ERROR" }
       if level == "F" { level = "FATAL" }
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -108,7 +134,7 @@ transforms:
       match = parse_regex(.message, r'^[\d\-\s\:\.\,\/]+(ERROR|WARNING|CRITICAL|FATAL)\s') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -121,7 +147,7 @@ transforms:
       match = parse_regex(.message, r'\[(error|ERROR|warning|WARNING|warn|WARN|critical|CRITICAL|fatal|FATAL)\]') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -134,7 +160,7 @@ transforms:
       match = parse_regex(.message, r'level=(ERROR|error|WARN|warn|WARNING|warning|FATAL|fatal|CRITICAL|critical)\b') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -147,7 +173,7 @@ transforms:
       match = parse_regex(.message, r'\s+(ERROR|WARN|FATAL)\s+\w+') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -160,7 +186,7 @@ transforms:
       match = parse_regex(.message, r'\s+(ERROR|WARN|FATAL)\s+\d+\s+---') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -174,7 +200,7 @@ transforms:
       level = string(match."1") ?? "UNKNOWN"
 
       if level == "PANIC" { level = "FATAL" }
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -187,7 +213,7 @@ transforms:
       match = parse_regex(.message, r'\[(ERROR|Error|Warning|FATAL)\]') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -200,7 +226,7 @@ transforms:
       match = parse_regex(.message, r'\|\s*(ERROR|WARNING|CRITICAL|FATAL|WARN)\s*\|') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
+      level = upcase(level)
       if level == "WARN" { level = "WARNING" }
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
@@ -217,20 +243,7 @@ transforms:
       match = parse_regex(msg, r'\s+(ERROR|WARN|FATAL)\s+\w+') ?? {}
       level = string(match."1") ?? "UNKNOWN"
 
-      level = upcase!(level)
-      if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
-
-      .level = level
-
-  parse_colon_level:
-    type: remap
-    inputs:
-      - route_by_format.colon_level_apps
-    source: |-
-      match = parse_regex(.message, r'^(ERROR|FATAL|CRITICAL):?\s') ?? {}
-      level = string(match."1") ?? "UNKNOWN"
-
-      level = upcase!(level)
+      level = upcase(level)
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -239,17 +252,22 @@ transforms:
     type: remap
     inputs:
       - route_by_format.unmatched_apps
+      - route_by_format._unmatched
     source: |-
       msg = string(.message) ?? ""
       level = null
 
-      if contains(msg, "ERROR") || contains(msg, "error") { level = "ERROR" }
-      else if contains(msg, "FATAL") || contains(msg, "fatal") { level = "FATAL" }
-      else if contains(msg, "CRITICAL") || contains(msg, "critical") { level = "CRITICAL" }
+      if contains(msg, "ERROR") || contains(msg, "error") {
+          level = "ERROR"
+      } else if contains(msg, "FATAL") || contains(msg, "fatal") {
+          level = "FATAL"
+      } else if contains(msg, "CRITICAL") || contains(msg, "critical") {
+          level = "CRITICAL"
+      }
 
       if level == null { abort }
 
-      level = upcase!(string!(level))
+      level = upcase(to_string(level))
       if !includes(["ERROR", "FATAL", "CRITICAL"], level) { abort }
 
       .level = level
@@ -271,7 +289,6 @@ transforms:
       - parse_maria
       - parse_pipe
       - parse_vector
-      - parse_colon_level
       - parse_unmatched
     source: |-
       container = string(.container_name) ?? "unknown"
@@ -293,12 +310,13 @@ sinks:
       codec: text
       only_fields:
         - ntfy_message
-    headers:
-      Authorization: "Bearer {{ ntfy_token }}"
-      X-Topic: "vector"
-      X-Title: "{{ '{{' }} .ntfy_title {{ '}}' }}"
-      X-Tags: "rotating_light"
-      X-Priority: "4"
+    request:
+      headers:
+        Authorization: "Bearer {{ ntfy_token }}"
+        X-Topic: "vector"
+        X-Title: "{{ '{{' }} .ntfy_title {{ '}}' }}"
+        X-Tags: "rotating_light"
+        X-Priority: "4"
     batch:
       max_events: 1
     healthcheck:

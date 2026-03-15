@@ -5,6 +5,24 @@
     state: directory
     mode: "0755"
 
+- name: "Template Vector configuration for validation"
+  ansible.builtin.template:
+    src: "{{ inventory_hostname }}/vector.config.yaml.j2"
+    dest: "/tmp/vector.yaml.validate"
+    mode: "0644"
+  changed_when: false
+
+- name: "Validate Vector configuration"
+  community.docker.docker_container:
+    name: "vector_config_check"
+    image: "timberio/vector:0.53.0-alpine"
+    volumes:
+      - "/tmp/vector.yaml.validate:/etc/vector/vector.yaml:ro"
+    command: "validate --config-yaml /etc/vector/vector.yaml"
+    detach: false
+    cleanup: true
+  register: vector_validate
+
 - name: "Ensure Vector configuration"
   ansible.builtin.import_role:
     name: common
@@ -13,6 +31,12 @@
     service_name: vector
     config_src: "{{ inventory_hostname }}/vector.config.yaml.j2"
     config_dest: "{{ apps_data_dir }}/vector/config/vector.yaml"
+
+- name: "Clean up temporary validation file"
+  ansible.builtin.file:
+    path: "/tmp/vector.yaml.validate"
+    state: absent
+  changed_when: false
 
 - name: "Ensure Vector stack is up to date"
   ansible.builtin.import_role:
