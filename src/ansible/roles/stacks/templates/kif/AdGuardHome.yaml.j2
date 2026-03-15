@@ -106,7 +106,11 @@ filters:
     name: AdAway Default Blocklist
     id: 2
 whitelist_filters: []
-user_rules: []
+user_rules:
+{% if kif_tailscale_ip %}
+  - "||*.home^$dnsrewrite={{ kif_tailscale_ip }}"
+{% endif %}
+  - "||*.home^$dnsrewrite={{ server_ip }}"
 dhcp:
   enabled: false
   interface_name: ""
@@ -145,14 +149,10 @@ filtering:
   parental_block_host: family-block.dns.adguard.com
   safebrowsing_block_host: standard-block.dns.adguard.com
   rewrites:
-{% for domain in ['*.pipusznicy', '*.home', 'd.upa', 'tretter.getter', 'speed.test', 's.t'] %}
+{% for domain in ['*.pipusznicy', 'd.upa', 'tretter.getter', 'speed.test', 's.t'] %}
     - domain: '{{ domain }}'
       answer: {{ server_ip }}
 {% endfor %}
-{% if kif_tailscale_ip %}
-    - domain: '*.home'
-      answer: {{ kif_tailscale_ip }}
-{% endif %}
   safe_fs_patterns:
     - /opt/adguardhome/work/userfilters/*
   safebrowsing_cache_size: 1048576
