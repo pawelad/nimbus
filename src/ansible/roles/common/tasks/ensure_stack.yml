@@ -45,7 +45,7 @@
 
 - name: "Manage stack state for {{ stack_name }}"
   community.docker.docker_compose_v2:
-    project_src: "{{ stacks_dir }}/{{ stack_name }}"
+    project_src: "{{ repo_stacks_dir }}/{{ stack_name }}"
     state: "{{ stack_state | default('present') }}"
     pull: "{{ pull_policy | default('policy') }}"
     build: "{{ build_policy | default('never') }}"

@@ -13,8 +13,8 @@
     tasks_from: ensure_config
   vars:
     service_name: "rathole"
-    config_src: "{{ inventory_hostname }}/rathole.client.toml.j2"
-    config_dest: "{{ apps_data_dir }}/rathole/client.toml"
+    config_src: "{{ inventory_hostname }}/rathole.toml.j2"
+    config_dest: "{{ apps_data_dir }}/rathole/rathole.toml"
     mode: "0644"
     owner: "{{ server_user }}"
     group: "{{ server_user }}"

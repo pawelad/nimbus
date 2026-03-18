@@ -1,0 +1,6 @@
+[server]
+bind_addr = "0.0.0.0:2333"
+
+[server.services.aiostreams]
+token = "{{ rathole_server_token }}"
+bind_addr = "0.0.0.0:3030" # This is the internal port Traefik will proxy to
