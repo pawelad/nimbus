@@ -1,34 +1,6 @@
 ---
-- name: "Restart Bluetooth"
-  ansible.builtin.systemd:
-    daemon_reload: true
-    name: bluetooth
-    state: restarted
+- name: "Import Linux handlers"
+  ansible.builtin.import_tasks: linux.yml
 
-- name: "Restart systemd-resolved"
-  ansible.builtin.service:
-    name: systemd-resolved
-    state: restarted
-
-- name: "Restart systemd-journald"
-  ansible.builtin.service:
-    name: systemd-journald
-    state: restarted
-
-- name: "Commit UCI tailscale"
-  community.openwrt.uci:
-    command: "commit"
-    config: "tailscale"
-
-- name: "Restart gl_tailscale"
-  ansible.builtin.command: "/usr/bin/gl_tailscale restart"
-  changed_when: true
-
-- name: "Restart firewall"
-  ansible.builtin.command: "/etc/init.d/firewall restart"
-  changed_when: true
-
-- name: "Restart fail2ban"
-  ansible.builtin.service:
-    name: fail2ban
-    state: restarted
+- name: "Import OpenWrt handlers"
+  ansible.builtin.import_tasks: openwrt.yml

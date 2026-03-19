@@ -15,7 +15,7 @@
     - "Restart gl_tailscale"
 
 - name: "Enable NAT and forwarding for Tailscale on router"
-  notify: "Restart firewall"
+  notify: "Restart OpenWrt firewall"
   block:
     - name: "Enable Masquerade on tailscale0 zone"
       community.openwrt.uci:
