@@ -9,6 +9,17 @@
     name: bluetooth
     state: restarted
 
+- name: "Restart CrowdSec"
+  community.docker.docker_container:
+    name: crowdsec
+    state: started
+    restart: true
+
+- name: "Restart Docker"
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
 - name: "Restart fail2ban"
   ansible.builtin.service:
     name: fail2ban
@@ -27,4 +38,9 @@
 - name: "Restart systemd-resolved"
   ansible.builtin.service:
     name: systemd-resolved
+    state: restarted
+
+- name: "Restart ufw"
+  ansible.builtin.service:
+    name: ufw
     state: restarted

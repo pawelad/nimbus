@@ -22,7 +22,9 @@
     cmd: /usr/local/bin/ufw-docker install
   when: ufw_docker_rules_check.rc != 0
   changed_when: ufw_docker_rules_check.rc != 0
-  notify: "Reload ufw"
+  notify:
+    - "Restart ufw"
+    - "Restart Docker"
 
 - name: "Allow local LAN to Docker (Route)"
   community.general.ufw:

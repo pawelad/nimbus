@@ -5,3 +5,109 @@
     tasks_from: ensure_stack
   vars:
     stack_name: crowdsec
+
+- name: "Configure Traefik Bouncer API Key in Crowdsec Engine"
+  ansible.builtin.command: >
+    docker exec crowdsec cscli bouncers add traefik-bouncer -k "{{ crowdsec_traefik_bouncer_key }}"
+  register: _add_bouncer
+  failed_when:
+    - _add_bouncer.rc != 0
+    - "'already exists' not in _add_bouncer.stderr"
+  changed_when: _add_bouncer.rc == 0
+
+- name: "Inject CrowdSec Bouncer plugin into Traefik static config"
+  ansible.builtin.blockinfile:
+    path: /etc/dokploy/traefik/traefik.yml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: CROWDSEC CONFIG"
+    block: |
+      accessLog:
+        format: common
+        filePath: /proc/self/fd/1
+      experimental:
+        plugins:
+          bouncer:
+            moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+            version: v1.5.1
+  register: _traefik_static_config
+
+- name: "Restart dokploy-traefik to load static configuration"
+  ansible.builtin.command: docker restart dokploy-traefik
+  when: _traefik_static_config.changed
+  changed_when: _traefik_static_config.changed
+
+- name: "Ensure dynamic middleware directory exists"
+  ansible.builtin.file:
+    path: /etc/dokploy/traefik/dynamic
+    state: directory
+    mode: "0755"
+
+- name: "Inject Crowdsec Bouncer Middleware dynamically"
+  ansible.builtin.copy:
+    dest: /etc/dokploy/traefik/dynamic/middlewares.yml
+    content: |
+      # ANSIBLE MANAGED
+      http:
+        middlewares:
+          crowdsec-bouncer:
+            plugin:
+              bouncer:
+                enabled: true
+                crowdsecMode: stream
+                crowdsecLapiHost: http://crowdsec:8080
+                crowdsecLapiKey: "{{ crowdsec_traefik_bouncer_key }}"
+                # AppSec (WAF) support
+                crowdsecAppsecEnabled: true
+                crowdsecAppsecHost: crowdsec:7422
+                crowdsecAppsecFailureBlock: true
+                crowdsecAppsecUnreachableBlock: true
+    mode: "0644"
+
+- name: "Clean up dummy default acquis.yaml"
+  ansible.builtin.copy:
+    dest: "{{ repo_stacks_dir }}/crowdsec/data/config/acquis.yaml"
+    content: |
+      # ANSIBLE MANAGED
+      # All acquisition configurations are managed via acquis.d/
+    mode: "0644"
+
+- name: "Get Dokploy-Traefik container info"
+  community.docker.docker_container_info:
+    name: dokploy-traefik
+  register: _traefik_info
+
+- name: "Set Traefik log path fact"
+  ansible.builtin.set_fact:
+    traefik_log_path: "{{ _traefik_info.container.LogPath }}"
+
+- name: "Ensure Crowdsec configuration directory exists"
+  ansible.builtin.file:
+    path: "{{ repo_stacks_dir }}/crowdsec/data/config/acquis.d"
+    state: directory
+    mode: "0755"
+
+- name: "Configure CrowdSec Acquisition (zapp.yaml)"
+  ansible.builtin.copy:
+    dest: "{{ repo_stacks_dir }}/crowdsec/data/config/acquis.d/zapp.yaml"
+    content: |
+      # ANSIBLE MANAGED
+      # Read ONLY Traefik access logs to avoid nil interface errors from other containers
+      filenames:
+        - "{{ traefik_log_path }}"
+      labels:
+        type: traefik
+      ---
+      # Read SSH and system logs
+      filenames:
+        - /var/log/auth.log
+        - /var/log/syslog
+      labels:
+        type: syslog
+      ---
+      # AppSec (WAF) Acquisition
+      source: appsec
+      listen_addr: 0.0.0.0:7422
+      appsec_config: crowdsecurity/appsec-default
+      labels:
+        type: appsec
+    mode: "0644"
+  notify: "Restart CrowdSec"

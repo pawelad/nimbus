@@ -14,7 +14,7 @@ services:
       - ./data/data:/var/lib/crowdsec/data
     environment:
       # Install common collections for a Traefik + Linux setup
-      COLLECTIONS: crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/linux
+      COLLECTIONS: crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/appsec-generic-rules crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-crs crowdsecurity/whitelist-good-actors crowdsecurity/linux
     networks:
       - dokploy-network
     restart: unless-stopped
