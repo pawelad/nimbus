@@ -113,6 +113,24 @@
     force: true
     follow: false
 
+# SSH
+- name: "Ensure SSH drop-in directory exists"
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    mode: "0755"
+
+- name: "Disable SSH password authentication"
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/10-ansible-ssh.conf
+    content: |
+      # ANSIBLE MANAGED: Disable password authentication
+      PasswordAuthentication no
+    mode: "0644"
+    owner: root
+    group: root
+  notify: "Restart ssh"
+
 # UFW
 - name: "Allow SSH"
   community.general.ufw:

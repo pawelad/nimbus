@@ -1,13 +1,22 @@
 ---
+- name: "Reload ufw"
+  ansible.builtin.command: "ufw reload"
+  changed_when: true
+
 - name: "Restart Bluetooth"
   ansible.builtin.systemd:
     daemon_reload: true
     name: bluetooth
     state: restarted
 
-- name: "Restart systemd-resolved"
+- name: "Restart fail2ban"
   ansible.builtin.service:
-    name: systemd-resolved
+    name: fail2ban
+    state: restarted
+
+- name: "Restart ssh"
+  ansible.builtin.service:
+    name: ssh
     state: restarted
 
 - name: "Restart systemd-journald"
@@ -15,11 +24,7 @@
     name: systemd-journald
     state: restarted
 
-- name: "Reload ufw"
-  ansible.builtin.command: "ufw reload"
-  changed_when: true
-
-- name: "Restart fail2ban"
+- name: "Restart systemd-resolved"
   ansible.builtin.service:
-    name: fail2ban
+    name: systemd-resolved
     state: restarted
