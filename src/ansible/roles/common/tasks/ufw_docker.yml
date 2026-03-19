@@ -1,0 +1,40 @@
+---
+- name: "Check if ufw-docker is installed"
+  ansible.builtin.stat:
+    path: /usr/local/bin/ufw-docker
+  register: ufw_docker_stat
+
+- name: "Download ufw-docker script"
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/chaifeng/ufw-docker/master/ufw-docker
+    dest: /usr/local/bin/ufw-docker
+    mode: "0755"
+  when: not ufw_docker_stat.stat.exists
+
+- name: "Check if ufw-docker rules are installed"
+  ansible.builtin.command: grep -q "UFW AND DOCKER" /etc/ufw/after.rules
+  register: ufw_docker_rules_check
+  changed_when: false
+  failed_when: false
+
+- name: "Install ufw-docker rules"
+  ansible.builtin.command:
+    cmd: /usr/local/bin/ufw-docker install
+  when: ufw_docker_rules_check.rc != 0
+  changed_when: ufw_docker_rules_check.rc != 0
+  notify: "Restart firewall"
+
+- name: "Allow local LAN to Docker (Route)"
+  community.general.ufw:
+    rule: allow
+    src: "{{ ufw_allow_local_lan_subnet }}"
+    route: true
+    comment: "Allow local network access to Docker apps"
+  when: ufw_allow_local_lan_subnet is defined
+
+- name: "Allow local LAN to Host (Input)"
+  community.general.ufw:
+    rule: allow
+    src: "{{ ufw_allow_local_lan_subnet }}"
+    comment: "Allow local network access to host services"
+  when: ufw_allow_local_lan_subnet is defined
