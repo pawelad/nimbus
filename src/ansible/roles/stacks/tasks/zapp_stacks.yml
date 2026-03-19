@@ -18,3 +18,7 @@
 - name: "Include Tailscale Agent tasks"
   ansible.builtin.import_tasks: common/tailscale_agent.yml
   tags: [tailscale-agent]
+
+- name: "Include CrowdSec tasks"
+  ansible.builtin.import_tasks: zapp/crowdsec.yml
+  tags: [crowdsec]

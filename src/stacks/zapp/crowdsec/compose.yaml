@@ -1,0 +1,24 @@
+---
+name: crowdsec
+
+services:
+  crowdsec:
+    image: ghcr.io/crowdsecurity/crowdsec:v1.7.6
+    container_name: crowdsec
+    volumes:
+      # Mount log directories so Crowdsec can parse authentication and web logs
+      - /var/log/auth.log:/var/log/auth.log:ro
+      - /var/log/syslog:/var/log/syslog:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./data/config:/etc/crowdsec
+      - ./data/data:/var/lib/crowdsec/data
+    environment:
+      # Install common collections for a Traefik + Linux setup
+      COLLECTIONS: crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/linux
+    networks:
+      - dokploy-network
+    restart: unless-stopped
+
+networks:
+  dokploy-network:
+    external: true
