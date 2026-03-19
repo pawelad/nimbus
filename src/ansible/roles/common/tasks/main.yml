@@ -154,3 +154,7 @@
 - name: "Include journald tasks"
   ansible.builtin.include_tasks: journald.yml
   when: configure_journald | default(true)
+
+- name: "Include Fail2ban tasks"
+  ansible.builtin.include_tasks: fail2ban.yml
+  when: configure_fail2ban | default(true)

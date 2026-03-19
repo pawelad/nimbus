@@ -1,0 +1,20 @@
+---
+- name: "Configure fail2ban sshd jail"
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    content: |
+      [sshd]
+      enabled = true
+      mode = aggressive
+      port = ssh
+      filter = sshd
+      logpath = /var/log/auth.log
+      maxretry = 5
+    mode: "0644"
+  notify: "Restart fail2ban"
+
+- name: "Ensure fail2ban service is enabled and running"
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

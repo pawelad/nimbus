@@ -27,3 +27,8 @@
 - name: "Restart firewall"
   ansible.builtin.command: "/etc/init.d/firewall restart"
   changed_when: true
+
+- name: "Restart fail2ban"
+  ansible.builtin.service:
+    name: fail2ban
+    state: restarted
