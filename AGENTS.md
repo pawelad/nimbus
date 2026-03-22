@@ -79,6 +79,8 @@ src/
     3. `ansible-playbook {server}_deploy.yml` runs `docker compose up -d` for each stack.
 - **Rule**: Configuration (env vars, secrets) is managed by Ansible templates. Application definition (Docker Compose) is managed by Git in `src/stacks`.
 - **Rule**: NEVER use `scp` or direct file copying to push changes to a server. ALL changes to files managed in this repository MUST be deployed via `make <server>-deploy` (e.g., `make kif-deploy TAGS=adguard`) to ensure the server repository stays synchronized.
+- **Rule**: Always ask the user for permission before modifying infrastructure, deploying code, or provisioning via `make`.
+- **Rule**: Always run `make check` to validate syntax and linting before doing any deploy or provision actions.
 
 ### Docker Compose
 - **Rule**: All Docker Compose files MUST be named `compose.yaml`.
@@ -113,7 +115,7 @@ src/
 
 ### Remote Access
 - **Rule**: All commands targeting a production server (e.g., `docker`, `ls`, file operations) MUST be run via SSH using the server alias.
-- **Example**: `ssh zapp "docker ps"` or `ssh kif "docker ps"`.
+- **Example**: `ssh zapp "docker ps"`, `ssh kif "docker ps"`, or `ssh beryl "tailscale status"`.
 
 ### Docker Compose Healthchecks
 - **Rule**: When writing healthchecks, always verify which networking tools (`curl`, `wget`, etc.) are actually installed in the container image.
