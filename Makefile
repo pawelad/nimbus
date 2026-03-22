@@ -19,7 +19,7 @@ check: ## Run code linters
 	$(MAKE) -C src/ansible check
 	$(MAKE) -C src/terraform format
 	yamllint .
-	npx dclint --fix -r src/stacks
+	npx dclint -r src/stacks
 
 .PHONY: kif-deploy
 kif-deploy: ## Deploy changes to Kif (use EXTRA_VARS for variables, TAGS for tags)
