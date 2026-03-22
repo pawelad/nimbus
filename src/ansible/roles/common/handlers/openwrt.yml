@@ -1,8 +1,26 @@
 ---
+- name: "Commit gl-dns"
+  community.openwrt.uci:
+    command: "commit"
+    config: "gl-dns"
+
+- name: "Commit UCI dhcp"
+  community.openwrt.uci:
+    command: "commit"
+    config: "dhcp"
+
 - name: "Commit UCI tailscale"
   community.openwrt.uci:
     command: "commit"
     config: "tailscale"
+
+- name: "Restart dnsmasq"
+  ansible.builtin.command: "/etc/init.d/dnsmasq restart"
+  changed_when: true
+
+- name: "Restart gl_dns"
+  ansible.builtin.command: "/etc/init.d/gl_dns restart"
+  changed_when: true
 
 - name: "Restart gl_tailscale"
   ansible.builtin.command: "/usr/bin/gl_tailscale restart"

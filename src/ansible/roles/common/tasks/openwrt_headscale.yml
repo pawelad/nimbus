@@ -56,3 +56,28 @@
     - "--reset "
     - "--accept-dns=false"
   notify: "Restart gl_tailscale"
+
+- name: "Ensure Custom DNS does not override VPN DNS"
+  community.openwrt.uci:
+    command: "set"
+    config: "gl-dns"
+    section: "@dns[0]"
+    option: "override_vpn"
+    value: "0"
+  notify:
+    - "Commit gl-dns"
+    - "Restart gl_dns"
+
+- name: "Configure dnsmasq to route Headscale domains to internal Tailscale DNS"
+  community.openwrt.uci:
+    command: "add_list"
+    config: "dhcp"
+    section: "@dnsmasq[0]"
+    option: "server"
+    value: "{{ item }}"
+  loop:
+    - "/home/100.100.100.100"
+    - "/ts.net/100.100.100.100"
+  notify:
+    - "Commit UCI dhcp"
+    - "Restart dnsmasq"
