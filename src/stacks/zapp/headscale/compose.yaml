@@ -54,7 +54,8 @@ services:
       traefik.http.routers.headscale-redirect.rule: Host(`${HEADSCALE_HOSTNAME}`) && Path(`/`)
       traefik.http.routers.headscale-redirect.service: headscale
       traefik.http.routers.headscale-redirect.middlewares: headscale-redirect
-      traefik.http.middlewares.headscale-redirect.addprefix.prefix: /admin
+      traefik.http.middlewares.headscale-redirect.redirectregex.regex: "^https?://[^/]+/?$$"
+      traefik.http.middlewares.headscale-redirect.redirectregex.replacement: "https://${HEADSCALE_HOSTNAME}/admin"
 
 networks:
   dokploy-network:
