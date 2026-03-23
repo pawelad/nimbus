@@ -17,3 +17,8 @@ output "pawelad_dev_zone_id" {
   value       = cloudflare_zone.pawelad_dev.id
   description = "Cloudflare 'pawelad.dev' zone ID."
 }
+
+output "pipusznicy_cloud_zone_id" {
+  value       = cloudflare_zone.pipusznicy_cloud.id
+  description = "Cloudflare 'pipusznicy.cloud' zone ID."
+}

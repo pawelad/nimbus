@@ -139,3 +139,30 @@ resource "cloudflare_record" "rtd_pymonzo" {
   value   = "readthedocs.io"
   proxied = false
 }
+
+### pipusznicy.cloud ###
+resource "cloudflare_zone" "pipusznicy_cloud" {
+  account_id = var.cloudflare_account_id
+  zone       = "pipusznicy.cloud"
+  plan       = "free"
+}
+
+resource "cloudflare_zone_settings_override" "pipusznicy_cloud" {
+  zone_id = cloudflare_zone.pipusznicy_cloud.id
+
+  settings {
+    always_use_https         = "on"
+    automatic_https_rewrites = "on"
+    brotli                   = "on"
+    ssl                      = "full"
+  }
+}
+
+# Zapp
+resource "cloudflare_record" "zapp_pipusznicy" {
+  zone_id = cloudflare_zone.pipusznicy_cloud.id
+  type    = "A"
+  name    = "zapp"
+  value   = hcloud_server.zapp.ipv4_address
+  proxied = false
+}

@@ -64,7 +64,14 @@ dns:
 {% endif %}
   search_domains:
     - home
+{% if dns_node_tailscale_ip %}
+  extra_records:
+    - name: kif.pipusznicy.cloud
+      type: A
+      value: {{ dns_node_tailscale_ip }}
+{% else %}
   extra_records: []
+{% endif %}
 
 logtail:
   enabled: false
