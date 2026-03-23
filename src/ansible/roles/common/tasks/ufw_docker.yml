@@ -6,9 +6,10 @@
 
 - name: "Download ufw-docker script"
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/chaifeng/ufw-docker/master/ufw-docker
+    url: https://raw.githubusercontent.com/chaifeng/ufw-docker/2ab2d072d20c7abc4f260bc7dd266352a3bb20a0/ufw-docker
     dest: /usr/local/bin/ufw-docker
     mode: "0755"
+    checksum: "sha256:16bc578c0cd78b7d44c53e5780c0d3d545860e428457a8910a3d2138fb225374"
   when: not ufw_docker_stat.stat.exists
 
 - name: "Check if ufw-docker rules are installed"
