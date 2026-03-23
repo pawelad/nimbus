@@ -9,7 +9,7 @@
   ansible.builtin.template:
     src: "{{ inventory_hostname }}/vector.config.yaml.j2"
     dest: "/tmp/vector.yaml.validate"
-    mode: "0644"
+    mode: "0600"
   changed_when: false
 
 - name: "Validate Vector configuration"
