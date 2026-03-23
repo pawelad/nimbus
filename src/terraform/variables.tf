@@ -30,9 +30,9 @@ variable "hcloud_token" {
   sensitive   = true
 }
 
-variable "hcloud_ssh_public_key" {
+variable "hcloud_ssh_key_name" {
   type        = string
-  description = "SSH public key for Hetzner servers."
+  description = "Name of the SSH key on Hetzner Cloud."
 }
 
 # Dokku
