@@ -21,7 +21,7 @@ resource "cloudflare_record" "pawelad_me_github_verification" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "TXT"
   name    = "_github-pages-challenge-pawelad"
-  value   = "9e3e75692c0313c903f1a30177555c"
+  content = "9e3e75692c0313c903f1a30177555c"
   proxied = false
 }
 
@@ -30,7 +30,7 @@ resource "cloudflare_record" "ghp_www" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "CNAME"
   name    = "www"
-  value   = "pawelad.github.io"
+  content = "pawelad.github.io"
   proxied = true
 }
 
@@ -41,7 +41,7 @@ resource "cloudflare_record" "ghp_apex" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "A"
   name    = "@"
-  value   = each.key
+  content = each.key
   proxied = true
 }
 
@@ -50,7 +50,7 @@ resource "cloudflare_record" "zapp" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "A"
   name    = "zapp"
-  value   = hcloud_server.zapp.ipv4_address
+  content = hcloud_server.zapp.ipv4_address
   proxied = false
 }
 
@@ -59,7 +59,7 @@ resource "cloudflare_record" "zapp_wildcard" {
   zone_id = cloudflare_zone.pawelad_me.id
   type    = "A"
   name    = "*"
-  value   = hcloud_server.zapp.ipv4_address
+  content = hcloud_server.zapp.ipv4_address
   proxied = false
 }
 
@@ -91,7 +91,7 @@ resource "cloudflare_record" "pawelad_dev_github_verification" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "TXT"
   name    = "_github-pages-challenge-pawelad"
-  value   = "038a851ef9fc64d575187ca20e59d3"
+  content = "038a851ef9fc64d575187ca20e59d3"
   proxied = false
 }
 
@@ -100,7 +100,7 @@ resource "cloudflare_record" "ghp_fakester" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "CNAME"
   name    = "fakester"
-  value   = "pawelad.github.io"
+  content = "pawelad.github.io"
   proxied = true
 }
 
@@ -109,7 +109,7 @@ resource "cloudflare_record" "rtd_monz" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "CNAME"
   name    = "monz"
-  value   = "readthedocs.io"
+  content = "readthedocs.io"
   proxied = false
 }
 
@@ -118,7 +118,7 @@ resource "cloudflare_record" "rtd_pymonzo" {
   zone_id = cloudflare_zone.pawelad_dev.id
   type    = "CNAME"
   name    = "pymonzo"
-  value   = "readthedocs.io"
+  content = "readthedocs.io"
   proxied = false
 }
 
@@ -145,6 +145,6 @@ resource "cloudflare_record" "zapp_pipusznicy" {
   zone_id = cloudflare_zone.pipusznicy_cloud.id
   type    = "A"
   name    = "zapp"
-  value   = hcloud_server.zapp.ipv4_address
+  content = hcloud_server.zapp.ipv4_address
   proxied = false
 }
