@@ -18,11 +18,6 @@ variable "digitalocean_api_token" {
   sensitive   = true
 }
 
-variable "droplet_username" {
-  type        = string
-  description = "Local Droplet username."
-}
-
 # Hetzner
 variable "hcloud_token" {
   type        = string
@@ -38,10 +33,4 @@ variable "hcloud_ssh_key_name" {
 variable "hcloud_ssh_public_key" {
   type        = string
   description = "SSH public key for Hetzner servers."
-}
-
-# Dokku
-variable "dokku_domain" {
-  type        = string
-  description = "Global Dokku domain."
 }

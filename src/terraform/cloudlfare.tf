@@ -68,15 +68,6 @@ moved {
   to   = cloudflare_record.zapp_wildcard
 }
 
-# Nimbus
-resource "cloudflare_record" "nimbus" {
-  zone_id = cloudflare_zone.pawelad_me.id
-  type    = "A"
-  name    = "nimbus"
-  value   = digitalocean_droplet.nimbus.ipv4_address
-  proxied = false
-}
-
 ### pawelad.dev ###
 resource "cloudflare_zone" "pawelad_dev" {
   account_id = var.cloudflare_account_id

@@ -1,8 +1,3 @@
-output "nimbus_ip_address" {
-  value       = digitalocean_droplet.nimbus.ipv4_address
-  description = "Nimbus Droplet public IP address."
-}
-
 output "zapp_ip_address" {
   value       = hcloud_server.zapp.ipv4_address
   description = "New Zapp server public IP address."
