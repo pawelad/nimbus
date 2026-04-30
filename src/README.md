@@ -1,7 +1,5 @@
 # nimbus
 Simple [Terraform] stack that consists of:
-- [DigitalOcean]
-  - `nimbus` droplet with [dokku] installed
 - [Cloudflare]
   - `pawelad.me` zone
   - `pawelad.dev` zone
@@ -11,7 +9,6 @@ Simple [Terraform] stack that consists of:
 
 
 [cloudflare]: https://www.cloudflare.com/
-[digitalocean]: https://www.digitalocean.com/
 [dokku]: https://dokku.com/
 [github pages]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
 [readthedocs]: https://readthedocs.com/

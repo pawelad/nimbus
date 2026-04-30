@@ -11,13 +11,6 @@ variable "cloudflare_api_token" {
   sensitive   = true
 }
 
-# DigitalOcean
-variable "digitalocean_api_token" {
-  type        = string
-  description = "DigitalOcean API token."
-  sensitive   = true
-}
-
 # Hetzner
 variable "hcloud_token" {
   type        = string
