@@ -132,12 +132,6 @@ resource "cloudflare_record" "rtd_pymonzo" {
 }
 
 ### pipusznicy.cloud ###
-# TODO: Remove this import block after the first successful apply
-import {
-  to = cloudflare_zone.pipusznicy_cloud
-  id = var.cfloudflare_pipusznicy_cloud_zone_id
-}
-
 resource "cloudflare_zone" "pipusznicy_cloud" {
   account_id = var.cloudflare_account_id
   zone       = "pipusznicy.cloud"

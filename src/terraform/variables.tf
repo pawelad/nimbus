@@ -45,7 +45,3 @@ variable "dokku_domain" {
   type        = string
   description = "Global Dokku domain."
 }
-
-variable "cfloudflare_pipusznicy_cloud_zone_id" {
-  type        = string
-}
