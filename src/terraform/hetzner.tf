@@ -1,5 +1,6 @@
-data "hcloud_ssh_key" "zapp" {
-  name = var.hcloud_ssh_key_name
+resource "hcloud_ssh_key" "zapp" {
+  name       = var.hcloud_ssh_key_name
+  public_key = var.hcloud_ssh_public_key
 }
 
 resource "hcloud_server" "zapp" {
@@ -7,7 +8,7 @@ resource "hcloud_server" "zapp" {
   image       = "ubuntu-24.04"
   server_type = "cx23" # 2 vCPU, 4GB RAM (Intel x86)
   location    = "nbg1" # Nuremberg
-  ssh_keys    = [data.hcloud_ssh_key.zapp.id]
+  ssh_keys    = [hcloud_ssh_key.zapp.id]
 
   labels = {
     provisioner = "terraform"
@@ -15,7 +16,7 @@ resource "hcloud_server" "zapp" {
 
   user_data = templatefile("${path.module}/templates/cloud-config.yaml", {
     username            = "pawel"
-    user_ssh_public_key = chomp(data.hcloud_ssh_key.zapp.public_key)
+    user_ssh_public_key = chomp(hcloud_ssh_key.zapp.public_key)
   })
 
   lifecycle {

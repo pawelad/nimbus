@@ -35,6 +35,11 @@ variable "hcloud_ssh_key_name" {
   description = "Name of the SSH key on Hetzner Cloud."
 }
 
+variable "hcloud_ssh_public_key" {
+  type        = string
+  description = "SSH public key for Hetzner servers."
+}
+
 # Dokku
 variable "dokku_domain" {
   type        = string
