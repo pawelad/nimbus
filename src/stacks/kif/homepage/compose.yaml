@@ -12,7 +12,7 @@ services:
       - /data/apps/homepage/config:/app/config
       - ./images:/app/public/images:ro
     environment:
-      HOMEPAGE_ALLOWED_HOSTS: home.pipusznicy,home.home,d.upa
+      HOMEPAGE_ALLOWED_HOSTS: home.pipusznicy.cloud,home.pipusznicy,home.home
       HOMEPAGE_VAR_KOMODO_APIKEY: ${HOMEPAGE_VAR_KOMODO_APIKEY}
       HOMEPAGE_VAR_KOMODO_SECRET: ${HOMEPAGE_VAR_KOMODO_SECRET}
       HOMEPAGE_VAR_ADGUARD_USERNAME: ${HOMEPAGE_VAR_ADGUARD_USERNAME}
@@ -30,9 +30,12 @@ services:
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:3000/ || exit 1
     labels:
-      caddy: home.home home.pipusznicy d.upa
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy_0: home.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+      caddy_1: home.home home.pipusznicy d.upa
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 3000}}"
     init: true
 
   socket-proxy:

@@ -57,12 +57,15 @@ dns:
 {% endfor %}
 {% if dns_node_tailscale_ip %}
     split:
+      pipusznicy.cloud:
+        - {{ dns_node_tailscale_ip }}
       home:
         - {{ dns_node_tailscale_ip }}
 {% else %}
     split: {}
 {% endif %}
   search_domains:
+    - pipusznicy.cloud
     - home
 {% if dns_node_tailscale_ip %}
   extra_records:

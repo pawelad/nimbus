@@ -18,9 +18,12 @@ services:
       start_period: 15s
     labels:
       # Caddy reverse proxy
-      caddy: ha.home ha.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "host.docker.internal:8123"
+      caddy_0: ha.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "host.docker.internal:8123"
+      caddy_1: ha.home ha.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "host.docker.internal:8123"
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "Connection reset by peer"
@@ -28,7 +31,7 @@ services:
       homepage.group: Automation
       homepage.name: Home Assistant
       homepage.icon: home-assistant.png
-      homepage.href: https://ha.home
+      homepage.href: https://ha.pipusznicy.cloud
       homepage.description: Home Control
       homepage.weight: 10
       homepage.widget.type: homeassistant
@@ -62,14 +65,17 @@ services:
     restart: unless-stopped
     labels:
       # Caddy reverse proxy
-      caddy: music.home music.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "host.docker.internal:8095"
+      caddy_0: music.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "host.docker.internal:8095"
+      caddy_1: music.home music.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "host.docker.internal:8095"
       # Homepage service discovery
       homepage.group: Automation
       homepage.name: Music Assistant
       homepage.icon: music-assistant.png
-      homepage.href: https://music.home
+      homepage.href: https://music.pipusznicy.cloud
       homepage.description: Music Server
       homepage.weight: 30
     cap_add:
@@ -97,14 +103,17 @@ services:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/ || exit 1
     labels:
       # Caddy reverse proxy
-      caddy: z2m.home z2m.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy_0: z2m.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 8080}}"
+      caddy_1: z2m.home z2m.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 8080}}"
       # Homepage service discovery
       homepage.group: Infrastructure
       homepage.name: Zigbee2MQTT
       homepage.icon: zigbee2mqtt.png
-      homepage.href: https://z2m.home
+      homepage.href: https://z2m.pipusznicy.cloud
       homepage.description: Zigbee Bridge
       homepage.weight: 20
     devices:

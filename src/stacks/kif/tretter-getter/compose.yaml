@@ -18,7 +18,7 @@ services:
       NTFY_URL: http://ntfy:2586
       NTFY_TOPIC: tretter-getter
       NTFY_TOKEN: ${NTFY_TOKEN}
-      EXTERNAL_URL: https://tretter.getter
+      EXTERNAL_URL: https://tretter.pipusznicy.cloud
       DOCKER_IMAGE: tretter-worker:latest
       PUID: ${PUID}
       PGID: ${PGID}
@@ -30,16 +30,18 @@ services:
     healthcheck:
       test: wget -q --spider http://localhost:1945/api/status || exit 1
     labels:
-      # Caddy reverse proxy
-      caddy: tretter.home tretter.pipusznicy tretter.getter
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 1945}}"
+      caddy_0: tretter.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 1945}}"
+      caddy_1: tretter.home tretter.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 1945}}"
       # Homepage service discovery
       homepage.group: Apps
       homepage.name: Tretter Getter
       # TODO: Homepage icon
       # homepage.icon: sh-na-dobre-i-na-zle.png
-      homepage.href: https://tretter.getter
+      homepage.href: https://tretter.pipusznicy.cloud
       homepage.description: TVP VOD Recorder
       homepage.weight: 50
     pull_policy: build

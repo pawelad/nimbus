@@ -13,7 +13,7 @@ services:
       TZ: Europe/Warsaw
       PUID: 1000
       PGID: 1000
-      APP_URL: arcane.home
+      APP_URL: arcane.pipusznicy.cloud
       PORT: 3000
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       JWT_SECRET: ${JWT_SECRET}
@@ -28,9 +28,12 @@ services:
       test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:3000/ || exit 1
     labels:
       # Caddy reverse proxy
-      caddy: arcane.home arcane.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy_0: arcane.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+      caddy_1: arcane.home arcane.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 3000}}"
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "errors=\\d+"
@@ -38,7 +41,7 @@ services:
       homepage.group: Infrastructure
       homepage.name: Arcane
       homepage.icon: arcane.png
-      homepage.href: https://arcane.home
+      homepage.href: https://arcane.pipusznicy.cloud
       homepage.description: Docker Manager
       homepage.weight: 20
 

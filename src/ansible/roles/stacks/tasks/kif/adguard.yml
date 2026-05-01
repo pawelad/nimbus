@@ -39,3 +39,4 @@
     tasks_from: ensure_stack
   vars:
     stack_name: adguard
+    env_template: "common/acme_cert.env.j2"

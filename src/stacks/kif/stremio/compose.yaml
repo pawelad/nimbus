@@ -25,19 +25,22 @@ services:
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
     labels:
-      # Caddy reverse proxy
-      # Local
-      caddy_0: "aiostreams.home aiostreams.pipusznicy"
-      caddy_0.tls: "internal"
+      # Caddy reverse proxy — FQDN with Let's Encrypt wildcard cert
+      caddy_0: "aiostreams.pipusznicy.cloud"
+      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
-      # Remote Rathole tunnel
-      caddy_1: ":8001"
+      # Legacy domains with Caddy internal TLS
+      caddy_1: "aiostreams.home aiostreams.pipusznicy"
+      caddy_1.tls: "internal"
       caddy_1.reverse_proxy: "{{upstreams 3000}}"
+      # Remote Rathole tunnel
+      caddy_2: ":8001"
+      caddy_2.reverse_proxy: "{{upstreams 3000}}"
       # Homepage service discovery
       homepage.group: Media
       homepage.name: AIOStreams
       homepage.icon: stremio.png
-      homepage.href: https://aiostreams.home
+      homepage.href: https://aiostreams.pipusznicy.cloud
       homepage.description: Stremio Super Addon
       homepage.weight: 20
 
@@ -69,14 +72,17 @@ services:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8000/health || exit 1
     labels:
       # Caddy reverse proxy
-      caddy: "comet.home comet.pipusznicy"
-      caddy.tls: "internal"
-      caddy.reverse_proxy: "{{upstreams 8000}}"
+      caddy_0: "comet.pipusznicy.cloud"
+      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
+      caddy_0.reverse_proxy: "{{upstreams 8000}}"
+      caddy_1: "comet.home comet.pipusznicy"
+      caddy_1.tls: "internal"
+      caddy_1.reverse_proxy: "{{upstreams 8000}}"
       # Homepage service discovery
       homepage.group: Media
       homepage.name: Comet
       homepage.icon: stremio.png
-      homepage.href: https://comet.home
+      homepage.href: https://comet.pipusznicy.cloud
       homepage.description: Stremio Addon
       homepage.weight: 20
 
@@ -117,14 +123,17 @@ services:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
     labels:
       # Caddy reverse proxy
-      caddy: "dmm.home dmm.pipusznicy"
-      caddy.tls: "internal"
-      caddy.reverse_proxy: "{{upstreams 3000}}"
+      caddy_0: "dmm.pipusznicy.cloud"
+      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
+      caddy_0.reverse_proxy: "{{upstreams 3000}}"
+      caddy_1: "dmm.home dmm.pipusznicy"
+      caddy_1.tls: "internal"
+      caddy_1.reverse_proxy: "{{upstreams 3000}}"
       # Homepage service discovery
       homepage.group: Media
       homepage.name: DMM
       homepage.icon: dmm.png
-      homepage.href: https://dmm.home
+      homepage.href: https://dmm.pipusznicy.cloud
       homepage.description: Debrid Media Manager
       homepage.weight: 30
 
@@ -186,14 +195,17 @@ services:
       test: curl --connect-timeout 15 --silent --show-error --fail http://localhost:9696/ping
     labels:
       # Caddy reverse proxy
-      caddy: prowlarr.home prowlarr.pipusznicy
-      caddy.reverse_proxy: "{{upstreams 9696}}"
-      caddy.tls: internal
+      caddy_0: prowlarr.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 9696}}"
+      caddy_1: prowlarr.home prowlarr.pipusznicy
+      caddy_1.reverse_proxy: "{{upstreams 9696}}"
+      caddy_1.tls: internal
       # Homepage service discovery
       homepage.group: Media
       homepage.name: Prowlarr
       homepage.icon: prowlarr.png
-      homepage.href: https://prowlarr.home
+      homepage.href: https://prowlarr.pipusznicy.cloud
       homepage.description: Indexer Manager
       homepage.weight: 10
       homepage.widget.type: prowlarr

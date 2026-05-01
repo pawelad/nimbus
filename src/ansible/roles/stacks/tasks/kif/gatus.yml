@@ -45,6 +45,7 @@
     tasks_from: ensure_stack
   vars:
     stack_name: gatus
+    env_template: "common/acme_cert.env.j2"
 
 - name: "Wait for Gatus container to be running"
   community.docker.docker_container_info:

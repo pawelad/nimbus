@@ -23,3 +23,4 @@
     tasks_from: ensure_stack
   vars:
     stack_name: ntfy
+    env_template: "common/acme_cert.env.j2"

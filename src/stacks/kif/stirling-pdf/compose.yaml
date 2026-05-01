@@ -23,9 +23,12 @@ services:
       test: curl -f http://localhost:8080/ || exit 1
     labels:
       # Caddy reverse proxy
-      caddy: pdf.home pdf.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy_0: pdf.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 8080}}"
+      caddy_1: pdf.home pdf.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 8080}}"
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "System resource status changed"
@@ -33,7 +36,7 @@ services:
       homepage.group: Apps
       homepage.name: Stirling PDF
       homepage.icon: stirling-pdf.png
-      homepage.href: https://pdf.home
+      homepage.href: https://pdf.pipusznicy.cloud
       homepage.description: PDF Manipulation Tools
       homepage.weight: 50
 

@@ -48,9 +48,12 @@ services:
       test: curl -f http://localhost:3001
     labels:
       # Caddy reverse proxy
-      caddy: uptime.home uptime.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 3001}}"
+      caddy_0: uptime.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 3001}}"
+      caddy_1: uptime.home uptime.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 3001}}"
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "Connection lost" # During restart
@@ -58,7 +61,7 @@ services:
       homepage.group: Monitoring
       homepage.name: Uptime Kuma
       homepage.icon: uptime-kuma.png
-      homepage.href: https://uptime.home
+      homepage.href: https://uptime.pipusznicy.cloud
       homepage.description: Monitoring Tool
       homepage.weight: 70
       homepage.widget.type: uptimekuma

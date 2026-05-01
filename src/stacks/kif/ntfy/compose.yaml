@@ -9,7 +9,7 @@ services:
       - /data/apps/ntfy/cache:/var/cache/ntfy
       - /data/apps/ntfy/config:/etc/ntfy
     environment:
-      NTFY_BASE_URL: https://ntfy.home
+      NTFY_BASE_URL: https://ntfy.pipusznicy.cloud
     ports:
       - "0.0.0.0:2586:2586"
     networks:
@@ -21,10 +21,14 @@ services:
       start_period: 15s
     labels:
       # Caddy reverse proxy
-      caddy: ntfy.home ntfy.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 2586}}"
-      caddy.reverse_proxy.flush_interval: "-1"
+      caddy_0: ntfy.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 2586}}"
+      caddy_0.reverse_proxy.flush_interval: "-1"
+      caddy_1: ntfy.home ntfy.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 2586}}"
+      caddy_1.reverse_proxy.flush_interval: "-1"
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "hijacked connection" # https://github.com/golang/go/issues/32350
@@ -32,7 +36,7 @@ services:
       homepage.group: Infrastructure
       homepage.name: ntfy
       homepage.icon: ntfy.png
-      homepage.href: https://ntfy.home
+      homepage.href: https://ntfy.pipusznicy.cloud
       homepage.description: Notification Service
 
 networks:

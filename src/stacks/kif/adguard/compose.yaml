@@ -19,14 +19,17 @@ services:
       test: nslookup healthcheck.adguardhome.test 127.0.0.1 || exit 1
     labels:
       # Caddy reverse proxy
-      caddy: adguard.home adguard.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 2000}}"
+      caddy_0: adguard.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 2000}}"
+      caddy_1: adguard.home adguard.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 2000}}"
       # Homepage service discovery
       homepage.group: Networking
       homepage.name: AdGuard Home
       homepage.icon: adguard-home.png
-      homepage.href: https://adguard.home
+      homepage.href: https://adguard.pipusznicy.cloud
       homepage.description: DNS Blocker
       homepage.weight: 10
       homepage.widget.type: adguard

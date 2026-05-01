@@ -5,3 +5,4 @@
     tasks_from: ensure_stack
   vars:
     stack_name: cert-helper
+    env_template: "common/acme_cert.env.j2"

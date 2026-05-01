@@ -36,14 +36,17 @@ services:
       start_period: 30s
     labels:
       # Caddy reverse proxy
-      caddy: ollama.home ollama.pipusznicy
-      caddy.tls: internal
-      caddy.reverse_proxy: "{{upstreams 8080}}"
+      caddy_0: ollama.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 8080}}"
+      caddy_1: ollama.home ollama.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 8080}}"
       # Homepage service discovery
       homepage.group: AI
       homepage.name: Open WebUI
       homepage.icon: open-webui.png
-      homepage.href: https://ollama.home
+      homepage.href: https://ollama.pipusznicy.cloud
       homepage.description: Ollama Frontend
       homepage.weight: 10
 
