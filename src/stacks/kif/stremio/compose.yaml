@@ -29,7 +29,6 @@ services:
       caddy_0: "aiostreams.pipusznicy.cloud"
       caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
-      # Legacy domains with Caddy internal TLS
       caddy_1: "aiostreams.home aiostreams.pipusznicy"
       caddy_1.tls: "internal"
       caddy_1.reverse_proxy: "{{upstreams 3000}}"
