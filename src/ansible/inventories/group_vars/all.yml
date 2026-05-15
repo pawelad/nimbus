@@ -32,6 +32,7 @@ apps_data_dir: "{{ data_dir }}/apps"
 
 # Root domain
 root_domain: "pawelad.me"
+homelab_domain: "pipusznicy.cloud"
 
 # Shared public DNS servers (Quad9 without malware blocking)
 public_dns_servers:

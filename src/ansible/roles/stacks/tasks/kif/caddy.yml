@@ -4,6 +4,42 @@
     name: caddy
   tags: [docker, caddy]
 
+- name: "Ensure ACME cert directory exists"
+  ansible.builtin.file:
+    path: /data/apps/acme/certs/{{ homelab_domain }}
+    state: directory
+    mode: "0755"
+  tags: [caddy, acme]
+
+- name: "Check if ACME certificate exists"
+  ansible.builtin.stat:
+    path: /data/apps/acme/certs/{{ homelab_domain }}/fullchain.pem
+  register: acme_cert_file
+  tags: [caddy, acme]
+
+- name: "Issue initial wildcard certificate via acme.sh"
+  community.docker.docker_container:
+    name: acme_initial_issue
+    image: "{{ _compose_data.services.acme.image }}"
+    cleanup: true
+    detach: false
+    volumes:
+      - /data/apps/acme/data:/acme.sh
+      - /data/apps/acme/certs:/certs
+    env:
+      CF_Token: "{{ cloudflare_api_token }}"
+      CF_Zone_ID: "{{ cloudflare_zone_id }}"
+    command: >-
+      --issue --dns dns_cf --server letsencrypt
+      -d {{ homelab_domain }} -d '*.{{ homelab_domain }}'
+      --cert-file /certs/{{ homelab_domain }}/cert.pem
+      --key-file /certs/{{ homelab_domain }}/privkey.pem
+      --fullchain-file /certs/{{ homelab_domain }}/fullchain.pem
+  vars:
+    _compose_data: "{{ lookup('file', playbook_dir + '/../../stacks/kif/caddy/compose.yaml') | from_yaml }}"
+  when: not acme_cert_file.stat.exists
+  tags: [caddy, acme]
+
 - name: "Ensure Caddy stack is up to date"
   ansible.builtin.import_role:
     name: common
