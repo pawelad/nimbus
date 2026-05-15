@@ -108,13 +108,13 @@ filters:
 whitelist_filters: []
 user_rules:
 {% if kif_tailscale_ip %}
-  - "||*.pipusznicy.cloud^$dnsrewrite={{ kif_tailscale_ip }}"
-  - "||*.home^$dnsrewrite={{ kif_tailscale_ip }}"
-  - "||*.pipusznicy^$dnsrewrite={{ kif_tailscale_ip }}"
+  - '||*.pipusznicy.cloud^$dnsrewrite={{ kif_tailscale_ip }}'
+  - '||*.home^$dnsrewrite={{ kif_tailscale_ip }}'
+  - '||*.pipusznicy^$dnsrewrite={{ kif_tailscale_ip }}'
 {% endif %}
-  - "||*.pipusznicy.cloud^$dnsrewrite={{ server_ip }}"
-  - "||*.home^$dnsrewrite={{ server_ip }}"
-  - "||*.pipusznicy^$dnsrewrite={{ server_ip }}"
+  - '||*.pipusznicy.cloud^$dnsrewrite={{ server_ip }}'
+  - '||*.home^$dnsrewrite={{ server_ip }}'
+  - '||*.pipusznicy^$dnsrewrite={{ server_ip }}'
 dhcp:
   enabled: false
   interface_name: ""
@@ -154,7 +154,7 @@ filtering:
   safebrowsing_block_host: standard-block.dns.adguard.com
   rewrites:
 {% for domain in ['d.upa', 'speed.test', 's.t'] %}
-    - domain: '{{ domain }}'
+    - domain: {{ domain }}
       answer: {{ server_ip }}
 {% endfor %}
   safe_fs_patterns:
