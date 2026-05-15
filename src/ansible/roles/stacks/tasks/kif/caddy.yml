@@ -35,6 +35,7 @@
       --cert-file /certs/{{ homelab_domain }}/cert.pem
       --key-file /certs/{{ homelab_domain }}/privkey.pem
       --fullchain-file /certs/{{ homelab_domain }}/fullchain.pem
+      --reloadcmd "curl -s -X POST http://socket-proxy:2375/containers/caddy/restart"
   vars:
     _compose_data: "{{ lookup('file', playbook_dir + '/../../stacks/kif/caddy/compose.yaml') | from_yaml }}"
   when: not acme_cert_file.stat.exists

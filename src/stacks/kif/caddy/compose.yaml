@@ -5,12 +5,17 @@ services:
   acme:
     image: neilpang/acme.sh:3.1.3
     container_name: acme
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
     volumes:
       - /data/apps/acme/data:/acme.sh
       - /data/apps/acme/certs:/certs
     environment:
       CF_Token: ${CLOUDFLARE_API_TOKEN}
       CF_Zone_ID: ${CLOUDFLARE_ZONE_ID}
+    networks:
+      - internal
     command: daemon
     restart: unless-stopped
     labels:
@@ -19,17 +24,21 @@ services:
   caddy:
     image: lucaslorentz/caddy-docker-proxy:2.10-alpine
     container_name: caddy
+    depends_on:
+      socket-proxy:
+        condition: service_healthy
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - caddy_data:/data
       - /data/apps/acme/certs:/data/acme-certs:ro
     environment:
       CADDY_INGRESS_NETWORKS: caddy
+      DOCKER_HOST: tcp://socket-proxy:2375
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
     networks:
       - caddy
+      - internal
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
@@ -38,10 +47,28 @@ services:
     labels:
       loggifly.monitor: "true"
       loggifly.excluded_keywords: '"level":"warn"' # yamllint disable-line
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: caddy-socket-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      SERVICES: 1
+      TASKS: 1
+      NETWORKS: 1
+      EVENTS: 1
+      POST: 1
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:2375/version" ]
 
 networks:
   caddy:
     external: true
+  internal:
 
 volumes:
   caddy_data:
