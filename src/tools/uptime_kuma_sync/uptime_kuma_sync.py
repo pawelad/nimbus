@@ -130,6 +130,11 @@ def parse_stacks(stacks_dir: Path) -> List[MonitorDefinition]:
                                 break
 
             if name and url:
+                if "$" in url or "{" in url:
+                    logger.warning(
+                        f"Skipping monitor '{name}' (from {file_path.parent.name}): URL '{url}' contains unresolved variables."
+                    )
+                    continue
                 description = labels.get("homepage.description", "")
                 monitors.append(
                     MonitorDefinition(
