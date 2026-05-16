@@ -1,27 +1,34 @@
 # nimbus
-My personal [Terraform] stack, deployed with [Spacelift].
+My personal homelab monorepo, managing infrastructure across two servers with [Ansible], [Terraform], and [Docker Compose].
 
-It consists of:
-- [DigitalOcean]
-  - `nimbus` droplet with [dokku] installed
-- [Cloudflare]
-  - `pawelad.me` zone
-  - `pawelad.dev` zone
-  - DNS records for [GitHub Pages]
-  - DNS records for [ReadTheDocs]
-  - DNS records for [dokku]
+## Architecture
+The infrastructure is split across two primary nodes:
+
+| Server   | Type                        | Provider        | Role                                                 |
+|----------|-----------------------------|-----------------|------------------------------------------------------|
+| **Zapp** | VPS (cx23: 2 vCPU, 4GB RAM) | [Hetzner Cloud] | Public gateway, VPN control plane, reverse tunneling |
+| **Kif**  | NUC (i5-7260U, 16GB RAM)    | Local           | Home automation, media, internal services            |
+
+- **Zapp** acts as the internet-facing gateway, running [Dokploy], [Headscale], and [Traefik]
+- **Kif** hosts app stacks behind [Caddy], accessible via the home LAN or [Tailscale] mesh VPN
+- **Rathole** tunnels select services from Kif through Zapp to the public internet
+- DNS is managed via [Cloudflare] (public) and [AdGuard Home] (internal), with Headscale split DNS bridging the two
 
 ## Makefile
 Available `make` commands:
 
 ```console
-$ make help  
-plan                                      Generate a (speculative) Terraform plan
-apply                                     Generate, confirm and apply a Terraform plan
-upgrade                                   Upgrade Terraform providers
-destroy                                   Destroy infrastructure managed by Terraform
-format                                    Format Terraform files
-help                                      Show help message
+$ make help
+install                                  Install necessary dependencies for all components
+check                                    Run code linters
+kif-deploy                               Deploy changes to Kif (use EXTRA_VARS for variables, TAGS for tags)
+kif-provision                            Provision Kif server (use EXTRA_VARS for variables, TAGS for tags)
+zapp-deploy                              Deploy changes to Zapp (use EXTRA_VARS for variables, TAGS for tags)
+zapp-provision                           Provision Zapp server (use EXTRA_VARS for variables, TAGS for tags)
+beryl-provision                          Provision Beryl AX travel router
+encrypt-string                           Encrypt a value with Ansible Vault
+tf-plan                                  Generate a (speculative) Terraform plan
+help                                     Show help message
 ```
 
 ## Authors
@@ -32,13 +39,17 @@ Source code is available at [GitHub][github nimbus].
 Released under [Mozilla Public License 2.0][license].
 
 
+[adguard home]: https://adguard.com/
+[ansible]: https://www.ansible.com/
+[caddy]: https://caddyserver.com/
 [cloudflare]: https://www.cloudflare.com/
-[digitalocean]: https://www.digitalocean.com/
-[dokku]: https://dokku.com/
+[docker compose]: https://docs.docker.com/compose/
+[dokploy]: https://dokploy.com/
 [github nimbus]: https://github.com/pawelad/nimbus
-[github pages]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
+[headscale]: https://headscale.net/
+[hetzner cloud]: https://www.hetzner.com/cloud/
 [license]: ./LICENSE
 [pawelad]: https://pawelad.me/
-[readthedocs]: https://readthedocs.com/
-[spacelift]: https://spacelift.io/
+[tailscale]: https://tailscale.com/
 [terraform]: https://www.terraform.io/
+[traefik]: https://traefik.io/
