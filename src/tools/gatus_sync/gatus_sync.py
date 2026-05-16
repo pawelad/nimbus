@@ -9,16 +9,18 @@ groups, and URLs from Homepage/Caddy labels to ensure Gatus is properly populate
 # dependencies = [
 #   "pyyaml",
 #   "cyclopts",
+#   "python-dotenv",
 # ]
 # ///
 
-import os
 import sys
 import yaml
 import logging
 from pathlib import Path
+from string import Template
 from typing import Annotated, List, Dict, Any
 
+from dotenv import dotenv_values
 import cyclopts
 
 logger = logging.getLogger(__name__)
@@ -37,14 +39,18 @@ def parse_stacks(stacks_dir: Path) -> List[Dict[str, Any]]:
     logger.info(f"Found {len(stack_files)} stack files in {stacks_dir}")
 
     for file_path in stack_files:
+        env_path = file_path.parent / ".env"
+        env = dotenv_values(env_path) if env_path.exists() else {}
         try:
             with file_path.open("r") as f:
-                content = yaml.safe_load(f)
+                raw_content = f.read()
+            interpolated_content = Template(raw_content).safe_substitute(env)
+            content = yaml.safe_load(interpolated_content)
         except (OSError, yaml.YAMLError) as e:
             logger.error(f"Error parsing {file_path}: {e}")
             continue
 
-        if not content.get("services"):
+        if not isinstance(content, dict) or not content.get("services"):
             logger.warning(
                 f"Skipping {file_path}: 'services' key not found or invalid format."
             )
@@ -164,7 +170,6 @@ def main(
         "endpoints": endpoints,
     }
 
-    import json
     
     config_yaml = yaml.dump(config, sort_keys=False)
     

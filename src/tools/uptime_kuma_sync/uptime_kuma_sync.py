@@ -17,19 +17,26 @@ stacks directory. It attempts to derive monitor names and URLs from:
 #   "uptime-kuma-api",
 #   "pyyaml",
 #   "cyclopts",
+#   "python-dotenv",
 # ]
 # ///
 
-import os
 import sys
-import glob
 import yaml
 import logging
 from pathlib import Path
-from typing import Annotated, List, Dict, Any, Optional
+from string import Template
+from typing import Annotated, List, Optional
 from dataclasses import dataclass
 
-from uptime_kuma_api import UptimeKumaApi, UptimeKumaException, Timeout, MonitorType, NotificationType
+from dotenv import dotenv_values
+from uptime_kuma_api import (
+    UptimeKumaApi,
+    UptimeKumaException,
+    Timeout,
+    MonitorType,
+    NotificationType,
+)
 import cyclopts
 import socketio.exceptions
 
@@ -59,9 +66,13 @@ def parse_stacks(stacks_dir: Path) -> List[MonitorDefinition]:
     logger.info(f"Found {len(stack_files)} stack files in {stacks_dir}")
 
     for file_path in stack_files:
+        env_path = file_path.parent / ".env"
+        env = dotenv_values(env_path) if env_path.exists() else {}
         try:
             with file_path.open("r") as f:
-                content = yaml.safe_load(f)
+                raw_content = f.read()
+            interpolated_content = Template(raw_content).safe_substitute(env)
+            content = yaml.safe_load(interpolated_content)
         except (OSError, yaml.YAMLError) as e:
             logger.error(f"Error parsing {file_path}: {e}")
             continue
@@ -182,8 +193,15 @@ def sync_monitors(
             if needs_update and not dry_run:
                 try:
                     mid = existing["id"]
-                    api.edit_monitor(mid, url=url, description=description, ignoreTls=True)
-                    logger.info(f"    -> Updated {name}")
+                    if api:
+                        api.edit_monitor(
+                            mid, url=url, description=description, ignoreTls=True
+                        )
+                        logger.info(f"    -> Updated {name}")
+                    else:
+                        logger.error(
+                            f"    -> Error: Cannot update {name}, no API connection."
+                        )
                 except Exception as e:
                     logger.error(f"    -> Error updating {name}: {e}")
             elif needs_update and dry_run:
@@ -291,7 +309,9 @@ def sync_notifications(
             try:
                 result = api.add_notification(**ntfy_params)
                 notification_id = result.get("id")
-                logger.info(f"    -> Created {NTFY_NOTIFICATION_NAME} (id={notification_id})")
+                logger.info(
+                    f"    -> Created {NTFY_NOTIFICATION_NAME} (id={notification_id})"
+                )
                 return notification_id
             except Exception as e:
                 logger.error(f"    -> Error creating notification: {e}")
