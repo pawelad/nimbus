@@ -19,7 +19,7 @@
         (
           headscale_nodes_output.stdout | default('[]', true) | from_json
           | community.general.json_query("[?given_name==`" ~ headscale_dns_node ~ "`].ip_addresses[0]")
-        ) | first | default('')
+        ) | default([]) | first | default('')
       }}
 
 - name: "Show DNS node Tailscale IP"
