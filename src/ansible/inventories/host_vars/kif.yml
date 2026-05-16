@@ -303,6 +303,10 @@ uptime_kuma_db_root_password: !vault |
   3937303033653734333732386164323536363330653363313362
 
 # Ollama
+kif_llm_models:
+  - "smollm2"
+  - "alibayram/smollm3"
+
 ollama_webui_secret_key: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   31336232623462363462633066643161373133353535386539353762386538373038306138346137

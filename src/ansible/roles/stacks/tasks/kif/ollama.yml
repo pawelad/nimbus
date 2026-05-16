@@ -19,18 +19,31 @@
     and stacks_ollama_check.container.State.Health.Status is defined
     and stacks_ollama_check.container.State.Health.Status == 'healthy'
 
-- name: "Pull SmolLM2 model"
+- name: "Get list of installed Ollama models"
   community.docker.docker_container_exec:
     container: ollama
-    command: ollama pull smollm2
-  register: stacks_ollama_pull
-  changed_when: "'already up to date' not in stacks_ollama_pull.stdout"
+    command: ollama list
+  register: stacks_ollama_list
   when: not stacks_ollama_check.failed | default(false)
+  changed_when: false
 
-- name: "Pull SmolLM3 model"
+- name: "Pull required Ollama models"
   community.docker.docker_container_exec:
     container: ollama
-    command: ollama pull alibayram/smollm3
+    command: "ollama pull {{ item }}"
   register: stacks_ollama_pull
-  changed_when: "'already up to date' not in stacks_ollama_pull.stdout"
+  changed_when: "'already up to date' not in stacks_ollama_pull.stdout and 'success' in stacks_ollama_pull.stdout"
+  when: not stacks_ollama_check.failed | default(false)
+  loop: "{{ kif_llm_models | default([]) }}"
+
+- name: "Extract names of currently installed models"
+  ansible.builtin.set_fact:
+    installed_ollama_models: >-
+      {{
+        stacks_ollama_list.stdout_lines[1:] | default([])
+        | select('match', '^\\S+')
+        | map('split')
+        | map('first')
+        | list
+      }}
   when: not stacks_ollama_check.failed | default(false)
