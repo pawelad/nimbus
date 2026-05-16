@@ -83,7 +83,7 @@ rathole_services:
   yamtrack:
     domain: "yamtrack.{{ external_domain }}"
     bind_port: 3060
-    local_port: 8080
+    local_port: 8000
 
 # Tailscale
 tailscale_subnet: "100.64.0.0/10"
