@@ -162,6 +162,12 @@ services:
         aliases:
           - tor
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9050"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:v3.4.6
