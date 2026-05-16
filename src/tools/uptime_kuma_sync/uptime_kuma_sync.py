@@ -100,6 +100,24 @@ def parse_stacks(stacks_dir: Path) -> List[MonitorDefinition]:
                         else:
                             url = d
 
+                # Check for caddy_0, caddy_1, etc. if 'caddy' not present
+                if not url:
+                    for key, val in labels.items():
+                        if (
+                            key.startswith("caddy_")
+                            and not key.endswith(".tls")
+                            and not key.endswith(".reverse_proxy")
+                            and not key.endswith(".handle")
+                        ):
+                            domains = str(val).split()
+                            if domains:
+                                d = domains[0]
+                                if not d.startswith("http"):
+                                    url = f"https://{d}"
+                                else:
+                                    url = d
+                                break
+
             if name and url:
                 description = labels.get("homepage.description", "")
                 monitors.append(

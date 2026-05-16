@@ -88,6 +88,7 @@ def parse_stacks(stacks_dir: Path) -> List[Dict[str, Any]]:
                             key.startswith("caddy_")
                             and not key.endswith(".tls")
                             and not key.endswith(".reverse_proxy")
+                            and not key.endswith(".handle")
                         ):
                             domains = str(val).split()
                             if domains:
