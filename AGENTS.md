@@ -67,6 +67,7 @@ The relationship and hosting strategy between them:
 
 ### Secrets Management
 - **Rule**: NEVER commit plain text secrets. Use Ansible Vault.
+- **Rule**: When generating new secrets, NEVER output them to the terminal. Always pipe the generator output directly into `ansible-vault encrypt_string` (e.g., `openssl rand -base64 24 | tr -d '/+' | ansible-vault encrypt_string --stdin-name <var_name>`) to prevent secrets from being recorded in session history or logs.
 - **Tool**: Use `make encrypt-string` to generate encrypted values for Ansible variables.
 
 ### YAML Formatting
@@ -79,7 +80,7 @@ The relationship and hosting strategy between them:
 - **Example**: `ssh zapp "docker ps"`, `ssh kif "docker ps"`, or `ssh beryl "tailscale status"`.
 
 ### Docker Compose Healthchecks
-- **Rule**: When writing healthchecks, always verify which networking tools (`curl`, `wget`, etc.) are actually installed in the container image.
+- **Rule**: When writing healthchecks, ALWAYS verify which networking tools (`curl`, `wget`, etc.) are actually installed in the container image before committing the code.
 - **Reason**: Prevents false unhealthy states due to missing commands.
 
 ### Template Organization
@@ -94,7 +95,6 @@ The relationship and hosting strategy between them:
 
 ### Documentation
 - **Rule**: When adding a new stack, server, or changing infrastructure (DNS, networking, security), update the relevant `docs/` files and this `AGENTS.md`.
-- **Stack changes**: Ensure the stack is mentioned in the relevant section of `docs/kif.md` or `docs/zapp.md` if it represents a core service.
 - **DNS/domain changes**: Update `docs/architecture.md` (Networking & DNS section) and `docs/vpn.md` (Split DNS).
 - **Security changes**: Update `docs/security.md`.
 - **Reason**: Documentation drifts from reality quickly. Keeping it in sync during the change is far easier than auditing later.
@@ -112,7 +112,7 @@ When adding a new service to Kif, the following files must be created/updated:
 
 2. **Ansible task file**: `src/ansible/roles/stacks/tasks/kif/<stack_name>.yml`
    - Use `import_role: common / ensure_stack` to deploy the stack.
-   - If the stack needs a templated `.env`, set `env_template`. For stacks that only need ACME cert paths, use `env_template: "common/acme_cert.env.j2"`.
+   - If the stack needs a templated `.env`, set `env_template`. For stacks that only need ACME cert paths, use `env_template: "common/acme_cert.env.j2"`. If the stack has its own `.env.j2` template but also needs ACME cert paths (e.g., for Caddy labels), include the shared template at the top of the file using `{% include 'common/acme_cert.env.j2' %}`.
    - If the stack needs templated config files, use `import_role: common / ensure_config` before `ensure_stack`.
 
 3. **Register in deployment**: Add an `import_tasks` entry in `src/ansible/roles/stacks/tasks/kif_stacks.yml` with the appropriate tag.
@@ -142,7 +142,12 @@ Two reusable task files in `roles/common/tasks/` form the core deployment buildi
 - **`ensure_stack`**: Deploys a Docker Compose stack. Pass `stack_name` and optionally `env_template`. Supports `force_deploy` and `healthcheck_wait` parameters. Sets a global `stack_changed` flag when containers are recreated.
 - **`ensure_config`**: Manages templated config files with drift detection. Seeds the file on first deploy, warns on drift during subsequent deploys, and supports forced overwrite via `make <server>-deploy TAGS=<stack> FORCE=1`.
 
+### Ansible Templates
+- **Rule**: NEVER use Jinja2 default values for infrastructure-critical configuration (e.g., domains, IPs, paths). 
+- **Exception**: Safe, optional defaults (e.g., `| default('false')` for toggles or `| default('')` for optional API keys) are allowed to reduce boilerplate in `host_vars`.
+- **Reason**: Critical configuration should be explicit to avoid hidden drift, while optional settings can stay concise.
+
 ### Docker Image Versions
-- **Rule**: Docker images SHOULD be pinned to specific versions (e.g., `image: binwiederhier/ntfy:v2.16.0`), not `latest`.
-- **Exception**: Images that require `latest` (e.g., Comet) should be annotated with `# dclint disable-line`.
+- **Rule**: Docker images MUST be pinned to specific versions (e.g., `image: binwiederhier/ntfy:v2.16.0`). NEVER use `:latest`.
+- **Exception**: Images that have no versioned tags (e.g., Comet) should be annotated with `# dclint disable-line`.
 - **Reason**: Reproducible deployments. Prevents unexpected breaking changes during `docker compose up`.

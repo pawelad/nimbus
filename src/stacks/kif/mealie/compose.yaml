@@ -1,0 +1,38 @@
+---
+name: mealie
+
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:v3.17.0
+    container_name: mealie
+    volumes:
+      - /data/apps/mealie:/app/data
+    environment:
+      DB_ENGINE: sqlite
+      BASE_URL: ${MEALIE_URL}
+      ALLOW_SIGNUP: false
+    networks:
+      - caddy
+    restart: unless-stopped
+    healthcheck:
+      test: curl -f http://localhost:9000/api/app/about || exit 1
+    labels:
+      # Caddy reverse proxy
+      caddy_0: mealie.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 9000}}"
+      caddy_1: mealie.home mealie.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 9000}}"
+      # LoggiFly
+      loggifly.monitor: "true"
+      # Homepage service discovery
+      homepage.group: Apps
+      homepage.name: Mealie
+      homepage.icon: mealie.png
+      homepage.href: ${MEALIE_URL}
+      homepage.description: Recipe Manager
+
+networks:
+  caddy:
+    external: true

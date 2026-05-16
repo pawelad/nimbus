@@ -1,0 +1,8 @@
+---
+- name: "Ensure YamTrack stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: yamtrack
+    env_template: "kif/yamtrack/.env.j2"

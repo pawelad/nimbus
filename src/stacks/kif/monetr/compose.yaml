@@ -1,0 +1,88 @@
+---
+name: monetr
+
+services:
+  monetr:
+    image: ghcr.io/monetr/monetr:1.14.0
+    container_name: monetr
+    depends_on:
+      monetr-db:
+        condition: service_healthy
+      monetr-valkey:
+        condition: service_healthy
+    volumes:
+      - /data/apps/monetr/config:/etc/monetr
+    environment:
+      MONETR_PG_ADDRESS: monetr-db
+      MONETR_PG_USERNAME: monetr
+      MONETR_PG_PASSWORD: ${MONETR_DB_PASSWORD}
+      MONETR_PG_DATABASE: monetr
+      MONETR_REDIS_ENABLED: "true"
+      MONETR_REDIS_ADDRESS: monetr-valkey
+      MONETR_REDIS_PORT: "6379"
+      MONETR_STORAGE_ENABLED: "true"
+      MONETR_STORAGE_PROVIDER: filesystem
+      MONETR_SERVER_EXTERNAL_URL: ${MONETR_URL}
+      MONETR_ALLOW_SIGN_UP: "true"
+    networks:
+      - caddy
+      - internal
+    command:
+      - serve
+      - --migrate
+      - --generate-certificates
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "bash", "-c", ":> /dev/tcp/127.0.0.1/4000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      # Caddy reverse proxy
+      caddy_0: monetr.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+      caddy_0.reverse_proxy: "{{upstreams 4000}}"
+      caddy_1: monetr.home monetr.pipusznicy
+      caddy_1.tls: internal
+      caddy_1.reverse_proxy: "{{upstreams 4000}}"
+      # LoggiFly
+      loggifly.monitor: "true"
+      # Homepage service discovery
+      homepage.group: Apps
+      homepage.name: Monetr
+      homepage.icon: monetr.png
+      homepage.href: ${MONETR_URL}
+      homepage.description: Personal Finance
+
+  monetr-db:
+    image: postgres:17.4
+    container_name: monetr-db
+    volumes:
+      - /data/apps/monetr/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: monetr
+      POSTGRES_PASSWORD: ${MONETR_DB_PASSWORD}
+      POSTGRES_DB: monetr
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: pg_isready -U monetr -d monetr
+
+  monetr-valkey:
+    image: valkey/valkey:9.0.4
+    container_name: monetr-valkey
+    volumes:
+      - /data/apps/monetr/valkey:/data
+    networks:
+      - internal
+    restart: unless-stopped
+    healthcheck:
+      test: valkey-cli ping
+
+networks:
+  caddy:
+    external: true
+  internal:
+    internal: true

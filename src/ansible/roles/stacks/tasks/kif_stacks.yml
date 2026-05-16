@@ -63,9 +63,21 @@
   ansible.builtin.import_tasks: kif/loggifly.yml
   tags: [loggifly]
 
+- name: "Include Mealie tasks"
+  ansible.builtin.import_tasks: kif/mealie.yml
+  tags: [mealie]
+
 - name: "Include MeTube tasks"
   ansible.builtin.import_tasks: kif/metube.yml
   tags: [metube]
+
+- name: "Include Monetr tasks"
+  ansible.builtin.import_tasks: kif/monetr.yml
+  tags: [monetr]
+
+- name: "Include Multica tasks"
+  ansible.builtin.import_tasks: kif/multica.yml
+  tags: [multica]
 
 - name: "Include ntfy tasks"
   ansible.builtin.import_tasks: kif/ntfy.yml
@@ -98,3 +110,7 @@
 - name: "Include Vector tasks"
   ansible.builtin.import_tasks: kif/vector.yml
   tags: [vector]
+
+- name: "Include YamTrack tasks"
+  ansible.builtin.import_tasks: kif/yamtrack.yml
+  tags: [yamtrack]

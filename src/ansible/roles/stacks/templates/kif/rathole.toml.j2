@@ -1,6 +1,8 @@
 [client]
 remote_addr = "{{ rathole_server_addr }}"
 default_token = "{{ rathole_server_token }}"
-
-[client.services.aiostreams]
-local_addr = "aiostreams:3000" # Bypass Caddy; Traefik handles TLS on Zapp
+ 
+{% for name, config in rathole_services.items() %}
+[client.services.{{ name }}]
+local_addr = "{{ name }}:{{ config.local_port }}"
+{% endfor %}

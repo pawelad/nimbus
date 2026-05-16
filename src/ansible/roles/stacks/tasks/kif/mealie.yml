@@ -1,0 +1,8 @@
+---
+- name: "Ensure Mealie stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: mealie
+    env_template: "kif/mealie/.env.j2"

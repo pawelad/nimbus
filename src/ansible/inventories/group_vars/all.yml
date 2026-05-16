@@ -31,7 +31,7 @@ stacks_dir: "{{ data_dir }}/stacks"
 apps_data_dir: "{{ data_dir }}/apps"
 
 # Root domain
-root_domain: "pawelad.me"
+external_domain: "pawelad.me"
 homelab_domain: "pipusznicy.cloud"
 
 # Shared public DNS servers (Quad9 without malware blocking)
@@ -67,13 +67,32 @@ rathole_server_token: !vault |
   34376536383266336461323266343431666636353763363761643039326566386534363965343163
   66636163616261653833
 
+rathole_services:
+  aiostreams:
+    domain: "stremio.{{ external_domain }}"
+    bind_port: 3030
+    local_port: 3000
+  mealie:
+    domain: "mealie.{{ external_domain }}"
+    bind_port: 3040
+    local_port: 9000
+  monetr:
+    domain: "monetr.{{ external_domain }}"
+    bind_port: 3050
+    local_port: 4000
+  yamtrack:
+    domain: "yamtrack.{{ external_domain }}"
+    bind_port: 3060
+    local_port: 8080
+
 # Tailscale
 tailscale_subnet: "100.64.0.0/10"
-headscale_server_url: "https://vpn.{{ root_domain }}"
+headscale_hostname: "vpn.{{ external_domain }}"
+headscale_server_url: "https://{{ headscale_hostname }}"
 headscale_base_domain: "net.pipusznicy.cloud"
 headscale_dns_node: "kif"
 
-headplane_base_url: "https://vpn.{{ root_domain }}/admin"
+headplane_base_url: "https://{{ headscale_hostname }}/admin"
 
 tailscale_authkey: !vault |
   $ANSIBLE_VAULT;1.1;AES256

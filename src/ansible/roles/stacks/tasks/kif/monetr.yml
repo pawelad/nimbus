@@ -1,0 +1,20 @@
+---
+- name: "Ensure Monetr data directories exist"
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ server_user }}"
+    group: "{{ server_user }}"
+    mode: "0755"
+  loop:
+    - "{{ apps_data_dir }}/monetr/config"
+    - "{{ apps_data_dir }}/monetr/db"
+    - "{{ apps_data_dir }}/monetr/valkey"
+
+- name: "Ensure Monetr stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: monetr
+    env_template: "kif/monetr/.env.j2"
