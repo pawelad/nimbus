@@ -14,7 +14,10 @@ services:
     network_mode: host
     restart: unless-stopped
     healthcheck:
-      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8123/ || exit 1
+      test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:8123/ || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
       start_period: 15s
     labels:
       # Caddy reverse proxy

@@ -28,6 +28,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:9120/ || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     labels:
       caddy_0: komodo.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
@@ -63,6 +67,9 @@ services:
     restart: unless-stopped
     healthcheck:
       test: mongosh --eval "db.adminCommand('ping').ok"
+      interval: 30s
+      timeout: 5s
+      retries: 3
       start_period: 15s
     labels:
       komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
@@ -82,7 +89,11 @@ services:
       - internal
     restart: unless-stopped
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:8120/ || exit 1
+      test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8120/ || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     labels:
       komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
 

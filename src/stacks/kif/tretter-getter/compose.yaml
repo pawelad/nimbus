@@ -28,7 +28,11 @@ services:
       - caddy
     restart: unless-stopped
     healthcheck:
-      test: wget -q --spider http://localhost:1945/api/status || exit 1
+      test: wget -q --spider http://127.0.0.1:1945/api/status || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     labels:
       caddy_0: tretter.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}

@@ -174,7 +174,11 @@ services:
       - caddy
     restart: unless-stopped
     healthcheck:
-      test: curl -sS -f http://localhost:8191/ || exit 1
+      test: curl -sS -f http://127.0.0.1:8191/ || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:2.3.0
@@ -191,7 +195,11 @@ services:
       - caddy
     restart: unless-stopped
     healthcheck:
-      test: curl --connect-timeout 15 --silent --show-error --fail http://localhost:9696/ping
+      test: curl --connect-timeout 15 --silent --show-error --fail http://127.0.0.1:9696/ping || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     labels:
       # Caddy reverse proxy
       caddy_0: prowlarr.pipusznicy.cloud

@@ -33,7 +33,7 @@
 
 - name: "Wait for Uptime Kuma Socket.io API to be ready"
   ansible.builtin.uri:
-    url: "http://localhost:3001/socket.io/?EIO=4&transport=polling"
+    url: "http://127.0.0.1:3001/socket.io/?EIO=4&transport=polling"
     method: GET
     return_content: true
   register: stacks_uptime_kuma_api_wait

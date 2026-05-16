@@ -17,7 +17,10 @@ services:
     command: serve
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "wget -q --tries=1 http://localhost:2586/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1" ] # yamllint disable-line
+      test: [ "CMD-SHELL", "wget -q --tries=1 http://127.0.0.1:2586/v1/health -O - | grep -Eo '\"healthy\"\\s*:\\s*true' || exit 1" ] # yamllint disable-line
+      interval: 30s
+      timeout: 5s
+      retries: 3
       start_period: 15s
     labels:
       # Caddy reverse proxy
