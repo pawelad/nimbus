@@ -39,10 +39,6 @@
   ansible.builtin.import_tasks: kif/dozzle.yml
   tags: [dozzle]
 
-- name: "Include Gatus tasks"
-  ansible.builtin.import_tasks: kif/gatus.yml
-  tags: [gatus]
-
 - name: "Include Glances tasks"
   ansible.builtin.import_tasks: kif/glances.yml
   tags: [glances]
@@ -103,10 +99,6 @@
   ansible.builtin.import_tasks: kif/tretter_getter.yml
   tags: [tretter-getter]
 
-- name: "Include Uptime Kuma tasks"
-  ansible.builtin.import_tasks: kif/uptime_kuma.yml
-  tags: [uptime-kuma]
-
 - name: "Include Vector tasks"
   ansible.builtin.import_tasks: kif/vector.yml
   tags: [vector]
@@ -114,3 +106,14 @@
 - name: "Include YamTrack tasks"
   ansible.builtin.import_tasks: kif/yamtrack.yml
   tags: [yamtrack]
+
+# Note: Sync and monitoring tasks (Uptime Kuma & Gatus) must be placed at the very end.
+# This ensures that all application stacks have been fully deployed and their respective
+# .env files are created and populated before the sync scripts scan and parse them.
+- name: "Include Uptime Kuma tasks"
+  ansible.builtin.import_tasks: kif/uptime_kuma.yml
+  tags: [uptime-kuma]
+
+- name: "Include Gatus tasks"
+  ansible.builtin.import_tasks: kif/gatus.yml
+  tags: [gatus]
