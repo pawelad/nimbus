@@ -41,7 +41,7 @@ The relationship and hosting strategy between them:
 - **Rule**: Configuration (env vars, secrets) is managed by Ansible templates. Application definition (Docker Compose) is managed by Git in `src/stacks`.
 - **Rule**: NEVER use `scp` or direct file copying to push changes to a server. ALL changes to files managed in this repository MUST be deployed via `make <server>-deploy` (e.g., `make kif-deploy TAGS=adguard`) to ensure the server repository stays synchronized.
 - **Rule**: Always ask the user for permission before modifying infrastructure, deploying code, or provisioning via `make`.
-- **Rule**: Always run `make check` to validate syntax and linting before doing any deploy or provision actions.
+- **Rule**: Always run `make check` to validate syntax and linting before doing any deploy, provision, or git commit actions.
 
 ### Docker Compose
 - **Rule**: All Docker Compose files MUST be named `compose.yaml`.
