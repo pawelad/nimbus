@@ -52,6 +52,7 @@
   ansible.builtin.command:
     cmd: >-
       uv run {{ stacks_uptime_kuma_script_path.stat.path }}
+      --stacks-dir {{ repo_dir }}/src/stacks/{{ inventory_hostname }}
       {% if uptime_kuma_force_update | default(false) %}--force{% endif %}
   environment:
     UPTIME_KUMA_USER: "{{ uptime_kuma_user }}"
