@@ -102,6 +102,12 @@ The relationship and hosting strategy between them:
 - **Security changes**: Update `docs/security.md`.
 - **Reason**: Documentation drifts from reality quickly. Keeping it in sync during the change is far easier than auditing later.
 
+### Git & Commits
+- **Rule**: All commits to this repository MUST follow the **Conventional Commits** specification.
+- **Format**: `<type>(<scope>): <description>` (e.g., `feat(mealie): add healthcheck configuration`).
+- **Allowed Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- **Reason**: Maintains a clean, searchable git history and facilitates automated changelog generation.
+
 ### Adding a New Kif Stack
 When adding a new service to Kif, the following files must be created/updated:
 
