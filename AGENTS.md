@@ -2,6 +2,8 @@
 
 This file documents the conventions and rules that must be followed when working on this project.
 
+For detailed architecture documentation (networking, DNS, security, etc.), see the [`docs/`](docs/) directory.
+
 ## Architecture
 
 ### Monorepo Structure
@@ -10,54 +12,13 @@ This is a **homelab monorepo** managing multiple servers:
 | Server | Type                               | Provider | Role |
 |--------|------------------------------------|----------|------|
 | **Zapp** | VPS (cx23: 2 vCPU, 4GB RAM)        | Hetzner Cloud | Public-facing services (Dokploy, Headscale, Rathole server) |
-| **Kif** | NUC home server (i5-7260U, 16GB RAM | Local | Home automation, media, internal services (35 stacks) |
+| **Kif** | NUC home server (i5-7260U, 16GB RAM) | Local | Home automation, media, internal services |
 
 The relationship and hosting strategy between them:
-- **Hosting Strategy**: Zapp acts as the public gateway and hosts lightweight web apps. Kif is the powerhouse; all heavy or internal self-hosted services (e.g. Mealie, Yamtrack, media) should be deployed to Kif's 16GB pool.
+- **Hosting Strategy**: Zapp acts as the public gateway and hosts lightweight web apps. Kif is the powerhouse; all heavy or internal self-hosted services (e.g. Home Assistant, Stremio, media) should be deployed to Kif's 16GB pool.
 - **Rathole** tunnels traffic from Zapp (public IP) → Kif (behind NAT) for exposing select home services
 - **Headscale/Tailscale** provides VPN mesh between servers
 - **Beszel + Komodo** monitor both servers
-
-### Directory Layout
-```
-src/
-├── ansible/                    # All Ansible configuration
-│   ├── inventories/            # Per-host inventory files (zapp.ini, kif.ini)
-│   ├── group_vars/
-│   │   ├── all.yml             # Shared variables & cross-server secrets
-│   │   ├── zapp.yml            # Zapp-specific variables & secrets
-│   │   └── kif.yml             # Kif-specific variables & secrets
-│   ├── playbooks/              # Playbooks, named as {host}_{action}.yml
-│   ├── roles/
-│   │   ├── common/             # Shared server setup (users, packages, UFW, dirs)
-│   │   │   └── tasks/          # main.yml + composable: bluetooth, data_disk, journald, disable_default_dns
-│   │   ├── docker/             # Docker + containerd installation
-│   │   ├── git_deploy/         # Git push-to-deploy setup
-│   │   ├── samba/              # Samba file sharing (kif only)
-│   │   └── stacks/             # Stack deployment (per-host task files)
-│   │       ├── tasks/          # Server-specific and common/ tasks
-│   │       └── templates/      # Templates under {zapp,kif,common}/*.j2
-│   └── tasks/                  # Reusable task files (ensure_stack, ensure_config)
-├── stacks/
-│   ├── common/                 # Unified stacks shared across servers (symlinked)
-│   ├── zapp/                   # Zapp's Docker Compose stacks
-│   │   ├── dokploy/
-│   │   ├── headscale/
-│   │   └── rathole/
-│   └── kif/                    # Kif's Docker Compose stacks
-│       ├── adguard/
-│       ├── homepage/
-│       ├── komodo/
-│       └── ...                 # 35 stacks
-├── terraform/                  # Infrastructure as Code
-│   ├── hetzner.tf              # Zapp server
-│   ├── cloudflare.tf           # DNS zones
-│   └── ...
-└── tools/                      # Custom tools
-    ├── tretter-getter/         # Go app
-    ├── gatus_sync/             # Python script
-    └── uptime_kuma_sync/       # Python script
-```
 
 ## Conventions
 
@@ -67,7 +28,7 @@ src/
 
 ### Stack Organization
 - **Rule**: Stacks are organized under `src/stacks/<server-name>/<stack-name>/compose.yaml`.
-- **Rule (Unified)**: Stacks shared across multiple servers are placed in `src/stacks/common/<stack-name>/` and symlinked into each server's directory (e.g., `src/stacks/zapp/tailscale-agent` -> `../../common/tailscale-agent`).
+- **Rule (Unified)**: Stacks shared across multiple servers are placed in `src/stacks/common/<stack-name>/` and symlinked into each server's directory (e.g., `src/stacks/zapp/tailscale-agent` -> `../common/tailscale-agent`).
 - **Path on server**: The repo is cloned to `/data/nimbus/` and `stacks_dir` resolves to `/data/nimbus/src/stacks/<server-name>/`.
 - **Symlink**: `/data/stacks` → `stacks_dir` for convenience.
 
@@ -130,3 +91,58 @@ src/
 - **Go tools** (`tretter-getter`): `make build`, `make check`, `make test`, `make docker-build`, `make help`.
 - **Python tools** (`gatus_sync`, `uptime_kuma_sync`): `make run`, `make format`, `make help`. Run via `uv run`.
 - **Reason**: Consistent developer experience across different tools.
+
+### Documentation
+- **Rule**: When adding a new stack, server, or changing infrastructure (DNS, networking, security), update the relevant `docs/` files and this `AGENTS.md`.
+- **Stack changes**: Ensure the stack is mentioned in the relevant section of `docs/kif.md` or `docs/zapp.md` if it represents a core service.
+- **DNS/domain changes**: Update `docs/architecture.md` (Networking & DNS section) and `docs/vpn.md` (Split DNS).
+- **Security changes**: Update `docs/security.md`.
+- **Reason**: Documentation drifts from reality quickly. Keeping it in sync during the change is far easier than auditing later.
+
+### Adding a New Kif Stack
+When adding a new service to Kif, the following files must be created/updated:
+
+1. **Compose file**: `src/stacks/kif/<stack-name>/compose.yaml`
+   - Join the `caddy` network (external).
+   - Add Caddy labels for reverse proxy (see Caddy Labels below).
+   - Add Homepage service discovery labels.
+   - Pin the Docker image version.
+   - Add a healthcheck.
+   - Store persistent data in `/data/apps/<stack-name>`.
+
+2. **Ansible task file**: `src/ansible/roles/stacks/tasks/kif/<stack_name>.yml`
+   - Use `import_role: common / ensure_stack` to deploy the stack.
+   - If the stack needs a templated `.env`, set `env_template`. For stacks that only need ACME cert paths, use `env_template: "common/acme_cert.env.j2"`.
+   - If the stack needs templated config files, use `import_role: common / ensure_config` before `ensure_stack`.
+
+3. **Register in deployment**: Add an `import_tasks` entry in `src/ansible/roles/stacks/tasks/kif_stacks.yml` with the appropriate tag.
+
+4. **Ansible template** (if needed): `src/ansible/roles/stacks/templates/kif/<template>.j2`
+
+5. **AdGuard DNS** (if the stack needs a custom domain alias): Update the AdGuard Home template at `src/ansible/roles/stacks/templates/kif/AdGuardHome.yaml.j2`.
+
+### Caddy Labels (Kif Stacks)
+- **Rule**: All web-exposed Kif stacks MUST use the dual-TLS Caddy label pattern:
+  ```yaml
+  labels:
+    # FQDN with Let's Encrypt wildcard cert
+    caddy_0: <service>.pipusznicy.cloud
+    caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
+    caddy_0.reverse_proxy: "{{upstreams <port>}}"
+    # Local domains with Caddy internal CA
+    caddy_1: <service>.home <service>.pipusznicy
+    caddy_1.tls: internal
+    caddy_1.reverse_proxy: "{{upstreams <port>}}"
+  ```
+- **Reason**: Ensures services are accessible via both canonical FQDNs (valid LE cert for browsers) and local short domains (internal CA).
+
+### Reusable Ansible Tasks
+Two reusable task files in `roles/common/tasks/` form the core deployment building blocks:
+
+- **`ensure_stack`**: Deploys a Docker Compose stack. Pass `stack_name` and optionally `env_template`. Supports `force_deploy` and `healthcheck_wait` parameters. Sets a global `stack_changed` flag when containers are recreated.
+- **`ensure_config`**: Manages templated config files with drift detection. Seeds the file on first deploy, warns on drift during subsequent deploys, and supports forced overwrite via `make <server>-deploy TAGS=<stack> FORCE=1`.
+
+### Docker Image Versions
+- **Rule**: Docker images SHOULD be pinned to specific versions (e.g., `image: binwiederhier/ntfy:v2.16.0`), not `latest`.
+- **Exception**: Images that require `latest` (e.g., Comet) should be annotated with `# dclint disable-line`.
+- **Reason**: Reproducible deployments. Prevents unexpected breaking changes during `docker compose up`.
