@@ -10,9 +10,9 @@
 #   stack_changed: (Internal/Global) Automatically set true by the "deploy stack"
 #     task in ensure_stack.yml if any stack deployment resulted in actual changes.
 #     Used to conditionally trigger the sync and restart the Gatus container.
-- name: "Ensure Gatus config directory exists"
+- name: "Ensure Gatus data directories exists"
   ansible.builtin.file:
-    path: /data/apps/gatus
+    path: "{{ apps_data_dir }}/gatus"
     state: directory
     mode: "0755"
 

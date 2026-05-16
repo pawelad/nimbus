@@ -1,5 +1,5 @@
 ---
-- name: "Ensure Homepage data directory exists"
+- name: "Ensure Homepage data directories exists"
   ansible.builtin.file:
     path: "{{ apps_data_dir }}/homepage"
     state: directory

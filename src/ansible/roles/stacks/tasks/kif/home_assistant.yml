@@ -1,5 +1,5 @@
 ---
-- name: "Ensure Home Assistant data directories for config exist"
+- name: "Ensure Home Assistant data directories exist"
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory

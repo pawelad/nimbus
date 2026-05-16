@@ -1,5 +1,5 @@
 ---
-- name: "Ensure ntfy data directory for config exists"
+- name: "Ensure ntfy data directories exists"
   ansible.builtin.file:
     path: "{{ apps_data_dir }}/ntfy/config"
     state: directory

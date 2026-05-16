@@ -1,5 +1,5 @@
 ---
-- name: "Ensure Rathole client configuration directory exists"
+- name: "Ensure Rathole data directories exists"
   ansible.builtin.file:
     path: "{{ apps_data_dir }}/rathole"
     state: directory
