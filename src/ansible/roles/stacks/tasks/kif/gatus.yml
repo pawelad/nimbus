@@ -38,25 +38,7 @@
     dest: /data/apps/gatus/config.yaml
     force: false
     mode: "0644"
-
-- name: "Ensure Gatus stack is up to date"
-  ansible.builtin.import_role:
-    name: common
-    tasks_from: ensure_stack
-  vars:
-    stack_name: gatus
-    env_template: "common/acme_cert.env.j2"
-
-- name: "Wait for Gatus container to be running"
-  community.docker.docker_container_info:
-    name: gatus
-  register: stacks_gatus_check
-  ignore_errors: true
-  retries: 10
-  delay: 5
-  until: >-
-    stacks_gatus_check.container is defined
-    and stacks_gatus_check.container.State.Status == 'running'
+  register: stacks_gatus_basic_config
 
 - name: "Check if Gatus Sync script exists"
   ansible.builtin.stat:
@@ -79,12 +61,35 @@
       or '[CREATE]' in stacks_gatus_sync.stderr"
   when:
     - stacks_gatus_script_path.stat.exists
-    - not stacks_gatus_check.failed
-    - stack_changed | default(false) | bool or gatus_force_update | default(false) | bool
+    - >-
+      stack_changed | default(false) | bool or
+      gatus_force_update | default(false) | bool or
+      stacks_gatus_basic_config is changed
+
+- name: "Ensure Gatus stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: gatus
+    env_template: "common/acme_cert.env.j2"
+
+- name: "Wait for Gatus container to be running"
+  community.docker.docker_container_info:
+    name: gatus
+  register: stacks_gatus_check
+  ignore_errors: true
+  retries: 10
+  delay: 5
+  until: >-
+    stacks_gatus_check.container is defined
+    and stacks_gatus_check.container.State.Status == 'running'
 
 - name: "Restart Gatus container if config changed"
   community.docker.docker_container:
     name: gatus
     state: started
     restart: true
-  when: stacks_gatus_sync is changed
+  when:
+    - stacks_gatus_sync is changed
+    - stacks_gatus_sync is not skipped
