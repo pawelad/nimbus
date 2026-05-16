@@ -149,16 +149,18 @@ def main(
         sys.exit(1)
 
     endpoints = parse_stacks(stacks_dir)
-    
-    # Gatus v5.35+ requires at least one endpoint to start. 
+
+    # Gatus v5.35+ requires at least one endpoint to start.
     # Add a self-health check to guarantee it never crashes with an empty config.
-    endpoints.append({
-        "name": "Health",
-        "group": "Internal",
-        "url": "http://localhost:8080/health",
-        "interval": "60s",
-        "conditions": ["[STATUS] == 200"],
-    })
+    endpoints.append(
+        {
+            "name": "Health",
+            "group": "Internal",
+            "url": "http://localhost:8080/health",
+            "interval": "60s",
+            "conditions": ["[STATUS] == 200"],
+        }
+    )
 
     # Sort endpoints by group and name for consistent output
     import operator
@@ -170,9 +172,8 @@ def main(
         "endpoints": endpoints,
     }
 
-    
     config_yaml = yaml.dump(config, sort_keys=False)
-    
+
     if output_config.exists():
         try:
             with output_config.open("r") as f:

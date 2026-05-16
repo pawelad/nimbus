@@ -10,6 +10,12 @@ run: ## Run the tool
 format: ## Format code
 	uv format
 
+.PHONY: check
+check: format ## Check the code
+	uvx ruff check gatus_sync.py
+	# Unset VIRTUAL_ENV so 'ty' resolves imports from the ephemeral environment instead of the host's active virtualenv
+	env -u VIRTUAL_ENV uvx --with-requirements gatus_sync.py ty check
+
 .PHONY: help
 help: ## Show help message
 	@awk -F ':|##' '/^[^\t].+?:.*?##/ {\
