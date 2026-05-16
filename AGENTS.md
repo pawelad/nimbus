@@ -68,6 +68,7 @@ The relationship and hosting strategy between them:
 ### Secrets Management
 - **Rule**: NEVER commit plain text secrets. Use Ansible Vault.
 - **Rule**: When generating new secrets, NEVER output them to the terminal. Always pipe the generator output directly into `ansible-vault encrypt_string` (e.g., `openssl rand -base64 24 | tr -d '/+' | ansible-vault encrypt_string --stdin-name <var_name>`) to prevent secrets from being recorded in session history or logs.
+- **Rule**: NEVER read production `.env` files or any other files containing decrypted secrets on the remote servers. All configuration should be understood and managed via local Ansible variables and templates.
 - **Tool**: Use `make encrypt-string` to generate encrypted values for Ansible variables.
 
 ### YAML Formatting
@@ -82,6 +83,8 @@ The relationship and hosting strategy between them:
 ### Docker Compose Healthchecks
 - **Rule**: When writing healthchecks, ALWAYS verify which networking tools (`curl`, `wget`, etc.) are actually installed in the container image before committing the code.
 - **Reason**: Prevents false unhealthy states due to missing commands.
+- **Rule**: ALWAYS use loopback IP addresses (like `127.0.0.1`) instead of `localhost` in healthcheck URLs.
+- **Reason**: BusyBox/Alpine-based images often prioritize IPv6 loopback (`::1`) when resolving `localhost`, which fails with `Connection refused` if the service (e.g. Next.js/Node) only listens on the IPv4 loopback interface (`127.0.0.1`).
 
 ### Template Organization
 - **Rule**: Ansible templates for stacks are organized under `roles/stacks/templates/<server-name>/`. Shared templates are in `roles/stacks/templates/common/`.
