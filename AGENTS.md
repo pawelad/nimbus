@@ -47,6 +47,8 @@ The relationship and hosting strategy between them:
 - **Rule**: All Docker Compose files MUST be named `compose.yaml`.
 - **Reason**: Official Docker recommendation and matches current project consistency.
 - **Forbidden**: `docker-compose.yml`, `docker-compose.yaml`.
+- **Rule**: NEVER use standalone container management tools or modules (like `community.docker.docker_container` or raw `docker restart` commands) to restart, recreate, or change the state of containers managed by Docker Compose. Always use `community.docker.docker_compose_v2` with `state: restarted` and target the `project_src` instead.
+- **Reason**: Standalone container commands modify the container outside of Compose's context, stripping or modifying Compose project labels (e.g. `com.docker.compose.project`). This orphans the container, causing Subsequent `docker compose up` deployments to fail with name conflicts (e.g. `Conflict. The container name "/<name>" is already in use`).
 
 ### Docker Networks
 - **Zapp**: Uses `dokploy-network` (created by Dokploy, used by stacks that need reverse proxy).

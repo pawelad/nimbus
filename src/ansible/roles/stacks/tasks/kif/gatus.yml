@@ -86,10 +86,9 @@
     and stacks_gatus_check.container.State.Status == 'running'
 
 - name: "Restart Gatus container if config changed"
-  community.docker.docker_container:
-    name: gatus
-    state: started
-    restart: true
+  community.docker.docker_compose_v2:
+    project_src: "{{ repo_stacks_dir }}/gatus"
+    state: restarted
   when:
     - stacks_gatus_sync is changed
     - stacks_gatus_sync is not skipped

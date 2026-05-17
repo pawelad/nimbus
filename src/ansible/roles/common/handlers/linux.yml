@@ -10,10 +10,9 @@
     state: restarted
 
 - name: "Restart CrowdSec"
-  community.docker.docker_container:
-    name: crowdsec
-    state: started
-    restart: true
+  community.docker.docker_compose_v2:
+    project_src: "{{ repo_stacks_dir }}/crowdsec"
+    state: restarted
 
 - name: "Restart Docker"
   ansible.builtin.service:
