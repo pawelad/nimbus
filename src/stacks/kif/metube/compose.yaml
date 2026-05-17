@@ -3,7 +3,7 @@ name: metube
 
 services:
   metube:
-    image: ghcr.io/alexta69/metube:2026.01.11
+    image: ghcr.io/alexta69/metube:2026.04.28
     container_name: metube
     volumes:
       - /data/shared/public/metube:/downloads
