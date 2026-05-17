@@ -8,7 +8,7 @@ init: ## Initialize Terraform
 
 .PHONY: plan
 plan: ## Generate a (speculative) Terraform plan
-	terraform plan
+	terraform plan -lock=false
 
 .PHONY: apply
 apply: ## Generate, confirm and apply a Terraform plan
