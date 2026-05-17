@@ -23,6 +23,7 @@ dns:
   ratelimit_whitelist: []
   refuse_any: true
   upstream_dns:
+    - '[/net.pipusznicy.cloud/]100.100.100.100'
     - tls://dns10.quad9.net
     - tls://cloudflare-dns.com
     - tls://dns.google
@@ -107,6 +108,7 @@ filters:
     id: 2
 whitelist_filters: []
 user_rules:
+  - '@@||net.pipusznicy.cloud^'
 {% if kif_tailscale_ip %}
   - '||*.pipusznicy.cloud^$dnsrewrite={{ kif_tailscale_ip }}'
   - '||*.home^$dnsrewrite={{ kif_tailscale_ip }}'
