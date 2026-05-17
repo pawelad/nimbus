@@ -11,7 +11,8 @@ services:
     environment:
       PORT: 45876
       KEY: ${BESZEL_AGENT_KEY}
+      TOKEN: ${BESZEL_AGENT_TOKEN}
     network_mode: host
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "/agent", "health" ]
+      test: ["CMD", "/agent", "health"]
