@@ -26,11 +26,11 @@ services:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
     labels:
       # Caddy reverse proxy — FQDN with Let's Encrypt wildcard cert
-      caddy_0: "aiostreams.pipusznicy.cloud"
-      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
+      caddy_0: aiostreams.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
-      caddy_1: "aiostreams.home aiostreams.pipusznicy"
-      caddy_1.tls: "internal"
+      caddy_1: aiostreams.home aiostreams.pipusznicy
+      caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 3000}}"
       # Remote Rathole tunnel
       caddy_2: ":8001"
@@ -71,11 +71,11 @@ services:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:8000/health || exit 1
     labels:
       # Caddy reverse proxy
-      caddy_0: "comet.pipusznicy.cloud"
-      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
+      caddy_0: comet.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 8000}}"
-      caddy_1: "comet.home comet.pipusznicy"
-      caddy_1.tls: "internal"
+      caddy_1: comet.home comet.pipusznicy
+      caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 8000}}"
       # Homepage service discovery
       homepage.group: Media
@@ -122,11 +122,11 @@ services:
       test: wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
     labels:
       # Caddy reverse proxy
-      caddy_0: "dmm.pipusznicy.cloud"
-      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
+      caddy_0: dmm.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
-      caddy_1: "dmm.home dmm.pipusznicy"
-      caddy_1.tls: "internal"
+      caddy_1: dmm.home dmm.pipusznicy
+      caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 3000}}"
       # Homepage service discovery
       homepage.group: Media

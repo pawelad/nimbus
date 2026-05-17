@@ -28,11 +28,11 @@ services:
       start_period: 15s
     labels:
       # Caddy reverse proxy
-      caddy_0: "speedtest.pipusznicy.cloud"
-      caddy_0.tls: "${ACME_TLS_CERT} ${ACME_TLS_KEY}"
+      caddy_0: speedtest.pipusznicy.cloud
+      caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 80}}"
-      caddy_1: "speedtest.home speedtest.pipusznicy speed.test s.t"
-      caddy_1.tls: "internal"
+      caddy_1: speedtest.home speedtest.pipusznicy speed.test s.t
+      caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 80}}"
       # Monitoring
       monitor.url: "https://speedtest.pipusznicy.cloud/api/healthcheck"
