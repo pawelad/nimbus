@@ -180,3 +180,7 @@
 - name: "Include UFW-Docker tasks"
   ansible.builtin.include_tasks: ufw_docker.yml
   when: configure_ufw_docker | default(true)
+
+- name: "Include Ubuntu Pro tasks"
+  ansible.builtin.include_tasks: ubuntu_pro.yml
+  when: ansible_distribution == "Ubuntu"

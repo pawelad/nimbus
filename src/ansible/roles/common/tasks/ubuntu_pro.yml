@@ -1,0 +1,41 @@
+---
+- name: "Check if pro command exists"
+  ansible.builtin.command: "which pro"
+  register: common_pro_command_check
+  ignore_errors: true
+  changed_when: false
+
+- name: "Manage Ubuntu Pro configuration"
+  when: common_pro_command_check.rc == 0
+  block:
+    - name: "Get Ubuntu Pro status"
+      ansible.builtin.command: "pro status --format json"
+      register: common_pro_status
+      changed_when: false
+
+    - name: "Parse Ubuntu Pro status"
+      ansible.builtin.set_fact:
+        pro_status: "{{ common_pro_status.stdout | from_json }}"
+
+    - name: "Attach machine to Ubuntu Pro"
+      ansible.builtin.command: "pro attach {{ ubuntu_pro_token }}"
+      register: common_pro_attach_result
+      changed_when: true
+      when:
+        - not pro_status.attached
+        - ubuntu_pro_token is defined
+        - ubuntu_pro_token | length > 0
+
+    - name: "Update apt cache after attaching"
+      ansible.builtin.apt:
+        update_cache: true
+      when:
+        - common_pro_attach_result is defined
+        - common_pro_attach_result is changed
+
+    - name: "Disable APT News advertisements"
+      ansible.builtin.command: "pro config set apt_news=false"
+      changed_when: true
+      when:
+        - pro_status.config.ua_config.apt_news | default(true) | bool
+        - not (ubuntu_pro_apt_news | default(true) | bool)
