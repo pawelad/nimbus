@@ -4,21 +4,21 @@ name: monetr
 services:
   monetr:
     image: ghcr.io/monetr/monetr:1.14.0
-    container_name: monetr
+    container_name: monetr-app
     depends_on:
-      monetr-db:
+      postgres:
         condition: service_healthy
-      monetr-valkey:
+      valkey:
         condition: service_healthy
     volumes:
       - /data/apps/monetr/config:/etc/monetr
     environment:
-      MONETR_PG_ADDRESS: monetr-db
+      MONETR_PG_ADDRESS: postgres
       MONETR_PG_USERNAME: monetr
       MONETR_PG_PASSWORD: ${MONETR_DB_PASSWORD}
       MONETR_PG_DATABASE: monetr
       MONETR_REDIS_ENABLED: "true"
-      MONETR_REDIS_ADDRESS: monetr-valkey
+      MONETR_REDIS_ADDRESS: valkey
       MONETR_REDIS_PORT: "6379"
       MONETR_STORAGE_ENABLED: "true"
       MONETR_STORAGE_PROVIDER: filesystem
@@ -33,7 +33,7 @@ services:
       - --generate-certificates
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "bash", "-c", ":> /dev/tcp/127.0.0.1/4000"]
+      test: [ "CMD", "bash", "-c", ":> /dev/tcp/127.0.0.1/4000" ]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -55,9 +55,9 @@ services:
       homepage.href: ${MONETR_URL}
       homepage.description: Personal Finance
 
-  monetr-db:
+  postgres:
     image: postgres:17.4
-    container_name: monetr-db
+    container_name: monetr-postgres
     volumes:
       - /data/apps/monetr/db:/var/lib/postgresql/data
     environment:
@@ -70,7 +70,7 @@ services:
     healthcheck:
       test: pg_isready -U monetr -d monetr
 
-  monetr-valkey:
+  valkey:
     image: valkey/valkey:9.0.4
     container_name: monetr-valkey
     volumes:
