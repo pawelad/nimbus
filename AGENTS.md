@@ -45,10 +45,15 @@ The relationship and hosting strategy between them:
 
 ### Docker Compose
 - **Rule**: All Docker Compose files MUST be named `compose.yaml`.
-- **Reason**: Official Docker recommendation and matches current project consistency.
-- **Forbidden**: `docker-compose.yml`, `docker-compose.yaml`.
+  - **Reason**: Official Docker recommendation and matches current project consistency.
+  - **Forbidden**: `docker-compose.yml`, `docker-compose.yaml`.
 - **Rule**: NEVER use standalone container management tools or modules (like `community.docker.docker_container` or raw `docker restart` commands) to restart, recreate, or change the state of containers managed by Docker Compose. Always use `community.docker.docker_compose_v2` with `state: restarted` and target the `project_src` instead.
-- **Reason**: Standalone container commands modify the container outside of Compose's context, stripping or modifying Compose project labels (e.g. `com.docker.compose.project`). This orphans the container, causing Subsequent `docker compose up` deployments to fail with name conflicts (e.g. `Conflict. The container name "/<name>" is already in use`).
+  - **Reason**: Standalone container commands modify the container outside of Compose's context, stripping or modifying Compose project labels (e.g. `com.docker.compose.project`). This orphans the container, causing Subsequent `docker compose up` deployments to fail with name conflicts (e.g. `Conflict. The container name "/<name>" is already in use`).
+- **Rule**: Service names in `compose.yaml` (keys under `services:`) SHOULD use generic, role/engine-based names (e.g., `backend`, `frontend`, `postgres`, `redis`, `valkey`, `mongo`) rather than stack-prefixed names (like `multica-backend` or `multica-db`). When the image itself is named `*-web` (e.g., `multica-web`), prefer `web` as the service name (and `<stack>-web` as the container name) to align with standard image naming.
+  *Exception:* For multi-app stacks (e.g., `stremio`) where a database (e.g., `postgres`) is only used by one specific app (e.g., `comet`), keep the service and container name specific (e.g., `comet-postgres`) to prevent ambiguity.
+  - **Reason**: This keeps internal links, URLs, and configurations highly readable (e.g., `postgres:5432` or `redis:6379`), avoids name-resolution conflicts with pre-compiled community images (such as `multica-web` which hardcodes `backend` for its internal proxy), and keeps multi-app setups explicit.
+- **Rule**: Every service in `compose.yaml` MUST specify a unique `container_name` prefixed with the stack name (e.g., `container_name: <stack-name>-<role>`, such as `container_name: multica-backend`, `container_name: multica-postgres`, `container_name: multica-web`, or `container_name: monetr-postgres`). When the stack contains multiple services (like a database or cache alongside the application), the main application container's `container_name` SHOULD be `<stack>-app` (e.g., `monetr-app` or `comet-app`) to keep roles clear.
+  - **Reason**: Container names exist in a flat, global host namespace. Using unique prefixes prevents naming conflicts during container creation and avoids failure when deploying multiple stacks onto the same host.
 
 ### Docker Networks
 - **Zapp**: Uses `dokploy-network` (created by Dokploy, used by stacks that need reverse proxy).
@@ -84,9 +89,9 @@ The relationship and hosting strategy between them:
 
 ### Docker Compose Healthchecks
 - **Rule**: When writing healthchecks, ALWAYS verify which networking tools (`curl`, `wget`, etc.) are actually installed in the container image before committing the code.
-- **Reason**: Prevents false unhealthy states due to missing commands.
+  - **Reason**: Prevents false unhealthy states due to missing commands.
 - **Rule**: ALWAYS use loopback IP addresses (like `127.0.0.1`) instead of `localhost` in healthcheck URLs.
-- **Reason**: BusyBox/Alpine-based images often prioritize IPv6 loopback (`::1`) when resolving `localhost`, which fails with `Connection refused` if the service (e.g. Next.js/Node) only listens on the IPv4 loopback interface (`127.0.0.1`).
+  - **Reason**: BusyBox/Alpine-based images often prioritize IPv6 loopback (`::1`) when resolving `localhost`, which fails with `Connection refused` if the service (e.g. Next.js/Node) only listens on the IPv4 loopback interface (`127.0.0.1`).
 
 ### Template Organization
 - **Rule**: Ansible templates for stacks are organized under `roles/stacks/templates/<server-name>/`. Shared templates are in `roles/stacks/templates/common/`.
