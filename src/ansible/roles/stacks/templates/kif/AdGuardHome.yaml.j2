@@ -108,10 +108,10 @@ filters:
     id: 2
 whitelist_filters: []
 user_rules:
-  {# Exclude Tailscale's internal domain from any rewrites. #}
-  {# This ensures MagicDNS queries are resolved via the upstream Tailscale DNS (100.100.100.100). #}
+{# Exclude Tailscale's internal domain from any rewrites. #}
+{# This ensures MagicDNS queries are resolved via the upstream Tailscale DNS (100.100.100.100). #}
   - '@@||net.pipusznicy.cloud^$dnsrewrite'
-  {# Rewrites for homelab domains. #}
+{# Rewrites for homelab domains. #}
 {% if kif_tailscale_ip %}
   - '||pipusznicy.cloud^$dnsrewrite={{ kif_tailscale_ip }}'
   - '||home^$dnsrewrite={{ kif_tailscale_ip }}'
