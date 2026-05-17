@@ -7,6 +7,31 @@
     stack_name: tailscale-agent
     env_template: "common/tailscale-agent.env.j2"
 
+- name: "Check Tailscale connection status"
+  community.docker.docker_container_exec:
+    container: tailscale
+    command: tailscale status
+  register: _tailscale_status_check
+  failed_when: false
+  changed_when: false
+
+- name: "Force Tailscale Agent to re-authenticate if logged out"
+  community.docker.docker_container_exec:
+    container: tailscale
+    command: >-
+      tailscale up
+      --login-server={{ headscale_server_url }}
+      --authkey={{ tailscale_authkey }}
+      --reset
+  when: >-
+    _tailscale_status_check.rc != 0
+    or "Logged out" in _tailscale_status_check.stdout
+    or "Logged out" in _tailscale_status_check.stderr
+    or "NoState" in _tailscale_status_check.stdout
+    or "NoState" in _tailscale_status_check.stderr
+  changed_when: true
+  no_log: true
+
 - name: "Allow all traffic from Tailscale network"
   community.general.ufw:
     rule: allow
