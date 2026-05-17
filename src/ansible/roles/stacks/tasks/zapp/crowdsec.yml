@@ -34,8 +34,17 @@
 - name: "Inject CrowdSec Bouncer middleware into websecure entrypoint by default"
   ansible.builtin.replace:
     path: "/etc/dokploy/traefik/traefik.yml"
-    regexp: "websecure:\\s*\\n\\s*address: :443(\\s*http3:\\s*\\n\\s*advertisedPort: 443)?(\\s*http:\\s*\\n\\s*middlewares:\\s*\\n\\s*-\\s*\"crowdsec-bouncer@file\")?"
-    replace: "websecure:\n    address: :443\n    http3:\n      advertisedPort: 443\n    http:\n      middlewares:\n        - \"crowdsec-bouncer@file\""
+    regexp: >-
+      websecure:\s*\n\s*address: :443(\s*http3:\s*\n\s*advertisedPort: 443)?
+      (\s*http:\s*\n\s*middlewares:\s*\n\s*-\s*"crowdsec-bouncer@file")?
+    replace: |
+      websecure:
+          address: :443
+          http3:
+            advertisedPort: 443
+          http:
+            middlewares:
+              - "crowdsec-bouncer@file"
   register: "_traefik_entrypoint_config"
 
 - name: "Restart dokploy-traefik to load static configuration"
