@@ -11,18 +11,22 @@ services:
       traefik.enable: true
       traefik.http.routers.rathole-aiostreams.rule: Host(`${RATHOLE_AIOSTREAMS_DOMAIN}`)
       traefik.http.routers.rathole-aiostreams.entrypoints: websecure
+      traefik.http.routers.rathole-aiostreams.service: rathole-aiostreams
       traefik.http.routers.rathole-aiostreams.tls.certresolver: letsencrypt
       traefik.http.services.rathole-aiostreams.loadbalancer.server.port: ${RATHOLE_AIOSTREAMS_PORT}
       traefik.http.routers.rathole-mealie.rule: Host(`${RATHOLE_MEALIE_DOMAIN}`)
       traefik.http.routers.rathole-mealie.entrypoints: websecure
+      traefik.http.routers.rathole-mealie.service: rathole-mealie
       traefik.http.routers.rathole-mealie.tls.certresolver: letsencrypt
       traefik.http.services.rathole-mealie.loadbalancer.server.port: ${RATHOLE_MEALIE_PORT}
       traefik.http.routers.rathole-monetr.rule: Host(`${RATHOLE_MONETR_DOMAIN}`)
       traefik.http.routers.rathole-monetr.entrypoints: websecure
+      traefik.http.routers.rathole-monetr.service: rathole-monetr
       traefik.http.routers.rathole-monetr.tls.certresolver: letsencrypt
       traefik.http.services.rathole-monetr.loadbalancer.server.port: ${RATHOLE_MONETR_PORT}
       traefik.http.routers.rathole-yamtrack.rule: Host(`${RATHOLE_YAMTRACK_DOMAIN}`)
       traefik.http.routers.rathole-yamtrack.entrypoints: websecure
+      traefik.http.routers.rathole-yamtrack.service: rathole-yamtrack
       traefik.http.routers.rathole-yamtrack.tls.certresolver: letsencrypt
       traefik.http.services.rathole-yamtrack.loadbalancer.server.port: ${RATHOLE_YAMTRACK_PORT}
     extends:
