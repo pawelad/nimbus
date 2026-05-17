@@ -37,6 +37,7 @@
     owner: "{{ config_owner }}"
     group: "{{ config_group }}"
     force: false
+    validate: "{{ validate | default(omit) }}"
   when: not config_stat.stat.exists
 
 # ============================================================================
@@ -49,6 +50,7 @@
     mode: "{{ config_mode }}"
     owner: "{{ config_owner }}"
     group: "{{ config_group }}"
+    validate: "{{ validate | default(omit) }}"
   changed_when: false
 
 - name: "Check for config drift: {{ service_name }}"
@@ -96,6 +98,7 @@
         group: "{{ config_group }}"
         force: true
         backup: true
+        validate: "{{ validate | default(omit) }}"
 
     - name: "Flag stack for forced recreate: {{ service_name }}"
       ansible.builtin.set_fact:

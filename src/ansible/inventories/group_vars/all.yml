@@ -11,6 +11,7 @@ packages:
   - git
   - htop
   - python3
+  - python3-yaml
   - tree
   - ufw
   - vim

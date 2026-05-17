@@ -17,9 +17,21 @@
   ansible.builtin.set_fact:
     kif_tailscale_ip: "{{ kif_tailscale_ip_output.stdout | default('', true) | trim }}"
 
-- name: "Show Kif Tailscale IP"
+- name: "Fetch Zapp Tailscale IP"
+  community.docker.docker_container_exec:
+    container: tailscale
+    command: tailscale ip -4 zapp
+  register: zapp_tailscale_ip_output
+  changed_when: false
+  ignore_errors: true
+
+- name: "Set Zapp Tailscale IP fact"
+  ansible.builtin.set_fact:
+    zapp_tailscale_ip: "{{ zapp_tailscale_ip_output.stdout | default('', true) | trim }}"
+
+- name: "Show Tailscale IPs"
   ansible.builtin.debug:
-    var: kif_tailscale_ip
+    msg: "Zapp: {{ zapp_tailscale_ip }} | Kif: {{ kif_tailscale_ip }}"
 
 - name: "Ensure AdGuard Home configuration"
   ansible.builtin.import_role:
@@ -32,6 +44,8 @@
     mode: "0644"
     owner: "{{ server_user }}"
     group: "{{ server_user }}"
+    validate: >-
+      python3 -c "import yaml; yaml.safe_load(open('%s'))"
 
 - name: "Ensure AdGuard Home stack is up to date"
   ansible.builtin.import_role:
@@ -40,3 +54,30 @@
   vars:
     stack_name: adguard
     env_template: "common/acme_cert.env.j2"
+
+- name: "Wait for AdGuard container to be healthy"
+  community.docker.docker_container_info:
+    name: adguard
+  register: _adguard_check
+  retries: 10
+  delay: 5
+  until: >-
+    _adguard_check.container is defined
+    and _adguard_check.container.State.Health.Status is defined
+    and _adguard_check.container.State.Health.Status == 'healthy'
+
+- name: "Verify local DNS resolution"
+  ansible.builtin.command: "nslookup home.pipusznicy.cloud 127.0.0.1"
+  register: _dns_check_local
+  retries: 5
+  delay: 5
+  until: "'.pipusznicy.cloud' in _dns_check_local.stdout"
+  changed_when: false
+
+- name: "Verify VPN DNS resolution"
+  ansible.builtin.command: "nslookup zapp.net.pipusznicy.cloud 127.0.0.1"
+  register: _dns_check_vpn
+  retries: 5
+  delay: 5
+  until: "zapp_tailscale_ip in _dns_check_vpn.stdout"
+  changed_when: false
