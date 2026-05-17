@@ -4,5 +4,5 @@ bind_addr = "0.0.0.0:2333"
 {% for name, config in rathole_services.items() %}
 [server.services.{{ name }}]
 token = "{{ rathole_server_token }}"
-bind_addr = "0.0.0.0:{{ config.bind_port }}" # `bind_addr` is the internal port Traefik will proxy to
+bind_addr = "0.0.0.0:{{ config.bind_port }}" # Internal port Traefik will proxy to
 {% endfor %}
