@@ -1,12 +1,12 @@
 ---
-- name: "Allow Beszel Agent port through UFW (Tailscale only)"
+- name: "Allow Beszel Agent port through UFW (Tailscale)"
   community.general.ufw:
     rule: allow
-    interface: tailscale0
+    src: "{{ tailscale_subnet }}"
     direction: in
     port: "45876"
     proto: tcp
-    comment: "Beszel Agent (Tailscale only)"
+    comment: "Beszel Agent (Tailscale)"
 
 - name: "Ensure Beszel Agent stack is up to date"
   ansible.builtin.import_role:
