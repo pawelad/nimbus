@@ -2,16 +2,16 @@
 name: multica
 
 services:
-  multica-backend:
+  backend:
     image: ghcr.io/multica-ai/multica-backend:v0.3.1
     container_name: multica-backend
     depends_on:
-      multica-db:
+      postgres:
         condition: service_healthy
     volumes:
       - /data/apps/multica/uploads:/app/data/uploads
     environment:
-      DATABASE_URL: postgres://multica:${MULTICA_DB_PASSWORD}@multica-db:5432/multica?sslmode=disable
+      DATABASE_URL: postgres://multica:${MULTICA_DB_PASSWORD}@postgres:5432/multica?sslmode=disable
       PORT: "8080"
       JWT_SECRET: ${MULTICA_JWT_SECRET}
       FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
@@ -32,7 +32,7 @@ services:
       - internal
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1"]
+      test: [ "CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:8080/health || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -51,9 +51,9 @@ services:
       caddy_1.handle.reverse_proxy: "{{upstreams 8080}}"
       caddy_1.handle.reverse_proxy.flush_interval: -1
 
-  multica-db:
+  postgres:
     image: pgvector/pgvector:pg17
-    container_name: multica-db
+    container_name: multica-postgres
     volumes:
       - /data/apps/multica/db:/var/lib/postgresql/data
     environment:
@@ -64,25 +64,26 @@ services:
       - internal
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U multica -d multica"]
+      test: [ "CMD-SHELL", "pg_isready -U multica -d multica" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  multica-web:
+  web:
     image: ghcr.io/multica-ai/multica-web:v0.3.1
     container_name: multica-web
     depends_on:
-      - multica-backend
+      backend:
+        condition: service_healthy
     environment:
       HOSTNAME: "0.0.0.0"
       PORT: "3000"
-      REMOTE_API_URL: "http://multica-backend:8080"
+      REMOTE_API_URL: "http://backend:8080"
     networks:
       - caddy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3000 || exit 1"]
+      test: [ "CMD-SHELL", "wget --quiet --tries=1 --spider http://127.0.0.1:3000 || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
