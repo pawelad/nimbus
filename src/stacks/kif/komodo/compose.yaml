@@ -73,6 +73,7 @@ services:
       start_period: 15s
     labels:
       komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
+    init: true # Prevent defunct mongosh healthcheck zombie processes by running tini as PID 1
 
   periphery:
     image: ghcr.io/moghtech/komodo-periphery:1.19.5
