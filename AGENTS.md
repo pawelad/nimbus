@@ -56,6 +56,8 @@ The relationship and hosting strategy between them:
   - **Reason**: Container names exist in a flat, global host namespace. Using unique prefixes prevents naming conflicts during container creation and avoids failure when deploying multiple stacks onto the same host.
 - **Rule**: When executing commands inside running Docker containers from Ansible playbooks, ALWAYS use the `community.docker.docker_container_exec` module instead of raw shell/command modules with `docker exec`.
   - **Reason**: Using the native Ansible module is cleaner, more robust, has better error handling, and avoids manual string formatting errors.
+- **Rule**: When managing standalone Docker containers that are NOT managed by Docker Compose (e.g., `dokploy-traefik`), ALWAYS use the native declarative `community.docker.docker_container` module in Ansible rather than raw command or shell modules.
+  - **Reason**: Native Ansible modules provide robust declarative idempotence, clean port/volume bindings, automatic multi-network peering, and avoid error-prone manual scripting boilerplate.
 
 ### Docker Networks
 - **Zapp**: Uses `dokploy-network` (created by Dokploy, used by stacks that need reverse proxy).
