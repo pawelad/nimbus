@@ -9,6 +9,7 @@ services:
       - /data/apps/gatus:/config
     environment:
       GATUS_CONFIG_PATH: "/config/config.yaml:/config/alerting.yaml"
+      GATUS_CONFIG_HASH: "${GATUS_CONFIG_HASH:-}"
     ports:
       - "0.0.0.0:8060:8080"
     networks:

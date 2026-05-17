@@ -66,29 +66,19 @@
       gatus_force_update | default(false) | bool or
       stacks_gatus_basic_config is changed
 
+- name: "Get checksum of Gatus config file"
+  ansible.builtin.stat:
+    path: /data/apps/gatus/config.yaml
+  register: stacks_gatus_config_stat
+
+- name: "Set Gatus config hash fact"
+  ansible.builtin.set_fact:
+    gatus_config_hash: "{{ stacks_gatus_config_stat.stat.checksum if stacks_gatus_config_stat.stat.exists else '' }}"
+
 - name: "Ensure Gatus stack is up to date"
   ansible.builtin.import_role:
     name: common
     tasks_from: ensure_stack
   vars:
     stack_name: gatus
-    env_template: "common/acme_cert.env.j2"
-
-- name: "Wait for Gatus container to be running"
-  community.docker.docker_container_info:
-    name: gatus
-  register: stacks_gatus_check
-  ignore_errors: true
-  retries: 10
-  delay: 5
-  until: >-
-    stacks_gatus_check.container is defined
-    and stacks_gatus_check.container.State.Status == 'running'
-
-- name: "Restart Gatus container if config changed"
-  community.docker.docker_compose_v2:
-    project_src: "{{ repo_stacks_dir }}/gatus"
-    state: restarted
-  when:
-    - stacks_gatus_sync is changed
-    - stacks_gatus_sync is not skipped
+    env_template: "kif/gatus.env.j2"
