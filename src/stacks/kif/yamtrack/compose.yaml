@@ -26,6 +26,7 @@ services:
       - /data/apps/yamtrack:/app/db
     environment:
       SECRET: ${YAMTRACK_SECRET}
+      REGISTRATION: ${YAMTRACK_REGISTRATION}
       REDIS_URL: redis://yamtrack-redis:6379
     networks:
       - caddy

@@ -389,6 +389,7 @@ monetr_db_password: !vault |
 
 # YamTrack
 yamtrack_url: "https://yamtrack.{{ external_domain }}"
+yamtrack_registration: "False"
 
 yamtrack_secret: !vault |
   $ANSIBLE_VAULT;1.1;AES256
