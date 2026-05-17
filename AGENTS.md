@@ -54,6 +54,8 @@ The relationship and hosting strategy between them:
   - **Reason**: This keeps internal links, URLs, and configurations highly readable (e.g., `postgres:5432` or `redis:6379`), avoids name-resolution conflicts with pre-compiled community images (such as `multica-web` which hardcodes `backend` for its internal proxy), and keeps multi-app setups explicit.
 - **Rule**: Every service in `compose.yaml` MUST specify a unique `container_name` prefixed with the stack name (e.g., `container_name: <stack-name>-<role>`, such as `container_name: multica-backend`, `container_name: multica-postgres`, `container_name: multica-web`, or `container_name: monetr-postgres`). When the stack contains multiple services (like a database or cache alongside the application), the main application container's `container_name` SHOULD be `<stack>-app` (e.g., `monetr-app` or `comet-app`) to keep roles clear.
   - **Reason**: Container names exist in a flat, global host namespace. Using unique prefixes prevents naming conflicts during container creation and avoids failure when deploying multiple stacks onto the same host.
+- **Rule**: When executing commands inside running Docker containers from Ansible playbooks, ALWAYS use the `community.docker.docker_container_exec` module instead of raw shell/command modules with `docker exec`.
+  - **Reason**: Using the native Ansible module is cleaner, more robust, has better error handling, and avoids manual string formatting errors.
 
 ### Docker Networks
 - **Zapp**: Uses `dokploy-network` (created by Dokploy, used by stacks that need reverse proxy).
