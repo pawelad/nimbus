@@ -163,7 +163,7 @@ services:
           - tor
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "nc", "-z", "127.0.0.1", "9050"]
+      test: [ "CMD", "nc", "-z", "127.0.0.1", "9050" ]
       interval: 30s
       timeout: 5s
       retries: 3

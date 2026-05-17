@@ -34,7 +34,7 @@ services:
     command: serve
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "headscale", "health"]
+      test: [ "CMD", "headscale", "health" ]
       interval: 30s
       timeout: 5s
       retries: 3
