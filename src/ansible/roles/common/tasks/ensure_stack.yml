@@ -33,11 +33,13 @@
   when: >
     env_template is defined and
     (stack_state | default('present') == 'present')
+  register: _stack_env_file
 
 - name: "Check if stack recreate is requested: {{ stack_name }}"
   ansible.builtin.set_fact:
     force_recreate_requested: "{{
       (force_stack_recreate | default(false)) or
+      (_stack_env_file is changed) or
       (force_deploy | default('') == 'all') or
       (force_deploy is defined and force_deploy | type_debug == 'list' and stack_name in force_deploy) or
       (force_deploy is defined and force_deploy is string and force_deploy == stack_name)
