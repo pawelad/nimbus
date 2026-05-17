@@ -6,6 +6,14 @@
     proto: tcp
     comment: "Rathole"
 
+- name: "Allow Rathole port (Route) through UFW"
+  community.general.ufw:
+    rule: allow
+    port: "2333"
+    proto: tcp
+    route: true
+    comment: "Rathole Route"
+
 - name: "Ensure Rathole server configuration"
   ansible.builtin.import_role:
     name: common
