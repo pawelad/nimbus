@@ -58,6 +58,8 @@ services:
 
       # Redirect / to /admin
       traefik.http.routers.headscale-redirect.rule: Host(`${HEADSCALE_HOSTNAME}`) && Path(`/`)
+      traefik.http.routers.headscale-redirect.entrypoints: websecure
+      traefik.http.routers.headscale-redirect.tls.certresolver: letsencrypt
       traefik.http.routers.headscale-redirect.service: headscale
       traefik.http.routers.headscale-redirect.middlewares: headscale-redirect
       traefik.http.middlewares.headscale-redirect.redirectregex.regex: "^https?://[^/]+/?$$"
