@@ -3,7 +3,7 @@ name: homepage
 
 services:
   homepage:
-    image: ghcr.io/gethomepage/homepage:v1.9.0
+    image: ghcr.io/gethomepage/homepage:v1.13.1
     container_name: homepage
     depends_on:
       socket-proxy:
