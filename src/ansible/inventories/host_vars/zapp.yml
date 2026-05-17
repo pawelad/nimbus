@@ -1,4 +1,7 @@
 ---
+docker_data_root: "/var/lib/docker"
+containerd_data_root: "/var/lib/containerd"
+
 # Beszel
 beszel_agent_token: !vault |
   $ANSIBLE_VAULT;1.1;AES256

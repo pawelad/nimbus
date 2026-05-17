@@ -2,6 +2,9 @@
 server_ip: "192.168.1.9"
 ufw_allow_local_lan_subnet: "192.168.1.0/24"
 
+docker_data_root: "/data/docker"
+containerd_data_root: "/data/containerd"
+
 # Kif-specific packages
 extra_packages:
   - bluez
