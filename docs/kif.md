@@ -11,6 +11,12 @@ Kif represents the internal home infrastructure node in the Nimbus architecture.
 - **Ansible Driven:** Configured with `kif.yml` inventory and specific roles. Deployed using `make kif-deploy`.
 - **Docker Compose Stacks:** Hosted in `src/stacks/kif/`, comprising multiple distinct services.
 
+## File Sharing (Samba)
+Kif hosts a public Samba share to allow easy file exchange across the local network. 
+- **Path:** `/data/shared/public`
+- **Access:** The share is currently configured as a public share (`guest ok = yes`), meaning it requires no authentication for read or write access.
+- **Network Visibility:** Samba is exposed via UFW. Because Kif sits behind the home router's NAT, it is not exposed to the public internet, but it is accessible to any device on the local Wi-Fi, the Tailscale network, and any Docker container running on Kif.
+
 ## Application Architecture
 
 ### Traffic Flow and Routing

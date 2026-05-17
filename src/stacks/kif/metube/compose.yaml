@@ -6,7 +6,7 @@ services:
     image: ghcr.io/alexta69/metube:2026.01.11
     container_name: metube
     volumes:
-      - /data/apps/metube/downloads:/downloads
+      - /data/shared/public/metube:/downloads
     ports:
       - "0.0.0.0:8081:8081"
     networks:
