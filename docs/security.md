@@ -15,8 +15,8 @@ To mitigate this, **Fail2ban** is installed on all servers via the `common` Ansi
 
 By default, Docker directly modifies `iptables` to route traffic to containers. This completely bypasses UFW (Uncomplicated Firewall) rules. If a container binds to `0.0.0.0:8080`, it is publicly accessible even if UFW is set to deny all incoming traffic.
 
-To secure this, we use [ufw-docker](https://github.com/chaifeng/ufw-docker), which forces Docker traffic to respect your UFW rules.
-- **Zapp:** Ensures that only explicitly allowed ports (like 80, 443 for Traefik) are accessible from the internet. Any new containers spun up by Dokploy will remain private unless explicitly routed.
+To secure this, we use [ufw-docker](https://github.com/chaifeng/ufw-docker), which forces Docker traffic to respect your UFW rules. Under UFW-Docker, because UFW's default forwarding policy is `deny (routed)`, standard input firewall rules are insufficient for containers; you must explicitly define route rules (`route: true` in Ansible) to permit traffic to pass through the `FORWARD` filter chain to the container IPs.
+- **Zapp:** Ensures that only explicitly allowed ports (like ports 80 and 443 for Traefik, and port 2333 for Rathole) are accessible from the internet. These are configured as routed rules (`route: true`) in Ansible. Any new containers spun up by Dokploy will remain private unless explicitly routed.
 - **Kif:** Prevents dozens of internal services (like Homepage, AdGuard) from being blindly exposed to the entire network. To ensure local access continues working (e.g., via `*.home` domains), UFW is configured to explicitly allow routing from the local LAN subnet (`192.168.1.0/24`) and the Tailscale interface (`tailscale0`).
 
 ## 3. HTTP Application Protection (CrowdSec)

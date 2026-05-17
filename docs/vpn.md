@@ -35,6 +35,8 @@ Instead of forcing 100% of your internet's DNS queries through the VPN (which co
 
 ### Home Server (`kif`)
 Deployed via the `tailscale-agent` stack through Ansible and authenticated seamlessly via reusable pre-auth keys.
+- **Self-Healing Agent:** The Ansible deployment includes automated self-healing tasks. On every deploy, Ansible executes a non-destructive health-check inside the running Tailscale container (`tailscale status`). If the agent is in `NoState` or has `Logged out` (e.g. if the control server was temporarily unreachable), Ansible automatically runs a `tailscale up --reset` command to re-authenticate the agent dynamically using the vaulted pre-auth key, ensuring 100% network resilience.
+
 
 ### Travel Router (Beryl)
 The travel router (GL-MT3000) acts as a transparent gateway for all connected devices.
