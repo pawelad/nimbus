@@ -17,23 +17,12 @@ services:
     restart: unless-stopped
     # No healthcheck: Gatus is a scratch/distroless image with no shell, curl, wget, or health subcommand
     labels:
-      # Caddy reverse proxy
       caddy_0: gatus.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 8080}}"
       caddy_1: gatus.home gatus.pipusznicy
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 8080}}"
-      # Homepage service discovery
-      homepage.group: Monitoring
-      homepage.name: Gatus
-      homepage.icon: gatus.png
-      homepage.href: https://gatus.pipusznicy.cloud
-      homepage.description: Automated Service Health Dashboard
-      homepage.weight: 30
-      homepage.widget.type: gatus
-      homepage.widget.url: http://gatus:8080
-
 networks:
   caddy:
     external: true

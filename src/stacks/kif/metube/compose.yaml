@@ -19,21 +19,12 @@ services:
       retries: 3
       start_period: 10s
     labels:
-      # Caddy reverse proxy
       caddy_0: metube.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 8081}}"
       caddy_1: metube.home metube.pipusznicy
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 8081}}"
-      # Homepage service discovery
-      homepage.group: Apps
-      homepage.name: MeTube
-      homepage.icon: metube.png
-      homepage.href: https://metube.pipusznicy.cloud
-      homepage.description: YouTube Downloader
-      homepage.weight: 30
-
 networks:
   caddy:
     external: true

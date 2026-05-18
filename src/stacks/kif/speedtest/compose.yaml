@@ -27,7 +27,6 @@ services:
       retries: 3
       start_period: 15s
     labels:
-      # Caddy reverse proxy
       caddy_0: speedtest.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 80}}"
@@ -36,16 +35,6 @@ services:
       caddy_1.reverse_proxy: "{{upstreams 80}}"
       # Monitoring
       monitor.url: "https://speedtest.pipusznicy.cloud/api/healthcheck"
-      # Homepage service discovery
-      homepage.group: Monitoring
-      homepage.name: Speedtest Tracker
-      homepage.icon: speedtest-tracker.png
-      homepage.href: https://speedtest.pipusznicy.cloud
-      homepage.description: Internet Speed Tracking
-      homepage.weight: 40
-      homepage.widget.type: speedtest
-      homepage.widget.url: http://speedtest-tracker:80
-
 networks:
   caddy:
     external: true

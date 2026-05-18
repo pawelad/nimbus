@@ -17,8 +17,9 @@
 
 - name: "Ensure Homepage stack is up to date"
   ansible.builtin.import_role:
-    name: common
-    tasks_from: ensure_stack
+    name: "common"
+    tasks_from: "ensure_stack"
   vars:
-    stack_name: homepage
+    stack_name: "homepage"
     env_template: "{{ inventory_hostname }}/homepage.env.j2"
+    force_deploy: "homepage"

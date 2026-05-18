@@ -41,13 +41,8 @@ services:
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 1945}}"
       # Homepage service discovery
-      homepage.group: Apps
-      homepage.name: Tretter Getter
       # TODO: Homepage icon
       # homepage.icon: sh-na-dobre-i-na-zle.png
-      homepage.href: https://tretter.pipusznicy.cloud
-      homepage.description: TVP VOD Recorder
-      homepage.weight: 50
     pull_policy: build
 
 networks:

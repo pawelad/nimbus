@@ -1,32 +1,79 @@
 ---
-title: Kif
-useEqualHeights: true
+title: Państwo Pipusznicy
+
+favicon: /images/krokiet-favicon.ico
+
 background:
   image: /images/yash-rai-JXK8dh3DKBg-unsplash.jpg
   brightness: 50
   blur: xs
 
-layout:
-  # Home Tab
-  Automation:
-    tab: Home
-    style: row
-    columns: 2
-  Apps:
-    tab: Home
-    style: row
-    columns: 4
+headerStyle: clean
+target: _blank
+statusStyle: "dot"
 
-  # Server Tab
-  Media:
-    tab: Server
+layout:
+  # home
+  Apps:
+    tab: home
+    style: column
+    Apps Widgets:
+      header: false
+      style: row
+      columns: 3
+    Apps Main:
+      header: false
+      style: row
+      columns: 4
+
+  Servers:
+    tab: home
     style: row
     columns: 2
+
+  # lab
+  Kif:
+    tab: lab
+    style: column
+    Kif Main:
+      header: false
+      style: row
+      columns: 2
+    Kif Headscale:
+      header: false
+      style: row
+      columns: 1
+
+  Zapp:
+    tab: lab
+    style: column
+    Zapp Main:
+      header: false
+      style: row
+      columns: 2
+    Zapp Headscale:
+      header: false
+      style: row
+      columns: 1
+
   Infrastructure:
-    tab: Server
+    tab: lab
     style: row
-    columns: 4
+    columns: 5
+
   Monitoring:
-    tab: Server
+    tab: lab
+    style: column
+    Monitoring Main:
+      header: false
+      style: row
+      columns: 5
+    Monitoring Extra:
+      header: false
+      style: row
+      columns: 2
+
+  Stremio:
+    tab: lab
     style: row
     columns: 4

@@ -15,7 +15,6 @@ services:
     healthcheck:
       test: [ "CMD", "/dozzle", "healthcheck" ]
     labels:
-      # Caddy reverse proxy
       caddy_0: dozzle.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 8080}}"
@@ -24,14 +23,6 @@ services:
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 8080}}"
       caddy_1.reverse_proxy.flush_interval: "-1"
-      # Homepage service discovery
-      homepage.group: Monitoring
-      homepage.name: Dozzle
-      homepage.icon: dozzle.png
-      homepage.href: https://dozzle.pipusznicy.cloud
-      homepage.description: Log Viewer
-      homepage.weight: 40
-
 networks:
   caddy:
     external: true

@@ -18,20 +18,12 @@ services:
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:61208/ || exit 1
     labels:
-      # Caddy reverse proxy
       caddy_0: glances.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 61208}}"
       caddy_1: glances.home glances.pipusznicy
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 61208}}"
-      # Homepage service discovery
-      homepage.group: Infrastructure
-      homepage.name: Glances
-      homepage.icon: glances.png
-      homepage.href: https://glances.pipusznicy.cloud
-      homepage.description: System Monitor
-      homepage.weight: 50
     pid: host
 
 networks:

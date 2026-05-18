@@ -37,7 +37,6 @@ services:
       timeout: 10s
       retries: 3
     labels:
-      # Caddy reverse proxy (WebSocket route)
       caddy_0: multica.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.@ws: path /ws /ws/*
@@ -88,21 +87,12 @@ services:
       timeout: 10s
       retries: 3
     labels:
-      # Caddy reverse proxy
       caddy_0: multica.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
       caddy_1: multica.home multica.pipusznicy
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 3000}}"
-      # Homepage service discovery
-      homepage.group: Apps
-      homepage.name: Multica
-      homepage.icon: multica.png
-      homepage.href: https://multica.pipusznicy.cloud
-      homepage.description: Multi-agent AI platform
-      homepage.weight: 50
-
 networks:
   caddy:
     external: true

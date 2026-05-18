@@ -39,7 +39,6 @@ services:
       retries: 3
       start_period: 10s
     labels:
-      # Caddy reverse proxy
       caddy_0: monetr.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 4000}}"
@@ -48,13 +47,6 @@ services:
       caddy_1.reverse_proxy: "{{upstreams 4000}}"
       # LoggiFly
       loggifly.monitor: "true"
-      # Homepage service discovery
-      homepage.group: Apps
-      homepage.name: Monetr
-      homepage.icon: monetr.png
-      homepage.href: ${MONETR_URL}
-      homepage.description: Personal Finance
-
   postgres:
     image: postgres:17.4
     container_name: monetr-postgres

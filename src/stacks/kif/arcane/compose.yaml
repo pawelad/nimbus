@@ -31,7 +31,6 @@ services:
       retries: 3
       start_period: 15s
     labels:
-      # Caddy reverse proxy
       caddy_0: arcane.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 3000}}"
@@ -41,14 +40,6 @@ services:
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "errors=\\d+"
-      # Homepage service discovery
-      homepage.group: Infrastructure
-      homepage.name: Arcane
-      homepage.icon: arcane.png
-      homepage.href: https://arcane.pipusznicy.cloud
-      homepage.description: Docker Manager
-      homepage.weight: 20
-
 networks:
   caddy:
     external: true

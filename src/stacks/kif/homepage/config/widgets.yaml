@@ -1,12 +1,12 @@
 ---
-- glances:
-    version: 4
-    url: http://glances:61208
-    cpu: true
-    mem: true
-    cputemp: true
-    uptime: true
-    disk:
-      - /
-      - /data
-    expanded: false
+- logo:
+    icon: /images/krokiet.png
+- openmeteo:
+    label: Kraków
+    latitude: 50
+    longitude: 20
+    timezone: Europe/Warsaw
+    units: metric
+    cache: 5
+    format:
+      maximumFractionDigits: 1

@@ -21,7 +21,6 @@ services:
       retries: 3
       start_period: 15s
     labels:
-      # Caddy reverse proxy
       caddy_0: mealie.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 9000}}"
@@ -30,13 +29,6 @@ services:
       caddy_1.reverse_proxy: "{{upstreams 9000}}"
       # LoggiFly
       loggifly.monitor: "true"
-      # Homepage service discovery
-      homepage.group: Apps
-      homepage.name: Mealie
-      homepage.icon: mealie.png
-      homepage.href: ${MEALIE_URL}
-      homepage.description: Recipe Manager
-
 networks:
   caddy:
     external: true

@@ -19,7 +19,6 @@ services:
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:5001/ || exit 1
     labels:
-      # Caddy reverse proxy
       caddy_0: dockge.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 5001}}"
@@ -32,14 +31,6 @@ services:
       caddy_1.reverse_proxy.transport: http
       caddy_1.reverse_proxy.transport.keepalive: 2s
       caddy_1.reverse_proxy.flush_interval: -1
-      # Homepage service discovery
-      homepage.group: Infrastructure
-      homepage.name: Dockge
-      homepage.icon: dockge.png
-      homepage.href: https://dockge.pipusznicy.cloud
-      homepage.description: Stack Manager
-      homepage.weight: 30
-
 networks:
   caddy:
     external: true

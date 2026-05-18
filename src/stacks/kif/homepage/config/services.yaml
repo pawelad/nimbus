@@ -1,11 +1,292 @@
 ---
+# home
 - Apps:
-    - Mealie:
-        icon: mealie.png
-        href: https://mealie.pawelad.me
-        description: Recipe Manager
+    - Apps Widgets:
+        - AdGuard Home:
+            icon: adguard-home
+            href: https://adguard.pipusznicy.cloud
+            server: kif
+            container: adguard
+            widget:
+              type: adguard
+              url: http://adguard:2000
+              username: "{{HOMEPAGE_VAR_ADGUARD_USERNAME}}"
+              password: "{{HOMEPAGE_VAR_ADGUARD_PASSWORD}}"
+
+        - Home Assistant:
+            icon: home-assistant
+            href: https://ha.pipusznicy.cloud
+            server: kif
+            container: home-assistant
+            widget:
+              type: homeassistant
+              url: http://host.docker.internal:8123
+              key: "{{HOMEPAGE_VAR_HA_TOKEN}}"
+
+        - Speedtest Tracker:
+            icon: speedtest-tracker
+            href: https://speedtest.pipusznicy.cloud
+            server: kif
+            container: speedtest-tracker
+            widget:
+              type: speedtest
+              url: http://speedtest-tracker:80
+
+    - Apps Main:
+        - Mealie:
+            icon: mealie
+            href: https://mealie.pawelad.me
+            server: kif
+            container: mealie
+
+        - MeTube:
+            icon: metube
+            href: https://metube.pipusznicy.cloud
+            server: kif
+            container: metube
+
+        - Monetr:
+            icon: monetr
+            href: https://monetr.pawelad.me
+            server: kif
+            container: monetr-app
+
+        - Multica:
+            icon: sh-claude
+            href: https://multica.pipusznicy.cloud
+            server: kif
+            container: multica-web
+
+        - Open WebUI:
+            icon: open-webui
+            href: https://llm.pipusznicy.cloud
+            server: kif
+            container: open-webui
+
+        - Stirling PDF:
+            icon: stirling-pdf
+            href: https://pdf.pipusznicy.cloud
+            server: kif
+            container: stirling-pdf
+
+        - Tretter Getter:
+            icon: tvp-vod
+            href: https://tretter.pipusznicy.cloud
+            server: kif
+            container: tretter-getter-app
+
+        - YamTrack:
+            icon: yamtrack
+            href: https://yamtrack.pawelad.me
+            server: kif
+            container: yamtrack
+
+- Servers:
+    - Kif:
+        icon: /images/kif.png
         widget:
-          type: mealie
-          url: "{{HOMEPAGE_VAR_MEALIE_URL}}"
-          key: "{{HOMEPAGE_VAR_MEALIE_API_KEY}}"
+          type: beszel
+          url: http://beszel:8090
+          username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+          password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+          systemId: "{{HOMEPAGE_VAR_BESZEL_KIF_SYSTEM_ID}}"
           version: 2
+          fields: ["status", "cpu", "memory", "disk"]
+
+    - Zapp:
+        icon: /images/zapp.png
+        widget:
+          type: beszel
+          url: http://beszel:8090
+          username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+          password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+          systemId: "{{HOMEPAGE_VAR_BESZEL_ZAPP_SYSTEM_ID}}"
+          version: 2
+          fields: ["status", "cpu", "memory", "disk"]
+
+# lab
+- Kif:
+    - Kif Main:
+        - CPU Usage:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: cpu
+
+        - Memory Usage:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: memory
+
+        - CPU Temp:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: sensor:Package id 0
+
+        - Top Process:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: process
+
+    - Kif Headscale:
+        - Kif:
+            icon: /images/kif.png
+            widget:
+              type: headscale
+              url: "{{HOMEPAGE_VAR_HEADSCALE_URL}}"
+              key: "{{HOMEPAGE_VAR_HEADSCALE_KEY}}"
+              nodeId: {{HOMEPAGE_VAR_HEADSCALE_KIF_NODE_ID}}
+              fields: ["address", "last_seen", "status"]
+
+- Zapp:
+    - Zapp Main:
+        - CPU Usage:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: cpu
+
+        - Network Usage:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: network:eth0
+
+        - CPU Temp:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: sensor:Package id 0
+
+        - Top Process:
+            widget:
+              type: glances
+              url: http://glances:61208
+              version: 4
+              metric: process
+
+    - Zapp Headscale:
+        - Zapp:
+            icon: /images/zapp.png
+            widget:
+              type: headscale
+              url: "{{HOMEPAGE_VAR_HEADSCALE_URL}}"
+              key: "{{HOMEPAGE_VAR_HEADSCALE_KEY}}"
+              nodeId: {{HOMEPAGE_VAR_HEADSCALE_ZAPP_NODE_ID}}
+              fields: ["address", "last_seen", "status"]
+
+- Infrastructure:
+    - Arcane:
+        icon: arcane
+        href: https://arcane.pipusznicy.cloud
+        server: kif
+        container: arcane
+
+    - Dockge:
+        icon: dockge
+        href: https://dockge.pipusznicy.cloud
+        server: kif
+        container: dockge
+
+    - Headscale:
+        icon: headscale
+        href: https://vpn.pawelad.me
+
+    - Komodo:
+        icon: komodo
+        href: https://komodo.pipusznicy.cloud
+        server: kif
+        container: komodo-core
+
+    - Zigbee2MQTT:
+        icon: zigbee2mqtt
+        href: https://z2m.pipusznicy.cloud
+        server: kif
+        container: zigbee2mqtt
+
+- Monitoring:
+    - Monitoring Main:
+        - Apprise:
+            icon: apprise
+            href: https://apprise.pipusznicy.cloud
+            server: kif
+            container: apprise
+
+        - Beszel:
+            icon: beszel
+            href: https://beszel.pipusznicy.cloud
+            server: kif
+            container: beszel
+
+        - Dozzle:
+            icon: dozzle
+            href: https://dozzle.pipusznicy.cloud
+            server: kif
+            container: dozzle
+
+        - Glances:
+            icon: glances
+            href: https://glances.pipusznicy.cloud
+            server: kif
+            container: glances
+
+        - ntfy:
+            icon: ntfy
+            href: https://ntfy.pipusznicy.cloud
+            server: kif
+            container: ntfy
+
+    - Monitoring Extra:
+        - Gatus:
+            icon: gatus.png
+            href: https://gatus.pipusznicy.cloud
+            server: kif
+            container: gatus
+            widget:
+              type: gatus
+              url: http://gatus:8080
+
+        - Uptime Kuma:
+            icon: uptime-kuma.png
+            href: https://uptime.pipusznicy.cloud
+            server: kif
+            container: uptime-kuma-app
+            widget:
+              type: uptimekuma
+              url: http://uptime-kuma:3001
+              slug: kif
+
+- Stremio:
+    - AIOStreams:
+        icon: sh-aiostreams
+        href: https://aiostreams.pipusznicy.cloud
+        server: kif
+        container: aiostreams
+
+    - Comet:
+        icon: stremio
+        href: https://comet.pipusznicy.cloud
+        server: kif
+        container: comet-app
+
+    - DMM:
+        icon: real-debrid
+        href: https://dmm.pipusznicy.cloud
+        server: kif
+        container: dmm-app
+
+    - Prowlarr:
+        icon: prowlarr
+        href: https://prowlarr.pipusznicy.cloud
+        server: kif
+        container: prowlarr

@@ -40,18 +40,6 @@ services:
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 9120}}"
       komodo.skip: "" # Prevent Komodo from stopping with StopAllContainers
-      # Homepage service discovery
-      homepage.group: Infrastructure
-      homepage.name: Komodo
-      homepage.icon: komodo.png
-      homepage.href: https://komodo.pipusznicy.cloud
-      homepage.description: Container Manager
-      homepage.weight: 10
-      homepage.widget.type: komodo
-      homepage.widget.url: http://komodo-core:9120
-      homepage.widget.key: "{{HOMEPAGE_VAR_KOMODO_APIKEY}}"
-      homepage.widget.secret: "{{HOMEPAGE_VAR_KOMODO_SECRET}}"
-
   mongo:
     image: mongo:8.2.5
     container_name: komodo-mongo

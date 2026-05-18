@@ -51,7 +51,6 @@ services:
       retries: 3
       start_period: 15s
     labels:
-      # Caddy reverse proxy
       caddy_0: uptime.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
       caddy_0.reverse_proxy: "{{upstreams 3001}}"
@@ -61,17 +60,6 @@ services:
       # LoggiFly
       loggifly.monitor: "true"
       loggifly.excluded_keywords: "Connection lost" # During restart
-      # Homepage service discovery
-      homepage.group: Monitoring
-      homepage.name: Uptime Kuma
-      homepage.icon: uptime-kuma.png
-      homepage.href: https://uptime.pipusznicy.cloud
-      homepage.description: Monitoring Tool
-      homepage.weight: 70
-      homepage.widget.type: uptimekuma
-      homepage.widget.url: http://uptime-kuma:3001
-      homepage.widget.slug: kif
-
 networks:
   caddy:
     external: true

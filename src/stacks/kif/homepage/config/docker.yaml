@@ -1,4 +1,4 @@
 ---
-local:
+kif:
   host: homepage-socket-proxy
   port: 2375
