@@ -43,3 +43,9 @@
   ansible.builtin.service:
     name: ufw
     state: restarted
+
+- name: "Restart Traefik"
+  community.docker.docker_container:
+    name: "dokploy-traefik"
+    state: "started"
+    restart: true

@@ -1,24 +1,48 @@
 ---
+- name: "Get home external IP from Kif"
+  ansible.builtin.uri:
+    url: "https://api.ipify.org"
+    return_content: true
+  delegate_to: "kif"
+  register: "_home_ip_kif"
+  ignore_errors: true
+  run_once: true
+
+- name: "Get home external IP from localhost fallback"
+  ansible.builtin.uri:
+    url: "https://api.ipify.org"
+    return_content: true
+  delegate_to: "localhost"
+  register: "_home_ip_local"
+  when: "_home_ip_kif is failed or _home_ip_kif.content is not defined"
+  run_once: true
+
+- name: "Set home external IP fact"
+  ansible.builtin.set_fact:
+    home_external_ip: >-
+      {{ (_home_ip_kif.content | default(None) or
+          _home_ip_local.content | default(None) or '') | trim }}
+
 - name: "Ensure CrowdSec stack is deployed"
   ansible.builtin.import_role:
-    name: common
-    tasks_from: ensure_stack
+    name: "common"
+    tasks_from: "ensure_stack"
   vars:
-    stack_name: crowdsec
+    stack_name: "crowdsec"
 
 - name: "Configure Traefik Bouncer API Key in Crowdsec Engine"
   ansible.builtin.command: >
     docker exec crowdsec cscli bouncers add traefik-bouncer -k "{{ crowdsec_traefik_bouncer_key }}"
-  register: _add_bouncer
+  register: "_add_bouncer"
   failed_when:
-    - _add_bouncer.rc != 0
+    - "_add_bouncer.rc != 0"
     - "'already exists' not in _add_bouncer.stderr"
-  changed_when: _add_bouncer.rc == 0
+  changed_when: "_add_bouncer.rc == 0"
   no_log: true
 
 - name: "Inject CrowdSec Bouncer plugin into Traefik static config"
   ansible.builtin.blockinfile:
-    path: /etc/dokploy/traefik/traefik.yml
+    path: "/etc/dokploy/traefik/traefik.yml"
     marker: "# {mark} ANSIBLE MANAGED BLOCK: CROWDSEC CONFIG"
     block: |
       accessLog:
@@ -29,7 +53,7 @@
           bouncer:
             moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
             version: v1.5.1
-  register: _traefik_static_config
+  notify: "Restart Traefik"
 
 - name: "Inject CrowdSec Bouncer middleware into websecure entrypoint by default"
   ansible.builtin.replace:
@@ -45,22 +69,17 @@
           http:
             middlewares:
               - "crowdsec-bouncer@file"
-  register: "_traefik_entrypoint_config"
-
-- name: "Restart dokploy-traefik to load static configuration"
-  ansible.builtin.command: docker restart dokploy-traefik
-  when: _traefik_static_config.changed or _traefik_entrypoint_config.changed
-  changed_when: _traefik_static_config.changed or _traefik_entrypoint_config.changed
+  notify: "Restart Traefik"
 
 - name: "Ensure dynamic middleware directory exists"
   ansible.builtin.file:
-    path: /etc/dokploy/traefik/dynamic
-    state: directory
+    path: "/etc/dokploy/traefik/dynamic"
+    state: "directory"
     mode: "0755"
 
 - name: "Inject Crowdsec Bouncer Middleware dynamically"
   ansible.builtin.copy:
-    dest: /etc/dokploy/traefik/dynamic/middlewares.yml
+    dest: "/etc/dokploy/traefik/dynamic/middlewares.yml"
     content: |
       # ANSIBLE MANAGED
       http:
@@ -89,8 +108,8 @@
 
 - name: "Get Dokploy-Traefik container info"
   community.docker.docker_container_info:
-    name: dokploy-traefik
-  register: _traefik_info
+    name: "dokploy-traefik"
+  register: "_traefik_info"
 
 - name: "Set Traefik log path fact"
   ansible.builtin.set_fact:
@@ -99,7 +118,7 @@
 - name: "Ensure Crowdsec configuration directory exists"
   ansible.builtin.file:
     path: "{{ repo_stacks_dir }}/crowdsec/data/config/acquis.d"
-    state: directory
+    state: "directory"
     mode: "0755"
 
 - name: "Configure CrowdSec Acquisition (zapp.yaml)"
@@ -128,3 +147,35 @@
         type: appsec
     mode: "0644"
   notify: "Restart CrowdSec"
+
+- name: "Warn if home external IP could not be resolved"
+  ansible.builtin.debug:
+    msg: "WARNING: Could not resolve home external IP. CrowdSec whitelist and unbanning tasks will be skipped."
+  when: "home_external_ip | length == 0"
+
+- name: "Ensure Crowdsec s02-enrich directory exists"
+  ansible.builtin.file:
+    path: "{{ repo_stacks_dir }}/crowdsec/data/config/parsers/s02-enrich"
+    state: "directory"
+    mode: "0755"
+  when: "home_external_ip | length > 0"
+
+- name: "Configure Crowdsec Home Whitelist"
+  ansible.builtin.template:
+    src: "zapp/crowdsec-whitelist.yaml.j2"
+    dest: "{{ repo_stacks_dir }}/crowdsec/data/config/parsers/s02-enrich/home-whitelist.yaml"
+    mode: "0644"
+  register: "_crowdsec_whitelist"
+  notify: "Restart CrowdSec"
+  when: "home_external_ip | length > 0"
+
+- name: "Flush handlers to restart CrowdSec if needed"
+  ansible.builtin.meta: "flush_handlers"
+
+- name: "Unban home external IP in CrowdSec"
+  ansible.builtin.command: >
+    docker exec crowdsec cscli decisions delete --ip "{{ home_external_ip }}"
+  register: "_unban_ip"
+  failed_when: false
+  changed_when: "'0 decisions deleted' not in _unban_ip.stdout"
+  when: "home_external_ip | length > 0"

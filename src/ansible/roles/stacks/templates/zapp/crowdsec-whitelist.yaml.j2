@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+name: "pawelad/home-whitelist"
+description: "Whitelist dynamically determined home external IP"
+filter: "1 == 1"
+whitelist:
+  reason: "Home external IP address"
+  ip:
+    - "{{ home_external_ip }}"
