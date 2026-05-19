@@ -177,5 +177,5 @@
     docker exec crowdsec cscli decisions delete --ip "{{ home_external_ip }}"
   register: "_unban_ip"
   failed_when: false
-  changed_when: "'0 decisions deleted' not in _unban_ip.stdout"
+  changed_when: "'0 decision(s) deleted' not in _unban_ip.stdout"
   when: "home_external_ip | length > 0"
