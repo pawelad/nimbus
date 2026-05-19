@@ -3,20 +3,10 @@ name: glances
 
 services:
   glances:
-    image: nicolargo/glances:4.5.0.5
-    container_name: glances
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /data:/data:ro
-    environment:
-      GLANCES_OPT: "-w"
     ports:
       - "0.0.0.0:61208:61208"
     networks:
       - caddy
-    restart: unless-stopped
-    healthcheck:
-      test: curl --connect-timeout 10 --silent --show-error --fail http://127.0.0.1:61208/ || exit 1
     labels:
       caddy_0: glances.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
@@ -24,7 +14,9 @@ services:
       caddy_1: glances.home glances.pipusznicy
       caddy_1.tls: internal
       caddy_1.reverse_proxy: "{{upstreams 61208}}"
-    pid: host
+    extends:
+      file: ../../common/glances/base.yaml
+      service: glances-base
 
 networks:
   caddy:

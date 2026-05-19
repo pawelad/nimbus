@@ -22,3 +22,7 @@
 - name: "Include CrowdSec tasks"
   ansible.builtin.import_tasks: zapp/crowdsec.yml
   tags: [crowdsec]
+
+- name: "Include Glances tasks"
+  ansible.builtin.import_tasks: zapp/glances.yml
+  tags: [glances]

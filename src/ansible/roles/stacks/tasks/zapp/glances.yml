@@ -1,0 +1,16 @@
+---
+- name: "Allow Glances port through UFW (Tailscale)"
+  community.general.ufw:
+    rule: allow
+    src: "{{ tailscale_subnet }}"
+    direction: in
+    port: "61208"
+    proto: tcp
+    comment: "Glances (Tailscale)"
+
+- name: "Ensure Glances stack is up to date"
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: ensure_stack
+  vars:
+    stack_name: glances

@@ -1,0 +1,9 @@
+---
+name: glances
+
+services:
+  glances:
+    network_mode: host
+    extends:
+      file: ../../common/glances/base.yaml
+      service: glances-base
