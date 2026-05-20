@@ -14,6 +14,7 @@ The infrastructure is split across two primary nodes: a public-facing VPS (`zapp
   - **Traefik:** Reverse proxy handling public traffic routing and Let's Encrypt TLS certificates. Runs standalone (via `docker run`) to preserve true client IP addresses instead of Docker Swarm's ingress network masking.
   - **Headscale & Headplane:** The control plane and web UI for the private Tailscale VPN.
   - **Rathole (Server):** Secure tunneling software used to expose specific services from the private `kif` server to the public internet (e.g., Stremio add-ons).
+  - **Glances:** System monitoring tool running in host-network mode to expose server hardware and system metrics over Tailscale.
 
 ### 2. Kif (The Powerhouse)
 - **Role:** Home automation, media, and internal services host.
@@ -21,7 +22,7 @@ The infrastructure is split across two primary nodes: a public-facing VPS (`zapp
 - **Key Services:**
   - **Caddy:** Internal reverse proxy automatically routing traffic for local services. Paired with an `acme.sh` sidecar that manages a Let's Encrypt wildcard certificate for `*.pipusznicy.cloud` via Cloudflare DNS-01 challenges. Uses a **dual-TLS label strategy**: each service gets two Caddy site blocks (`caddy_0` for the FQDN with the LE wildcard cert, `caddy_1` for local `.home`/`.pipusznicy` domains with Caddy's internal CA).
   - **AdGuard Home:** Local DNS server handling DNS rewrites for custom domains (`*.pipusznicy.cloud`, `*.home`, `*.pipusznicy`). Uses a **dual-IP resolution** strategy, returning both the LAN IP (preferred) and Tailscale IP for each domain.
-  - **Application Stacks:** Home automation (Home Assistant), monitoring (Gatus, Komodo, Beszel), notifications (ntfy, Apprise), utilities (Stirling PDF, MeTube, Ollama), and more.
+  - **Application Stacks:** Home automation (Home Assistant), monitoring (Gatus, Komodo, Beszel, Glances), notifications (ntfy, Apprise), utilities (Stirling PDF, MeTube, Ollama), and more.
   - **Rathole (Client):** Connects to `zapp` to tunnel local services (like `aiostreams` on port `3000`) so they can be exposed publicly by Traefik.
 
 ## Networking & DNS

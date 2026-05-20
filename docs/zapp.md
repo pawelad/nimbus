@@ -22,7 +22,7 @@ Zapp represents the public-facing gateway and lightweight computing node in the 
 2. **Headscale (Control Plane):** The master authentication and key-distribution node for the private Tailscale VPN mesh. Also runs an embedded DERP relay server (STUN on UDP `3478`) for NAT traversal fallback.
 3. **Headplane (Dashboard):** A rich UI interface for managing Headscale's nodes, API keys, and DNS configurations.
 4. **Rathole (Server):** Acts as the public termination point for secure reverse tunnels from the `kif` server. It listens publicly (`2333`) for tunnel connections and internally (`3030`) for Traefik routing to forward specific services to the web (e.g., proxying traffic for Stremio addons via `stremio.pawelad.me`).
-5. **Monitoring Extensions:** Tailscale Agent, Beszel Agent, Komodo Periphery.
+5. **Monitoring Extensions:** Tailscale Agent, Beszel Agent, Komodo Periphery, Glances.
 
 ## Let's Encrypt TLS Certificates
 Traefik on `zapp` leverages HTTP-01 challenges to validate domain ownership (`stremio.pawelad.me`, `vpn.pawelad.me`, etc.) and seamlessly establish automatic, public, trusted green-padlock HTTPS encryption.

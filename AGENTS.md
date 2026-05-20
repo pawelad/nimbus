@@ -18,7 +18,7 @@ The relationship and hosting strategy between them:
 - **Hosting Strategy**: Zapp acts as the public gateway and hosts lightweight web apps. Kif is the powerhouse; all heavy or internal self-hosted services (e.g. Home Assistant, Stremio, media) should be deployed to Kif's 16GB pool.
 - **Rathole** tunnels traffic from Zapp (public IP) → Kif (behind NAT) for exposing select home services
 - **Headscale/Tailscale** provides VPN mesh between servers
-- **Beszel + Komodo** monitor both servers
+- **Beszel + Komodo + Glances** monitor both servers
 
 ## Conventions
 
