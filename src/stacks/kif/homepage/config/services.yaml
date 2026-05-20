@@ -154,19 +154,19 @@
               version: 4
               metric: cpu
 
+        - Memory Usage:
+            widget:
+              type: glances
+              url: http://zapp.net.pipusznicy.cloud:61208
+              version: 4
+              metric: memory
+
         - Network Usage:
             widget:
               type: glances
               url: http://zapp.net.pipusznicy.cloud:61208
               version: 4
               metric: network:eth0
-
-        - CPU Temp:
-            widget:
-              type: glances
-              url: http://zapp.net.pipusznicy.cloud:61208
-              version: 4
-              metric: sensor:Package id 0
 
         - Top Process:
             widget:
