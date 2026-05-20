@@ -1,5 +1,28 @@
 ---
 # home
+- Home Servers:
+    - Kif:
+        icon: /images/kif.png
+        widget:
+          type: beszel
+          url: http://beszel:8090
+          username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+          password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+          systemId: "{{HOMEPAGE_VAR_BESZEL_KIF_SYSTEM_ID}}"
+          version: 2
+          fields: ["status", "cpu", "memory", "disk"]
+
+    - Zapp:
+        icon: /images/zapp.png
+        widget:
+          type: beszel
+          url: http://beszel:8090
+          username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
+          password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
+          systemId: "{{HOMEPAGE_VAR_BESZEL_ZAPP_SYSTEM_ID}}"
+          version: 2
+          fields: ["status", "cpu", "memory", "disk"]
+
 - Apps:
     - Apps Widgets:
         - AdGuard Home:
@@ -81,31 +104,18 @@
             server: kif
             container: yamtrack
 
-- Servers:
-    - Kif:
-        icon: /images/kif.png
-        widget:
-          type: beszel
-          url: http://beszel:8090
-          username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
-          password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
-          systemId: "{{HOMEPAGE_VAR_BESZEL_KIF_SYSTEM_ID}}"
-          version: 2
-          fields: ["status", "cpu", "memory", "disk"]
-
-    - Zapp:
-        icon: /images/zapp.png
-        widget:
-          type: beszel
-          url: http://beszel:8090
-          username: "{{HOMEPAGE_VAR_BESZEL_USER}}"
-          password: "{{HOMEPAGE_VAR_BESZEL_PASSWORD}}"
-          systemId: "{{HOMEPAGE_VAR_BESZEL_ZAPP_SYSTEM_ID}}"
-          version: 2
-          fields: ["status", "cpu", "memory", "disk"]
-
 # lab
 - Kif:
+    - Kif Headscale:
+        - Kif:
+            icon: /images/kif.png
+            widget:
+              type: headscale
+              url: "{{HOMEPAGE_VAR_HEADSCALE_URL}}"
+              key: "{{HOMEPAGE_VAR_HEADSCALE_KEY}}"
+              nodeId: {{HOMEPAGE_VAR_HEADSCALE_KIF_NODE_ID}}
+              fields: [ "address", "last_seen", "status" ]
+
     - Kif Main:
         - CPU Usage:
             widget:
@@ -135,17 +145,17 @@
               version: 4
               metric: process
 
-    - Kif Headscale:
-        - Kif:
-            icon: /images/kif.png
+- Zapp:
+    - Zapp Headscale:
+        - Zapp:
+            icon: /images/zapp.png
             widget:
               type: headscale
               url: "{{HOMEPAGE_VAR_HEADSCALE_URL}}"
               key: "{{HOMEPAGE_VAR_HEADSCALE_KEY}}"
-              nodeId: {{HOMEPAGE_VAR_HEADSCALE_KIF_NODE_ID}}
-              fields: ["address", "last_seen", "status"]
+              nodeId: {{HOMEPAGE_VAR_HEADSCALE_ZAPP_NODE_ID}}
+              fields: [ "address", "last_seen", "status" ]
 
-- Zapp:
     - Zapp Main:
         - CPU Usage:
             widget:
@@ -174,16 +184,6 @@
               url: http://zapp.net.pipusznicy.cloud:61208
               version: 4
               metric: process
-
-    - Zapp Headscale:
-        - Zapp:
-            icon: /images/zapp.png
-            widget:
-              type: headscale
-              url: "{{HOMEPAGE_VAR_HEADSCALE_URL}}"
-              key: "{{HOMEPAGE_VAR_HEADSCALE_KEY}}"
-              nodeId: {{HOMEPAGE_VAR_HEADSCALE_ZAPP_NODE_ID}}
-              fields: ["address", "last_seen", "status"]
 
 - Infrastructure:
     - Arcane:

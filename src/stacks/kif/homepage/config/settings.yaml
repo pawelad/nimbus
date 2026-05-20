@@ -14,6 +14,12 @@ statusStyle: "dot"
 
 layout:
   # home
+  Home Servers:
+    tab: home
+    header: false
+    style: row
+    columns: 2
+
   Apps:
     tab: home
     style: column
@@ -26,35 +32,32 @@ layout:
       style: row
       columns: 4
 
-  Servers:
-    tab: home
-    style: row
-    columns: 2
-
   # lab
   Kif:
     tab: lab
+    header: false
     style: column
-    Kif Main:
-      header: false
-      style: row
-      columns: 2
     Kif Headscale:
       header: false
       style: row
       columns: 1
-
-  Zapp:
-    tab: lab
-    style: column
-    Zapp Main:
+    Kif Main:
       header: false
       style: row
       columns: 2
+
+  Zapp:
+    tab: lab
+    header: false
+    style: column
     Zapp Headscale:
       header: false
       style: row
       columns: 1
+    Zapp Main:
+      header: false
+      style: row
+      columns: 2
 
   Infrastructure:
     tab: lab
