@@ -266,7 +266,7 @@
               url: http://uptime-kuma:3001
               slug: kif
 
-- Stremio:
+- Media:
     - AIOStreams:
         icon: sh-aiostreams
         href: https://aiostreams.pipusznicy.cloud

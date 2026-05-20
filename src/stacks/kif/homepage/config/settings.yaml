@@ -76,7 +76,7 @@ layout:
       style: row
       columns: 2
 
-  Stremio:
+  Media:
     tab: lab
     style: row
     columns: 4
