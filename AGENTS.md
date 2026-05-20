@@ -103,21 +103,25 @@ The relationship and hosting strategy between them:
 
 ### Tooling
 - **Rule**: Tools in `src/tools` SHOULD have a `Makefile` with standard targets.
-- **Go tools** (`tretter-getter`): `make build`, `make check`, `make test`, `make docker-build`, `make help`.
-- **Python tools** (`gatus_sync`, `uptime_kuma_sync`): `make run`, `make format`, `make help`. Run via `uv run`.
-- **Reason**: Consistent developer experience across different tools.
+  - **Go tools** (`tretter-getter`): `make build`, `make check`, `make test`, `make docker-build`, `make help`.
+  - **Python tools** (`gatus_sync`, `uptime_kuma_sync`): `make run`, `make format`, `make help`. Run via `uv run`.
+  - **Reason**: Ensures a consistent developer experience across different tools.
+- **Rule**: Nested tools are excluded from the root `make check` to keep global linting fast. When modifying code under `src/tools/`, you MUST run the local `make check` (or equivalent test/format targets) within that specific tool's subdirectory.
+  - **Reason**: Keeps global build checks fast while ensuring tool-specific validation runs when changes occur.
 
 ### Documentation
 - **Rule**: When adding a new stack, server, or changing infrastructure (DNS, networking, security), update the relevant `docs/` files and this `AGENTS.md`.
-- **DNS/domain changes**: Update `docs/architecture.md` (Networking & DNS section) and `docs/vpn.md` (Split DNS).
-- **Security changes**: Update `docs/security.md`.
-- **Reason**: Documentation drifts from reality quickly. Keeping it in sync during the change is far easier than auditing later.
+  - **DNS/domain changes**: Update `docs/architecture.md` (Networking & DNS section) and `docs/vpn.md` (Split DNS).
+  - **Security changes**: Update `docs/security.md`.
+  - **Reason**: Documentation drifts from reality quickly. Keeping it in sync during the change is far easier than auditing later.
 
 ### Git & Commits
 - **Rule**: All commits to this repository MUST follow the **Conventional Commits** specification.
-- **Format**: `<type>(<scope>): <description>` (e.g., `feat(mealie): add healthcheck configuration`).
-- **Allowed Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-- **Reason**: Maintains a clean, searchable git history and facilitates automated changelog generation.
+  - **Format**: `<type>(<scope>): <description>` (e.g., `feat(mealie): add healthcheck configuration`).
+  - **Allowed Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+  - **Reason**: Maintains a clean, searchable git history and facilitates automated changelog generation.
+- **Rule**: Agents MUST always suggest a Git commit message conforming to the Conventional Commits specification whenever they complete a task or suggest code changes that should be committed.
+  - **Reason**: Simplifies the commit process for the user and ensures high-quality commit history conforming to repository standards.
 
 ### Adding a New Kif Stack
 When adding a new service to Kif, the following files must be created/updated:

@@ -18,8 +18,6 @@ install: ## Install necessary dependencies for all components
 check: ## Run code linters
 	$(MAKE) -C src/ansible check
 	$(MAKE) -C src/terraform format
-	$(MAKE) -C src/tools/gatus_sync check
-	$(MAKE) -C src/tools/uptime_kuma_sync check
 	yamllint .
 	npx dclint -r src/stacks
 
