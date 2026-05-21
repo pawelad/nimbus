@@ -8,22 +8,14 @@ services:
     volumes:
       - /data/apps/adguard/work:/opt/adguardhome/work
       - /data/apps/adguard/conf:/opt/adguardhome/conf
-    ports:
-      - "0.0.0.0:53:53/tcp"
-      - "0.0.0.0:53:53/udp"
-      - "0.0.0.0:2000:2000/tcp"
-    networks:
-      - caddy
+    network_mode: host
     restart: unless-stopped
     healthcheck:
       test: nslookup healthcheck.adguardhome.test 127.0.0.1 || exit 1
     labels:
       caddy_0: adguard.pipusznicy.cloud
       caddy_0.tls: ${ACME_TLS_CERT} ${ACME_TLS_KEY}
-      caddy_0.reverse_proxy: "{{upstreams 2000}}"
+      caddy_0.reverse_proxy: "host.docker.internal:2000"
       caddy_1: adguard.home adguard.pipusznicy
       caddy_1.tls: internal
-      caddy_1.reverse_proxy: "{{upstreams 2000}}"
-networks:
-  caddy:
-    external: true
+      caddy_1.reverse_proxy: "host.docker.internal:2000"

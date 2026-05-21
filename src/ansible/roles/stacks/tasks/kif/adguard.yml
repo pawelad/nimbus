@@ -47,6 +47,12 @@
     validate: >-
       python3 -c "import yaml; yaml.safe_load(open('%s'))"
 
+- name: "Allow AdGuard Home Web UI"
+  community.general.ufw:
+    rule: allow
+    port: "2000"
+    proto: tcp
+
 - name: "Ensure AdGuard Home stack is up to date"
   ansible.builtin.import_role:
     name: common
