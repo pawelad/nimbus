@@ -21,3 +21,7 @@ To achieve this without opening ports on `kif`'s home router:
 
 ## Local Services
 Other supplementary services (Comet, Debrid Media Manager, Prowlarr) are internal — accessible only via the LAN or Tailnet using `*.pipusznicy.cloud` FQDNs (with valid Let's Encrypt wildcard certificates) or local `.home` domain aliases.
+
+> [!NOTE]
+> Stream generator addons like Comet require `PUBLIC_BASE_URL` explicitly configured (e.g. `PUBLIC_BASE_URL: "https://comet.pipusznicy.cloud"`) in `compose.yaml`. This ensures that even when aggregated internally via AIOStreams using Docker networking (`http://comet:8000`), Comet generates stream playback URLs using the resolvable FQDN rather than internal Docker hostnames.
+

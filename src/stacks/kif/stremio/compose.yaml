@@ -53,6 +53,7 @@ services:
       PROWLARR_URL: http://prowlarr:9696
       PROWLARR_API_KEY: ${PROWLARR_API_KEY}
       ANIME_MAPPING_ENABLED: "False"
+      PUBLIC_BASE_URL: "https://comet.pipusznicy.cloud"
     ports:
       - "0.0.0.0:8000:8000"
     networks:
